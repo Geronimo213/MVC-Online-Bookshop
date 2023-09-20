@@ -6,8 +6,8 @@
     ViewData["Title"] = "Categories";
 }
 
-<div class="container">
-    <div class="row pt-4 pb-3">
+<div class="card shadow mt-4 mb-4">
+    <div class="row pt-4 pb-3 m-0 card-header border-0 shadow-none">
         <div class="col-6">
             <h2 class="text-primary">Categories</h2>
         </div>
@@ -15,30 +15,32 @@
             <a asp-controller="Category" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> Category</a>
         </div>
     </div>
-    <table class="table table-bordered table-striped w-100 ">
-        <thead>
-            <tr>
-                <th>
-                    Category Name
-                </th>
-                <th>
-                    Display Order
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach(var obj in Model.OrderBy(u => u.DisplayOrder)) {
-            <tr>
-                <td>@obj.Name</td>
-                <td>@obj.DisplayOrder</td>
-                <td class="text-sm-center">
-                    <div class=" w-75 btn-group" role="group">
-                        <a asp-controller="Category" asp-action="Edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2"><i class="bi bi-pencil-fill"></i> Edit</a>
-                        <a asp-controller="Category" asp-action="Delete" asp-route-id="@obj.Id" class="btn btn-danger mx-2"><i class="bi bi-trash3-fill"></i> Delete</a>
-                    </div>
-                </td>
-            </tr>}
-        </tbody>
-    </table>
+    <div class="card-body">
+        <table class="table table-bordered table-striped w-100 ">
+            <thead>
+                <tr>
+                    <th>
+                        Category Name
+                    </th>
+                    <th>
+                        Display Order
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var obj in Model.OrderBy(u => u.DisplayOrder)) {
+                <tr>
+                    <td>@obj.Name</td>
+                    <td>@obj.DisplayOrder</td>
+                    <td class="text-sm-center">
+                        <div class=" w-75 btn-group" role="group">
+                            <a asp-controller="Category" asp-action="Edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2"><i class="bi bi-pencil-fill"></i> Edit</a>
+                            <a asp-controller="Category" asp-action="Delete" asp-route-id="@obj.Id" class="btn btn-danger mx-2"><i class="bi bi-trash3-fill"></i> Delete</a>
+                        </div>
+                    </td>
+                </tr>}
+            </tbody>
+        </table>
+    </div>
 
 </div>
