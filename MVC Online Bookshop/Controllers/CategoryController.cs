@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Bookshop.DataAccess.Data;
 using Bookshop.Models;
+using Bookshop.DataAccess.Repository;
+using Bookshop.DataAccess.Repository.IRepository;
 
 namespace MVC_Online_Bookshop.Controllers
 {
-    public class CategoryController : Controller
+    public class CategoryController(ICategoryRepository categoryRepository) : Controller
     {
-        private readonly AppDBContext _dbContext;
-        public CategoryController(AppDBContext dB)
-        {
-            _dbContext = dB;
-        }
+        private ICategoryRepository CategoryRepository { get; } = categoryRepository;
+
 
         /************************************
         RECIEVE CATEGORIES (INDEX)
@@ -19,7 +18,7 @@ namespace MVC_Online_Bookshop.Controllers
         //Handler for main Category page
         public IActionResult Index()
         {
-            List<Category> objCategoryList = _dbContext.Categories.ToList();
+            List<Category> objCategoryList = CategoryRepository.GetAll().ToList();
             return View(objCategoryList);
         }
 
@@ -37,8 +36,8 @@ namespace MVC_Online_Bookshop.Controllers
         {
             if (ModelState.IsValid)
             {
-                _dbContext.Categories.Add(obj);
-                _dbContext.SaveChanges();
+                categoryRepository.Add(obj);
+                categoryRepository.Save();
                 //Save to tempdata for accessing on next view w/ toastr.
                 TempData["success"] = $"Category {obj.Name} created successfully!";
                 return RedirectToAction("Index", "Category");
@@ -58,16 +57,17 @@ namespace MVC_Online_Bookshop.Controllers
             {
                 return NotFound();
             }
-            Category? categoryFromDb = _dbContext.Categories.Find(id); //Nullable category, which is checked on next line.
-            if (categoryFromDb == null) { return NotFound(); } //If find returned null, NotFound
+            /*Category? categoryFromDb = _dbContext.Categories.Find(id);*/ //Nullable category, which is checked on next line.
+            Category? categoryFromDb = categoryRepository.Get(c => c.Id == id);
+            //if (categoryFromDb == null) { return NotFound(); } //If find returned null, NotFound
             return View(categoryFromDb);
         }
 
         [HttpPost]
         public IActionResult Edit(Category obj)
         {
-            _dbContext.Categories.Update(obj); //Update the model and save changes.
-            _dbContext.SaveChanges();
+            categoryRepository.Update(obj); //Update the model and save changes.
+            categoryRepository.Save();
             TempData["success"] = $"Category {obj.Name} updated successfully!";
             return RedirectToAction("Index", "Category");
         }
@@ -83,7 +83,8 @@ namespace MVC_Online_Bookshop.Controllers
             {
                 return NotFound();
             }
-            Category? categoryFromDb = _dbContext.Categories.Find(id); //If find returns null, NotFound
+            /*Category? categoryFromDb = _dbContext.Categories.Find(id);*/ //If find returns null, NotFound
+            Category? categoryFromDb = CategoryRepository.Get(c => c.Id == id);
             if (categoryFromDb == null) { return NotFound(); }
 
             return View(categoryFromDb);
@@ -95,8 +96,8 @@ namespace MVC_Online_Bookshop.Controllers
             //Category? toDelete = _dbContext.Categories.Find(id); //Old code from messing with retrieving specific fields from POSTed model as parameter.
             //if (toDelete == null) { return NotFound(); }
 
-            _dbContext.Remove(toDelete);
-            _dbContext.SaveChanges();
+            CategoryRepository.Delete(toDelete);
+            CategoryRepository.Save();
             TempData["success"] = $"Category {toDelete.Name} removed successfully!";
             return RedirectToAction("Index", "Category");
         }
