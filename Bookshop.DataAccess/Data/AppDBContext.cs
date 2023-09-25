@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MVC_Online_Bookshop.Models;
+using Bookshop.Models;
 
-namespace MVC_Online_Bookshop.Data
+namespace Bookshop.DataAccess.Data
 {
     public class AppDBContext : DbContext
     {
@@ -12,13 +12,14 @@ namespace MVC_Online_Bookshop.Data
 
         public DbSet<Category> Categories { get; set; }
 
-        /*protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
                 new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },
-                new Category { Id = 3, Name = "History", DisplayOrder = 3 }
+                new Category { Id = 3, Name = "History", DisplayOrder = 3 },
+                new Category { Id = 4, Name = "Poetry", DisplayOrder = 4 }
                 );
-        }*/
+        }
     }
 }

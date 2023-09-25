@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MVC_Online_Bookshop.Data;
-using MVC_Online_Bookshop.Models;
+using Bookshop.DataAccess.Data;
+using Bookshop.Models;
 
 namespace MVC_Online_Bookshop.Controllers
 {

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
-namespace MVC_Online_Bookshop.Models
+namespace Bookshop.Models
 {
     public class Category
     {

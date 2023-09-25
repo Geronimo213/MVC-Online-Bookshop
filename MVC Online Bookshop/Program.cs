@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MVC_Online_Bookshop.Data;
+using Bookshop.DataAccess.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
