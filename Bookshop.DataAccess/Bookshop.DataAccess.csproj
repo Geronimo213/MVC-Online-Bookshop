@@ -21,4 +21,8 @@
     <ProjectReference Include="..\Bookshop.Utility\Bookshop.Utility.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

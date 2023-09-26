@@ -12,6 +12,7 @@ namespace Bookshop.DataAccess.Repository
     {
         private AppDBContext DbContext { get; } = dBContext;
         public ICategoryRepository CategoryRepository { get; init; } = new CategoryRepository(dBContext);
+        public IProductRepository ProductRepository { get; init; } = new ProductRepository(dBContext);
 
         public void Save()
         {
