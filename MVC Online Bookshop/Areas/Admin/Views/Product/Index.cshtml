@@ -42,7 +42,7 @@
                     <td>@obj.Title</td>
                     <td>@obj.Author</td>
                     <td>@obj.ISBN</td>
-                    <td>@obj.Description.Substring(0, 100) . . .</td>
+                    <td>@string.Join(string.Empty, obj.Description.Take(250)) . . .</td>
                     <td>@obj.Price</td>
                     <td class="text-sm-center align-middle">
                         <div class=" btn-group" role="group">
