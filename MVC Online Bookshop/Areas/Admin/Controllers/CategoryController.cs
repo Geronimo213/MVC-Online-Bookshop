@@ -4,11 +4,12 @@ using Bookshop.Models;
 using Bookshop.DataAccess.Repository;
 using Bookshop.DataAccess.Repository.IRepository;
 
-namespace MVC_Online_Bookshop.Controllers
+namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
-    public class CategoryController(ICategoryRepository categoryRepository) : Controller
+    [Area("Admin")]
+    public class CategoryController(IUnitOfWork unitOfWork) : Controller
     {
-        private ICategoryRepository CategoryRepository { get; } = categoryRepository;
+        private IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
 
         /************************************
@@ -18,7 +19,7 @@ namespace MVC_Online_Bookshop.Controllers
         //Handler for main Category page
         public IActionResult Index()
         {
-            List<Category> objCategoryList = CategoryRepository.GetAll().ToList();
+            List<Category> objCategoryList = UnitOfWork.CategoryRepository.GetAll().ToList();
             return View(objCategoryList);
         }
 
@@ -36,8 +37,8 @@ namespace MVC_Online_Bookshop.Controllers
         {
             if (ModelState.IsValid)
             {
-                categoryRepository.Add(obj);
-                categoryRepository.Save();
+                UnitOfWork.CategoryRepository.Add(obj);
+                UnitOfWork.Save();
                 //Save to tempdata for accessing on next view w/ toastr.
                 TempData["success"] = $"Category {obj.Name} created successfully!";
                 return RedirectToAction("Index", "Category");
@@ -53,12 +54,12 @@ namespace MVC_Online_Bookshop.Controllers
         //Get for Edit Category page. Takes in an id passed to it from form via POST.
         public IActionResult Edit(int? id)
         {
-            if(id == null || id == 0)
+            if (id == null || id == 0)
             {
                 return NotFound();
             }
             /*Category? categoryFromDb = _dbContext.Categories.Find(id);*/ //Nullable category, which is checked on next line.
-            Category? categoryFromDb = categoryRepository.Get(c => c.Id == id);
+            Category? categoryFromDb = UnitOfWork.CategoryRepository.Get(c => c.Id == id);
             //if (categoryFromDb == null) { return NotFound(); } //If find returned null, NotFound
             return View(categoryFromDb);
         }
@@ -66,8 +67,8 @@ namespace MVC_Online_Bookshop.Controllers
         [HttpPost]
         public IActionResult Edit(Category obj)
         {
-            categoryRepository.Update(obj); //Update the model and save changes.
-            categoryRepository.Save();
+            UnitOfWork.CategoryRepository.Update(obj); //Update the model and save changes.
+            UnitOfWork.Save();
             TempData["success"] = $"Category {obj.Name} updated successfully!";
             return RedirectToAction("Index", "Category");
         }
@@ -84,7 +85,7 @@ namespace MVC_Online_Bookshop.Controllers
                 return NotFound();
             }
             /*Category? categoryFromDb = _dbContext.Categories.Find(id);*/ //If find returns null, NotFound
-            Category? categoryFromDb = CategoryRepository.Get(c => c.Id == id);
+            Category? categoryFromDb = UnitOfWork.CategoryRepository.Get(c => c.Id == id);
             if (categoryFromDb == null) { return NotFound(); }
 
             return View(categoryFromDb);
@@ -96,8 +97,8 @@ namespace MVC_Online_Bookshop.Controllers
             //Category? toDelete = _dbContext.Categories.Find(id); //Old code from messing with retrieving specific fields from POSTed model as parameter.
             //if (toDelete == null) { return NotFound(); }
 
-            CategoryRepository.Delete(toDelete);
-            CategoryRepository.Save();
+            UnitOfWork.CategoryRepository.Delete(toDelete);
+            UnitOfWork.Save();
             TempData["success"] = $"Category {toDelete.Name} removed successfully!";
             return RedirectToAction("Index", "Category");
         }

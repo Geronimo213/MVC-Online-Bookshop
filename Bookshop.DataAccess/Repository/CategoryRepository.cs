@@ -13,10 +13,6 @@ namespace Bookshop.DataAccess.Repository
     {
         private AppDBContext DbContext { get; } = db;
 
-        public void Save()
-        {
-            DbContext.SaveChanges();
-        }
 
         public void Update(Category category)
         {
