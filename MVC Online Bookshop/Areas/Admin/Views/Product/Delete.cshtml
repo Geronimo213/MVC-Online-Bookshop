@@ -13,6 +13,7 @@
     </div>
     <div class="card-body p-4">
         <form method="post" class="row" onsubmit="return confirm('Are you sure you want to delete book @Model.Title?');">
+            <input asp-for="ImageURL" hidden/>
             <div class="p-3">
 
                 <div class="mt-2 row col-sm-12 col-md-6 offset-md-3 form-floating">
@@ -31,14 +32,14 @@
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
                 <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 form-floating">
-                    <input asp-for="ISBN" class="form-control" disabled />
+                    <input asp-for="ISBN" class="form-control" disabled/>
                     <label asp-for="ISBN" class=""></label>
                     <span asp-validation-for="ISBN" class="text-danger"></span>
                 </div>
                 <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 input-group w-50">
                     <span class="input-group-text">$</span>
                     <div class="form-floating">
-                        <input asp-for="Price" class="form-control" disabled />
+                        <input asp-for="Price" class="form-control" disabled/>
                         <label asp-for="Price" class=""></label>
                         <span asp-validation-for="Price" class="text-danger"></span>
                     </div>

@@ -27,7 +27,7 @@ namespace Bookshop.Models
         [Required(ErrorMessage = "Author is required.")]
         public string? Author { get; set; }
         [Range(1, 1000)]
-        [RegularExpression(@"\d+(\.\d{1,2})?", ErrorMessage = "Invalid price. Price must be between $1.00 and $1000.00 and rounded to two (2) decimal places.")]
+        [RegularExpression(@"(([1-9]\d{0,2}(,\d{3})*)|(([1-9]\d*)?\d))(\.\d\d)?$", ErrorMessage = "Invalid price. Price must be between $1.00 and $1000.00 and rounded to two (2) decimal places.")]
         public double? Price { get; set; }
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
