@@ -26,6 +26,9 @@
                         Author
                     </th>
                     <th>
+                        Category
+                    </th>
+                    <th>
                         ISBN
                     </th>
                     <th>
@@ -41,6 +44,7 @@
                 <tr>
                     <td>@obj.Title</td>
                     <td>@obj.Author</td>
+                    <td>@obj.Category.Id</td>
                     <td>@obj.ISBN</td>
                     <td>@string.Join(string.Empty, obj.Description.Take(250)) . . .</td>
                     <td>@obj.Price</td>

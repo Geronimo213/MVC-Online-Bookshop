@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Create Book";
 }
-@model Product
+@model ProductVM
 
 <div class="card shadow border-0 mt-4 mb-5 col-9 offset-2">
     <div class="card-header">
@@ -10,33 +10,45 @@
         </div>
     </div>
     <div class="card-body p-4">
-        <form method="post" class="row">
+        <form method="post" class="row" enctype="multipart/form-data">
             <div class="p-3">
 
                 <div class="mt-2 row col-sm-12 col-md-6 offset-md-3 form-floating">
-                    <input asp-for="Title" type="text" class="form-control" />
-                    <label asp-for="Title" class=""></label>
-                    <span asp-validation-for="Title" class="text-danger"></span>
+                    <input asp-for="Product.Title" type="text" class="form-control" />
+                    <label asp-for="Product.Title" class=""></label>
+                    <span asp-validation-for="Product.Title" class="text-danger"></span>
                 </div>
                 <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 form-floating">
-                    <input asp-for="Author" class="form-control"/>
-                    <label asp-for="Author" class=""></label>
-                    <span asp-validation-for="Author" class="text-danger"></span>
+                    <input asp-for="Product.Author" class="form-control"/>
+                    <label asp-for="Product.Author" class=""></label>
+                    <span asp-validation-for="Product.Author" class="text-danger"></span>
                 </div>
                 <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 form-floating">
-                    <textarea asp-for="Description" class="form-control" style="height: 10rem"></textarea>
-                    <label asp-for="Description" class=""></label>
-                    <span asp-validation-for="Description" class="text-danger"></span>
+                    <select asp-for="Product.CategoryId" asp-items="@Model.CategoryList" class="form-select pb-2">
+                        <option selected disabled>--Choose Category--</option>
+                    </select>
+                    <label asp-for="Product.CategoryId" class=""></label>
+                    <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
                 </div>
                 <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 form-floating">
-                    <input asp-for="ISBN" class="form-control" />
-                    <label asp-for="ISBN" class=""></label>
-                    <span asp-validation-for="ISBN" class="text-danger"></span>
+                    <input type="file" class="form-control" />
+                    <label asp-for="Product.ImageURL" class="">Cover Art URL</label>
+                    <span asp-validation-for="Product.ImageURL" class="text-danger"></span>
                 </div>
                 <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 form-floating">
-                    <input asp-for="Price" class="form-control" />
-                    <label asp-for="Price" class=""></label>
-                    <span asp-validation-for="Price" class="text-danger"></span>
+                    <textarea asp-for="Product.Description" class="form-control" style="height: 10rem"></textarea>
+                    <label asp-for="Product.Description" class=""></label>
+                    <span class="text-danger"></span>
+                </div>
+                <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 form-floating">
+                    <input asp-for="Product.ISBN" class="form-control" />
+                    <label asp-for="Product.ISBN" class=""></label>
+                    <span asp-validation-for="Product.ISBN" class="text-danger"></span>
+                </div>
+                <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 form-floating">
+                    <input asp-for="Product.Price" class="form-control" />
+                    <label asp-for="Product.Price" class=""></label>
+                    <span asp-validation-for="Product.Price" class="text-danger"></span>
                 </div>
 
                 <div class="row">

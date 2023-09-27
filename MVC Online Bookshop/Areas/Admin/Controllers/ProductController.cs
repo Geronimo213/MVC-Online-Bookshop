@@ -3,13 +3,15 @@ using Bookshop.DataAccess.Data;
 using Bookshop.Models;
 using Bookshop.DataAccess.Repository;
 using Bookshop.DataAccess.Repository.IRepository;
+using Bookshop.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class ProductController(IUnitOfWork unitOfWork) : Controller
+    public class ProductController(IUnitOfWork UnitOfWork) : Controller
     {
-        private IUnitOfWork UnitOfWork { get; } = unitOfWork;
+        //private IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
 
         /************************************
@@ -20,6 +22,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         public IActionResult Index()
         {
             List<Product> objProductList = UnitOfWork.ProductRepository.GetAll().ToList();
+            List<Category> objCategoryList = UnitOfWork.CategoryRepository.GetAll().ToList();
             return View(objProductList);
         }
 
@@ -29,21 +32,35 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         //Get result for Create Book page
         public IActionResult Create()
         {
-            return View();
+            ProductVM productVm = new ProductVM()
+            {
+                CategoryList = UnitOfWork.CategoryRepository.GetAll().Select(x => new SelectListItem {Text = x.Name, Value = x.Id.ToString()}),
+                Product = new Product()
+            };
+            return View(productVm);
         }
         //Post method handler for Create Book, being passed a Book to work with
         [HttpPost]
-        public IActionResult Create(Product obj)
+        public IActionResult Create(ProductVM obj)
         {
             if (ModelState.IsValid)
             {
-                UnitOfWork.ProductRepository.Add(obj);
+                UnitOfWork.ProductRepository.Add(obj.Product);
                 UnitOfWork.Save();
                 //Save to tempdata for accessing on next view w/ toastr.
-                TempData["success"] = $"Book {obj.Title} created successfully!";
+                TempData["success"] = $"Book {obj.Product.Title} created successfully!";
                 return RedirectToAction("Index", "Product");
             }
-            return View();
+            else
+            {
+                ProductVM productVm = new ProductVM()
+                {
+                    CategoryList = UnitOfWork.CategoryRepository.GetAll().Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }),
+                    Product = new Product()
+                };
+                return View(productVm);
+            }
+            
         }
 
 

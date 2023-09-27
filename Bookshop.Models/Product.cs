@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Bookshop.Models
 {
@@ -30,7 +31,8 @@ namespace Bookshop.Models
         public double? Price { get; set; }
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
-        public Category Category { get; set; }
-        public string ImageURL { get; set; }
+        [ValidateNever]
+        public Category? Category { get; set; }
+        public string? ImageURL { get; set; }
     }
 }
