@@ -44,7 +44,7 @@
                 <tr>
                     <td>@obj.Title</td>
                     <td>@obj.Author</td>
-                    <td>@obj.Category.Id</td>
+                    <td>@obj.Category.Name</td>
                     <td>@obj.ISBN</td>
                     <td>@Html.Raw(string.Join(string.Empty, obj.Description.Take(250)) + " . . .")</td>
                     <td>@obj.Price</td>

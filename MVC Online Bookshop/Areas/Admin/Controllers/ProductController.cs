@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Drawing;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Bookshop.DataAccess.Data;
 using Bookshop.Models;
@@ -22,8 +23,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         //Handler for main Category page
         public IActionResult Index()
         {
-            List<Product> objProductList = UnitOfWork.ProductRepository.GetAll().ToList();
-            List<Category> objCategoryList = UnitOfWork.CategoryRepository.GetAll().ToList();
+            List<Product> objProductList = UnitOfWork.ProductRepository.GetAll(includeOperators:"Category").ToList(); //List of all Products (Books) and includes the related data Category.
             return View(objProductList);
         }
 
@@ -56,11 +56,13 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             {
                 if (file is not null)
                 {
-                    string filename = obj.Product.ImageURL ?? Guid.NewGuid().ToString() + @"Images\Product\" + file.FileName;
+                    string filename = obj.Product.ImageURL ?? @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
                     string path = Path.Combine(appEnvironment.WebRootPath, filename);
                     if (System.IO.File.Exists(path))
                     {
                         System.IO.File.Delete(path);
+                        filename = @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
+                        path = Path.Combine(appEnvironment.WebRootPath, filename);
 
                     }
 
