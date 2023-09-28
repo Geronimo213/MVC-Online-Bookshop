@@ -33,6 +33,7 @@ namespace Bookshop.Models
         [ForeignKey("CategoryId")]
         [ValidateNever]
         public Category? Category { get; set; }
+        [AllowNull]
         public string? ImageURL { get; set; }
     }
 }

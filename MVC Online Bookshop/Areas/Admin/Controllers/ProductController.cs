@@ -7,6 +7,7 @@ using Bookshop.DataAccess.Repository;
 using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
@@ -21,10 +22,11 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         ************************************/
 
         //Handler for main Category page
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string sortOrder)
         {
-            List<Product> objProductList = UnitOfWork.ProductRepository.GetAll(includeOperators:"Category").ToList(); //List of all Products (Books) and includes the related data Category.
-            return View(objProductList);
+            var query = UnitOfWork.ProductRepository.GetAll(includeOperators: "Category");
+            var products = UnitOfWork.DbContext.Products;
+            return View(await query.ToListAsync());
         }
 
         /************************************

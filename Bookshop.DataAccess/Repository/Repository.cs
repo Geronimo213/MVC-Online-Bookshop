@@ -46,7 +46,7 @@ namespace Bookshop.DataAccess.Repository
             return query.FirstOrDefault();
         }
 
-        public IEnumerable<T> GetAll(string? includeOperators = null)
+        public IQueryable<T> GetAll(string? includeOperators = null)
         {
             IQueryable<T> query = DbSet;
             if (!String.IsNullOrEmpty(includeOperators))
@@ -56,7 +56,7 @@ namespace Bookshop.DataAccess.Repository
                     query = query.Include(includeOperator);
                 }
             }
-            return query.ToList();
+            return query;
         }
     }
 }

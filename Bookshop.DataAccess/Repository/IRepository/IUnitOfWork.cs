@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bookshop.DataAccess.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace Bookshop.DataAccess.Repository.IRepository
 {
     public interface IUnitOfWork
     {
+        public AppDBContext DbContext { get; }
         ICategoryRepository CategoryRepository { get; }
         IProductRepository ProductRepository { get; }
 
