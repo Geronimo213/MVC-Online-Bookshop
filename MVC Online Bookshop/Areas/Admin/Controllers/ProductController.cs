@@ -6,6 +6,7 @@ using Bookshop.Models;
 using Bookshop.DataAccess.Repository;
 using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models.ViewModels;
+using Bookshop.Utility;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,11 +23,57 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         ************************************/
 
         //Handler for main Category page
-        public async Task<IActionResult> Index(string sortOrder)
+        public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? pageNumber)
         {
-            var query = UnitOfWork.ProductRepository.GetAll(includeOperators: "Category");
-            var products = UnitOfWork.DbContext.Products;
-            return View(await query.ToListAsync());
+            ViewData["TitleSortParam"] = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
+            ViewData["AuthorSortParam"] = sortOrder == "Author" ? "auth_desc" : "Author";
+            ViewData["CategorySortParam"] = sortOrder == "Category" ? "cat_desc" : "Category";
+            ViewData["PriceSortParam"] = sortOrder == "Price" ? "price_desc" : "Price";
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewData["CurrentFilter"] = searchString;
+
+            var books =  UnitOfWork.ProductRepository.GetAll(includeOperators: "Category");
+            books = String.IsNullOrEmpty(searchString) ? books : books.Where(s => s.Title.Contains(searchString) || s.Author.Contains(searchString));
+
+            switch (sortOrder)
+            {
+                case "title_desc":
+                    books = books.OrderByDescending(s => s.Title);
+                    break;
+                case "Author":
+                    books = books.OrderBy(s => s.Author);
+                    break;
+                case "auth_desc":
+                    books = books.OrderByDescending(s => s.Author);
+                    break;
+                case "Category":
+                    books = books.OrderBy(s => s.Category.Name);
+                    break;
+                case "cat_desc":
+                    books = books.OrderByDescending(s => s.Category.Name);
+                    break;
+                case "Price":
+                    books = books.OrderBy(s => s.Price);
+                    break;
+                case "price_desc":
+                    books = books.OrderByDescending(s => s.Price);
+                    break;
+                default:
+                    books = books.OrderBy(s => s.Title);
+                    break;
+            }
+
+
+            int pageSize = 3;
+            return View(await PaginatedList<Product>.CreateAsync(books.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         /************************************

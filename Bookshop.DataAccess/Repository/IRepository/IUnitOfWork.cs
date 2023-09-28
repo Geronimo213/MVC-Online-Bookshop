@@ -9,7 +9,7 @@ namespace Bookshop.DataAccess.Repository.IRepository
 {
     public interface IUnitOfWork
     {
-        public AppDBContext DbContext { get; }
+
         ICategoryRepository CategoryRepository { get; }
         IProductRepository ProductRepository { get; }
 

@@ -1,7 +1,7 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@model List<Product>;
+@model PaginatedList<Product>;
 @{
     ViewData["Title"] = "Products";
 }
@@ -16,35 +16,45 @@
         </div>
     </div>
     <div class="card-body">
+        <form method="get" asp-area="Admin" asp-controller="Product" asp-action="Index">
+            <div class="form-control">
+                <p class="text-info pt-3">
+                    Find by Title/Author: <input class="ms-2" type="text" name="searchString" value="@ViewData["CurrentFilter"]" />
+                    <input type="submit" value="Search" class="btn btn-info p-2 mb-1" />&nbsp; |
+                    <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="ps-1 text-info">Reset Filters</a>
+                </p>
+            </div>
+        </form>
         <table class="table table-bordered table-striped w-100 ">
             <thead>
-                <tr>
-                    <th>
-                        Title
-                    </th>
-                    <th>
-                        Author
-                    </th>
-                    <th>
-                        Category
-                    </th>
-                    <th>
-                        ISBN
-                    </th>
-                    <th>
-                        Description
-                    </th>
-                    <th>
-                        Price ($)
-                    </th>
-                </tr>
+            <tr>
+                <th>
+                    <a class="text-info" asp-area="Admin" asp-action="Index" asp-route-sortOrder="@ViewData["TitleSortParam"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Title</a>
+                </th>
+                <th>
+                    <a class="text-info" asp-area="Admin" asp-action="Index" asp-route-sortOrder="@ViewData["AuthorSortParam"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Author</a>
+                </th>
+                <th>
+                    <a class="text-info" asp-area="Admin" asp-action="Index" asp-route-sortOrder="@ViewData["CategorySortParam"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Category</a>
+                </th>
+                <th>
+                    ISBN
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    <a class="text-info" asp-area="Admin" asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParam"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Price ($)</a>
+                </th>
+            </tr>
             </thead>
             <tbody>
-                @foreach(var obj in Model.OrderBy(u => u.Id)) {
+            @foreach (var obj in Model)
+            {
                 <tr>
                     <td>@obj.Title</td>
                     <td>@obj.Author</td>
-                    <td>@obj.Category.Name</td>
+                    <td>@(obj.Category is null ? "N/A" : obj.Category.Name)</td>
                     <td>@obj.ISBN</td>
                     <td>@Html.Raw(string.Join(string.Empty, obj.Description.Take(250)) + " . . .")</td>
                     <td>@obj.Price</td>
@@ -57,6 +67,34 @@
                 </tr>}
             </tbody>
         </table>
+        
+        @{
+            var prevDisabled = Model.HasPreviousPage ? "" : "disabled";
+            var nextDisabled = Model.HasNextPage ? "" : "disabled";
+        }
+        
+        
+
+        <a asp-area="Admin"
+           asp-controller="Product"
+           asp-action="Index"
+           asp-route-sortOrder="@ViewData["CurrentSort"]"
+           asp-route-pageNumber="@(Model.PageIndex - 1)"
+           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+           class="btn btn-default @prevDisabled">
+            Previous
+        </a>
+        
+        <a asp-area="Admin"
+           asp-controller="Product"
+           asp-action="Index"
+           asp-route-sortOrder="@ViewData["CurrentSort"]"
+           asp-route-pageNumber="@(Model.PageIndex + 1)"
+           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+           class="btn btn-default @nextDisabled">
+            Next
+        </a>
+
     </div>
 
 </div>

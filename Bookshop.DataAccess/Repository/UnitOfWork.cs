@@ -10,7 +10,7 @@ namespace Bookshop.DataAccess.Repository
 {
     public class UnitOfWork(AppDBContext dBContext) : IUnitOfWork
     {
-        public AppDBContext DbContext { get; } = dBContext;
+        private AppDBContext DbContext { get; } = dBContext;
         public ICategoryRepository CategoryRepository { get; init; } = new CategoryRepository(dBContext);
         public IProductRepository ProductRepository { get; init; } = new ProductRepository(dBContext);
 
