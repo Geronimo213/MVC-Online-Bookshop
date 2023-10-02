@@ -7,9 +7,14 @@ using Bookshop.DataAccess.Repository.IRepository;
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CategoryController(IUnitOfWork unitOfWork) : Controller
+    public class CategoryController : Controller
     {
-        private IUnitOfWork UnitOfWork { get; } = unitOfWork;
+        private IUnitOfWork UnitOfWork { get; }
+
+        public CategoryController(IUnitOfWork unitOfWork)
+        {
+            this.UnitOfWork = unitOfWork;
+        }
 
 
         /************************************

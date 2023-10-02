@@ -7,9 +7,16 @@ using Bookshop.DataAccess.Repository;
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
     [Area("Customer")]
-    public class HomeController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment, ILogger<HomeController> logger) : Controller
+    public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger = logger;
+        private readonly ILogger<HomeController> _logger;
+        private IUnitOfWork unitOfWork { get; set; }
+
+        public HomeController(IUnitOfWork unitOfWork, ILogger<HomeController> logger)
+        {
+            this.unitOfWork = unitOfWork;
+            this._logger = logger;
+        }
 
 
         public IActionResult Index()

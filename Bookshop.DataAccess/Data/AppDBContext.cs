@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Bookshop.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Bookshop.DataAccess.Data
 {
-    public class AppDBContext : IdentityDbContext
+    public class AppDBContext : IdentityDbContext<IdentityUser>
     {
         public AppDBContext(DbContextOptions<AppDBContext> options) : base(options)
         {

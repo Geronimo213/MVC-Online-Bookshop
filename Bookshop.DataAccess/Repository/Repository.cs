@@ -12,9 +12,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Bookshop.DataAccess.Repository
 {
-    public class Repository<T> (AppDBContext dbContext) : IRepository<T> where T : class
+    public class Repository<T> : IRepository<T> where T : class
     {
-        internal DbSet<T> DbSet { get; init; } = dbContext.Set<T>();
+        internal DbSet<T> DbSet { get; init; }
+
+        public Repository(AppDBContext dbContext)
+        {
+            this.DbSet = dbContext.Set<T>();
+        }
         
 
         public void Add(T entity)

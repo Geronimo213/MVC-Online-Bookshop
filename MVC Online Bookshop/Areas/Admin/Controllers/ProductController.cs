@@ -13,9 +13,16 @@ using Microsoft.EntityFrameworkCore;
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class ProductController(IUnitOfWork UnitOfWork, IWebHostEnvironment appEnvironment) : Controller
+    public class ProductController : Controller
     {
-        //private IUnitOfWork UnitOfWork { get; } = unitOfWork;
+        private IUnitOfWork UnitOfWork { get; }
+        private IWebHostEnvironment appEnvironment { get; set; }
+
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment appEnvironment)
+        {
+            this.UnitOfWork = unitOfWork;
+            this.appEnvironment = appEnvironment;
+        }
 
 
         /************************************

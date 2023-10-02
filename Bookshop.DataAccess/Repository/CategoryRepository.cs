@@ -9,9 +9,14 @@ using System.Threading.Tasks;
 
 namespace Bookshop.DataAccess.Repository
 {
-    public class CategoryRepository(AppDBContext db) : Repository<Category>(db), ICategoryRepository
+    public class CategoryRepository : Repository<Category>, ICategoryRepository
     {
-        private AppDBContext DbContext { get; } = db;
+        private AppDBContext DbContext { get; }
+
+        public CategoryRepository(AppDBContext db) : base(db)
+        {
+            this.DbContext = db;
+        }
 
 
         public void Update(Category category)

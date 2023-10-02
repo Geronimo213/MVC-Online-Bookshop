@@ -9,9 +9,14 @@ using Bookshop.Models;
 
 namespace Bookshop.DataAccess.Repository
 {
-    public class ProductRepository(AppDBContext dbContext) : Repository<Product>(dbContext), IProductRepository
+    public class ProductRepository : Repository<Product>, IProductRepository
     {
-        private AppDBContext DbContext { get; } = dbContext;
+        private AppDBContext DbContext { get; }
+
+        public ProductRepository(AppDBContext dbContext) : base(dbContext)
+        {
+            this.DbContext = dbContext;
+        }
         public void Update(Product product)
         {
             DbContext.Products.Update(product);
