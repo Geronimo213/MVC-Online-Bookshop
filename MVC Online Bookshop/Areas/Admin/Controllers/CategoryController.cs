@@ -3,10 +3,13 @@ using Bookshop.DataAccess.Data;
 using Bookshop.Models;
 using Bookshop.DataAccess.Repository;
 using Bookshop.DataAccess.Repository.IRepository;
+using Bookshop.Utility;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.Role_Admin)]
     public class CategoryController : Controller
     {
         private IUnitOfWork UnitOfWork { get; }

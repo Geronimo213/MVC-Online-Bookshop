@@ -7,12 +7,14 @@ using Bookshop.DataAccess.Repository;
 using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.Role_Admin)]
     public class ProductController : Controller
     {
         private IUnitOfWork UnitOfWork { get; }
