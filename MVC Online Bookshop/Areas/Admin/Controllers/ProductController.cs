@@ -41,7 +41,11 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             var books =  UnitOfWork.ProductRepository.GetAll(includeOperators: "Category");
-            books = String.IsNullOrEmpty(searchString) ? books : books.Where(s => s.Title.Contains(searchString) || s.Author.Contains(searchString));
+            books = String.IsNullOrEmpty(searchString) ? books : books.Where(s => 
+                s.Title.Contains(searchString)
+                || s.Author.Contains(searchString)
+                || s.ISBN.Contains(searchString)
+                || s.Category.Name.Contains(searchString));
 
             switch (sortOrder)
             {

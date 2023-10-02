@@ -1,22 +1,34 @@
 using Microsoft.AspNetCore.Mvc;
 using Bookshop.Models;
 using System.Diagnostics;
+using Bookshop.DataAccess.Repository.IRepository;
+using Bookshop.DataAccess.Repository;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
     [Area("Customer")]
-    public class HomeController : Controller
+    public class HomeController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment, ILogger<HomeController> logger) : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<HomeController> _logger = logger;
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
 
         public IActionResult Index()
         {
-            return View();
+            var books = unitOfWork.ProductRepository.GetAll(includeOperators: "Category").ToList();
+            return View(books);
+        }
+
+        public IActionResult BookDetails(int? id)
+        {
+            if (id == null)
+            {
+                NotFound();
+
+            }
+
+            var book = unitOfWork.ProductRepository.Get(x => x.Id == id, includeOperators: "Category");
+
+            return View(book);
         }
 
         public IActionResult Privacy()

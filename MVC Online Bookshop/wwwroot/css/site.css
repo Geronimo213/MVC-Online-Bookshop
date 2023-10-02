@@ -20,3 +20,21 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+#module #collapseExample.collapse:not(.show) {
+    display: block;
+    height: 3.5rem;
+    overflow: hidden;
+}
+
+#module #collapseExample.collapsing {
+    height: 3.5rem;
+}
+
+#module a.collapsed::after {
+    content: '+ Show More';
+}
+
+#module a:not(.collapsed)::after {
+    content: '- Show Less';
+}

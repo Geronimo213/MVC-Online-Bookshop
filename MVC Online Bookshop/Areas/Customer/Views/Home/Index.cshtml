@@ -1,8 +1,22 @@
 ﻿@{ 
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
+@model List<Product>
+<div class="text-center pt-2">
+    <h1 class="display-1">Welcome to Ye Olde Bookshop!</h1>
+</div>
 
-<div class="text-center">
-    <h1 class="display-1">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="d-flex flex-row flex-wrap justify-content-evenly pt-4">
+    @foreach (var book in Model)
+    {
+        <div class="mb-auto">
+        <a asp-area="Customer" asp-controller="Home" asp-action="BookDetails" asp-route-id="@book.Id"><img class="img-thumbnail shadow" src="~/@book.ImageURL" width="200px" height="320px" style="width: 200px; height: 320px;" alt="Cover art for @book.Title by @book.Author" title="@book.Title by @book.Author"/></a>
+            <div class="container-fluid pt-2 pe-0 ps-0 pb-2 mb-2 z-1 text-center text-wrap">
+                <p class="p-0 m-0 text-primary">@book.Title</p>
+                <p class="text-dark p-0 m-0">@book.Author</p>
+                <p class="text-info">$@book.Price</p>
+                <a role="button" asp-area="Customer" asp-controller="Home" asp-action="BookDetails" asp-route-id="@book.Id" class="btn btn-dark">More Details</a>
+            </div>
+        </div>
+    }
 </div>
