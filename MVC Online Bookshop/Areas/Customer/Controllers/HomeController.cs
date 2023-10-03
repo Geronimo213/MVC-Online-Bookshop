@@ -52,6 +52,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
             cart.UserId = userId;
+            var book = unitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId) ?? new Product() {Title = "BOOK_NOT_FOUND"};
 
             ShoppingCart? cartFromDb = unitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId);
 
@@ -64,6 +65,8 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             {
                 unitOfWork.ShoppingCartRepository.Add(cart);
             }
+
+            TempData["success"] = $"Added {book.Title} to the cart!";
 
             unitOfWork.Save();
             return RedirectToAction(nameof(Index));
