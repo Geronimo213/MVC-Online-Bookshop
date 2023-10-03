@@ -11,15 +11,15 @@ namespace Bookshop.DataAccess.Repository
 {
     internal class ShoppingCartRepository : Repository<ShoppingCart>, IShoppingCartRepository
     {
-        private AppDBContext _appDBContext;
+        private readonly AppDBContext _appDbContext;
         public ShoppingCartRepository(AppDBContext dbContext) : base(dbContext)
         {
-            this._appDBContext = dbContext;
+            this._appDbContext = dbContext;
         }
 
         public void Update(ShoppingCart shoppingCart)
         {
-            _appDBContext.ShoppingCarts.Update(shoppingCart);
+            _appDbContext.ShoppingCarts.Update(shoppingCart);
         }
     }
 }

@@ -10,8 +10,10 @@ namespace Bookshop.DataAccess.Repository.IRepository
     public interface IUnitOfWork
     {
 
-        ICategoryRepository CategoryRepository { get; }
-        IProductRepository ProductRepository { get; }
+        public ICategoryRepository CategoryRepository { get; }
+        public IProductRepository ProductRepository { get; }
+        public IShoppingCartRepository ShoppingCartRepository { get; }
+        public IAppUserRepository AppUserRepository { get; }
 
         void Save();
     }

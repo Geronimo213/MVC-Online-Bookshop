@@ -37,7 +37,7 @@ namespace Bookshop.DataAccess.Repository
             DbSet.RemoveRange(entities);
         }
 
-        public T Get(Expression<Func<T, bool>> filter, string? includeOperators = null)
+        public T? Get(Expression<Func<T, bool>> filter, string? includeOperators = null)
         {
             IQueryable<T> query = DbSet;
             query = query.Where(filter);

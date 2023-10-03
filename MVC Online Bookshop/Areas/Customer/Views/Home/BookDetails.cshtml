@@ -1,27 +1,28 @@
-﻿@model Product
+﻿@model ShoppingCart
 @{
-    ViewData["Title"] = $"{Model.Title} - Details";
+    ViewData["Title"] = $"{Model.Product.Title} - Details";
 }
 
 <div class="row pt-4 mt-4">
     <div class="col-4 ">
-        <img class="img-thumbnail" src="~/@Model.ImageURL"/>
+        <img class="img-thumbnail" src="~/@Model.Product.ImageURL"/>
     </div>
     <div class="col-6 offset-1 p-2">
-        <span class="badge text-bg-primary mb-2 ">@Model.Category.Name</span>
+        <span class="badge text-bg-primary mb-2 ">@Model.Product.Category.Name</span>
         <div class="fs-2 p-0 m-0">
-            <h2 class="text-dark">@Model.Title</h2>
-            <h3 class="text-muted">@Model.Author</h3>
-            <h6 class="text-secondary fs-6">@Model.ISBN</h6>
-            <h3 class="text-info">$@Model.Price</h3>
+            <h2 class="text-dark">@Model.Product.Title</h2>
+            <h3 class="text-muted">@Model.Product.Author</h3>
+            <h6 class="text-secondary fs-6">@Model.Product.ISBN</h6>
+            <h3 class="text-info">$@Model.Product.Price</h3>
         </div>
         <div id="module" class="container ps-0 pt-3">
-            @Html.Raw("<div class=\"collapse p-0\" id=\"collapseExample\" aria-expanded=\"false\"" + Model.Description + "</div>")
+            @Html.Raw("<div class=\"collapse p-0\" id=\"collapseExample\" aria-expanded=\"false\"" + Model.Product.Description + "</div>")
             <a role="button" class="collapsed" data-bs-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample"></a>
         </div>
         <form method="post" class="row form-floating mt-4">
+            <input asp-for="ProductId" hidden/>
             <div class="form-floating col-md-6">
-                <input type="number" max="5" min="1" class="form-control" value="1" id="AddQuantity"/>
+                <input asp-for="Count" type="number" max="5" min="1" class="form-control" value="1" id="AddQuantity"/>
                 <label for="AddQuantity">Quantity</label>
             </div>
             <div class="col-md-6 d-flex align-items-center">

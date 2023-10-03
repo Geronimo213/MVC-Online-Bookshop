@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Bookshop.Models;
 using System.Diagnostics;
+using System.Security.Claims;
 using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.DataAccess.Repository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
@@ -25,17 +27,46 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             return View(books);
         }
 
-        public IActionResult BookDetails(int? id)
+        public IActionResult BookDetails(int productId)
         {
-            if (id == null)
+            if (productId == null)
             {
                 NotFound();
 
             }
+            ShoppingCart cart = new()
+            {
+                Product = unitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Category"),
+                ProductId = productId,
+                Count = 1
+            };
+            //var book = unitOfWork.ProductRepository.Get(x => x.Id == id, includeOperators: "Category");
 
-            var book = unitOfWork.ProductRepository.Get(x => x.Id == id, includeOperators: "Category");
+            return View(cart);
+        }
 
-            return View(book);
+        [HttpPost]
+        [Authorize]
+        public IActionResult BookDetails(ShoppingCart cart)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            cart.UserId = userId;
+
+            ShoppingCart? cartFromDb = unitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId);
+
+            if (cartFromDb != null)
+            {
+                cartFromDb.Count += cart.Count;
+                unitOfWork.ShoppingCartRepository.Update(cartFromDb);
+            }
+            else
+            {
+                unitOfWork.ShoppingCartRepository.Add(cart);
+            }
+
+            unitOfWork.Save();
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Privacy()
