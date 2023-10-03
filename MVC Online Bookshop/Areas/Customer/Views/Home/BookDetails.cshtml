@@ -19,8 +19,16 @@
             @Html.Raw("<div class=\"collapse p-0\" id=\"collapseExample\" aria-expanded=\"false\"" + Model.Description + "</div>")
             <a role="button" class="collapsed" data-bs-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample"></a>
         </div>
-        
-        <a role="button" class="mt-4 btn btn-info">Add to Cart</a>
+        <form method="post" class="row form-floating mt-4">
+            <div class="form-floating col-md-6">
+                <input type="number" max="5" min="1" class="form-control" value="1" id="AddQuantity"/>
+                <label for="AddQuantity">Quantity</label>
+            </div>
+            <div class="col-md-6 d-flex align-items-center">
+                <input type="submit" class="form-control btn btn-info" value="Add to Cart"/>
+            </div>
+        </form>
+
 
     </div>
 </div>

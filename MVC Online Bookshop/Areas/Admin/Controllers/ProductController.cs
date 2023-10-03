@@ -52,9 +52,9 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             var books =  UnitOfWork.ProductRepository.GetAll(includeOperators: "Category");
             books = String.IsNullOrEmpty(searchString) ? books : books.Where(s => 
                 s.Title.Contains(searchString)
-                || s.Author.Contains(searchString)
-                || s.ISBN.Contains(searchString)
-                || s.Category.Name.Contains(searchString));
+                || s.Author!.Contains(searchString)
+                || s.ISBN!.Contains(searchString)
+                || s.Category!.Name.Contains(searchString));
 
             switch (sortOrder)
             {
@@ -68,10 +68,10 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                     books = books.OrderByDescending(s => s.Author);
                     break;
                 case "Category":
-                    books = books.OrderBy(s => s.Category.Name);
+                    books = books.OrderBy(s => s.Category!.Name);
                     break;
                 case "cat_desc":
-                    books = books.OrderByDescending(s => s.Category.Name);
+                    books = books.OrderByDescending(s => s.Category!.Name);
                     break;
                 case "Price":
                     books = books.OrderBy(s => s.Price);
