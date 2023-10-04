@@ -1,8 +1,12 @@
-﻿@{
-    ViewData["Title"] = "Create Book";
+﻿@model ProductVM
+@{
+    bool create = @Model.Product.Id == 0;
 }
-@model ProductVM
-@{ bool create = @Model.Product.Id == 0; }
+@{
+    ViewData["Title"] = $"{(create ? "Create" : "Update")} Book";
+}
+
+
 
 
 <div class="card shadow mt-4 mb-3">
@@ -20,13 +24,13 @@
                     
                     @*TITLE*@
                     <div class="mt-2 ms-0 row col-sm-12 col-md-12 form-floating">
-                        <input asp-for="Product.Title" type="text" class="form-control" />
+                        <input asp-for="Product.Title" type="text" class="form-control" placeholder="Title"/>
                         <label asp-for="Product.Title" class=""></label>
                         <span asp-validation-for="Product.Title" class="text-danger"></span>
                     </div>
                     @*AUTHOR*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12 form-floating">
-                        <input asp-for="Product.Author" class="form-control"/>
+                        <input asp-for="Product.Author" class="form-control" placeholder="Author"/>
                         <label asp-for="Product.Author" class=""></label>
                         <span asp-validation-for="Product.Author" class="text-danger"></span>
                     </div>
@@ -41,7 +45,7 @@
                     @*COVER ART*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12">
                         <label asp-for="Product.ImageURL" class="pe-3 pt-2 bg-opacity-10 form-text text-muted">@(create ? "Cover Art" : $"Cover Art: {Model.Product.ImageURL}")</label>
-                        <input name="file" type="file" class="form-control"/>
+                        <input name="file" type="file" accept="image/*" class="form-control" placeholder="Cover Art"/>
                     </div>
                     @*DESCRIPTION*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12">
@@ -50,7 +54,7 @@
                     </div>
                     @*ISBN*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12 form-floating">
-                        <input asp-for="Product.ISBN" class="form-control"/>
+                        <input asp-for="Product.ISBN" class="form-control" placeholder="ISBN"/>
                         <label asp-for="Product.ISBN" class=""></label>
                         <span asp-validation-for="Product.ISBN" class="text-danger"></span>
                     </div>
@@ -58,7 +62,7 @@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12 input-group" style="width: 67%">
                         <span class="input-group-text">$</span>
                         <div class="form-floating">
-                            <input asp-for="Product.Price" class="form-control"/>
+                            <input asp-for="Product.Price" class="form-control" placeholder="Price"/>
                             <label asp-for="Product.Price" class=""></label>
                             <span asp-validation-for="Product.Price" class="text-danger"></span>
                         </div>
@@ -69,7 +73,7 @@
                             <button type="submit" class="btn btn-primary form-control"> @(create ? "Create" : "Update")</button>
                         </div>
                         <div class="col-sm-6 col-md-6">
-                            <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="btn btn-outline-primary form-control">Back</a>
+                            <a href="#!" onclick="history.go(-1)" class="btn btn-outline-primary form-control">Back</a>
                         </div>
                     </div>
 

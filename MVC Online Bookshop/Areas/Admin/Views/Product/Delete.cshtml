@@ -4,63 +4,133 @@
 @model Product
 
 
-<div class="card shadow border-0 mt-4 mb-5 col-9 offset-2">
+<div class="card shadow mt-4 mb-3">
     <div class="card-header">
         <div class="row col-12 text-center">
             <h2 class="text-danger">Delete Book</h2>
             <h4 class="text-warning">This cannot be undone</h4>
         </div>
     </div>
-    <div class="card-body p-4">
-        <form method="post" class="row" onsubmit="return confirm('Are you sure you want to delete book @Model.Title?');">
-            <input asp-for="ImageURL" hidden/>
-            <div class="p-3">
+    <div class="row m-3">
+        <div class="card-body m-0 p-0 col-7 offset-1">
+            <form method="post" class="">
+                <input asp-for="Id" hidden />
+                <input asp-for="ImageURL" hidden />
+                <input asp-for="Title" hidden/>
+                <div class="p-3">
 
-                <div class="mt-2 row col-sm-12 col-md-6 offset-md-3 form-floating">
-                    <input asp-for="Title" type="text" class="form-control" disabled/>
-                    <label asp-for="Title" class=""></label>
-                    <span asp-validation-for="Title" class="text-danger"></span>
-                </div>
-                <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 form-floating">
-                    <input asp-for="Author" class="form-control" disabled/>
-                    <label asp-for="Author" class=""></label>
-                    <span asp-validation-for="Author" class="text-danger"></span>
-                </div>
-                <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 form-floating">
-                    <textarea asp-for="Description" class="form-control" style="height: 10rem" disabled></textarea>
-                    <label asp-for="Description" class=""></label>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
-                <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 form-floating">
-                    <input asp-for="ISBN" class="form-control" disabled/>
-                    <label asp-for="ISBN" class=""></label>
-                    <span asp-validation-for="ISBN" class="text-danger"></span>
-                </div>
-                <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 input-group w-50">
-                    <span class="input-group-text">$</span>
-                    <div class="form-floating">
-                        <input asp-for="Price" class="form-control" disabled/>
-                        <label asp-for="Price" class=""></label>
-                        <span asp-validation-for="Price" class="text-danger"></span>
+                    @*TITLE*@
+                    <div class="mt-2 ms-0 row col-sm-12 col-md-12 form-floating">
+                        <input asp-for="Title" type="text" class="form-control" placeholder="Title" disabled />
+                        <label asp-for="Title" class=""></label>
+                        <span asp-validation-for="Title" class="text-danger"></span>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-6 col-md-3 offset-md-3">
-                        <button type="submit" class="btn btn-outline-danger form-control">Delete</button>
+                    @*AUTHOR*@
+                    <div class="mt-2 mb-3 col-sm-12 col-md-12 form-floating">
+                        <input asp-for="Author" class="form-control" placeholder="Author" disabled />
+                        <label asp-for="Author" class=""></label>
+                        <span asp-validation-for="Author" class="text-danger"></span>
                     </div>
-                    <div class="col-sm-6 col-md-3">
-                        <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="btn btn-primary form-control">Back</a>
+                    @*CATEGORY SELECTION*@
+                    <div class="mt-2 mb-3 col-sm-12 col-md-12 form-floating">
+                        <select asp-for="CategoryId" class="form-select pb-2" disabled>
+                            <option selected disabled>@Model.Category.Name</option>
+                        </select>
+                        <label asp-for="CategoryId" class="">Category</label>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
                     </div>
-                </div>
+                    @*COVER ART*@
+                    <div class="mt-2 mb-3 col-sm-12 col-md-12">
+                        <label asp-for="ImageURL" class="pe-3 pt-2 bg-opacity-10 form-text text-muted">@($"Cover Art: {Model.ImageURL}")</label>
+                        <input name="file" type="file" class="form-control" placeholder="Cover Art" disabled value="@Model.ImageURL" />
+                    </div>
+                    @*DESCRIPTION*@
+                    <div class="mt-2 mb-3 col-sm-12 col-md-12">
+                        <label asp-for="Description" class="me-3 text-muted form-text"></label>
+                        <textarea id="editor" asp-for="Description" class="form-control" style="height: 10rem">@Html.Raw(Model.Description)</textarea>
+                    </div>
+                    @*ISBN*@
+                    <div class="mt-2 mb-3 col-sm-12 col-md-12 form-floating">
+                        <input asp-for="ISBN" class="form-control" placeholder="ISBN" disabled />
+                        <label asp-for="ISBN" class=""></label>
+                        <span asp-validation-for="ISBN" class="text-danger"></span>
+                    </div>
+                    @*PRICE*@
+                    <div class="mt-2 mb-3 col-sm-12 col-md-12 input-group" style="width: 67%">
+                        <span class="input-group-text">$</span>
+                        <div class="form-floating">
+                            <input asp-for="Price" class="form-control" placeholder="Price" disabled />
+                            <label asp-for="Price" class=""></label>
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                    </div>
+                    @*SUBMIT / BACK*@
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6 col-md-6">
+                                <div id="confirmDeleteSpan" style="display:none" class="">
+                                    <div class="row gap-1">
+                                        <button type="submit" class="btn btn-danger form-control col">Yes</button>
+                                        <a href="#!" class="btn btn-primary form-control col"
+                                           onclick="confirmDelete(false)">No</a>
+                                    </div>
+                                    
+                                    <p class="text-center mt-1 text-danger">Are you sure you want to delete?</p>
+                                </div>
+                                <div id="deleteSpan">
+                                    <a type="button" href="#!" class="btn btn-danger form-control"
+                                           onclick="confirmDelete(true)">Delete</a>
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-6 col-md-6">
+                                <a href="#!" onclick="history.go(-1)" class="btn btn-outline-primary form-control">Back</a>
+                            </div>
+                        </div>
+                    </div>
 
-
-            </div>
-        </form>
+                </div>
+            </form>
+        </div>
+        <div class="col-3 ms-1">
+            <img src="~/@(Model.ImageURL)" width="100%" />
+        </div>
     </div>
+    
 </div>
 
 @section Scripts {
     @{
         <partial name="_ValidationScriptsPartial" />
     }
+    <script type="text/javascript">
+        function confirmDelete(isDeleteClicked) {
+            var deleteSpan = 'deleteSpan';
+            var confirmDeleteSpan = 'confirmDeleteSpan';
+
+            if (isDeleteClicked) {
+                $('#' + deleteSpan).hide();
+                $('#' + confirmDeleteSpan).show();
+            } else {
+                $('#' + deleteSpan).show();
+                $('#' + confirmDeleteSpan).hide();
+            }
+        }
+
+    </script>
+
+    <script>
+        tinymce.init({
+            readonly: true,
+            selector: 'textarea',
+            plugins: 'tinycomments mentions charmap emoticons lists table visualblocks wordcount checklist casechange export formatpainter permanentpen footnotes advtemplate advtable advcode tableofcontents mergetags powerpaste tinymcespellchecker autocorrect a11ychecker typography inlinecss',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | table mergetags | align lineheight | tinycomments | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+            tinycomments_mode: 'embedded',
+            tinycomments_author: 'Author name',
+            mergetags_list: [
+                { value: 'First.Name', title: 'First Name' },
+                { value: 'Email', title: 'Email' },
+            ]
+        });
+    </script>
 }
