@@ -32,54 +32,48 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         }
 
         /************************************
-        CREATE CATEGORY
+        CREATE OR UPDATE CATEGORY
         ************************************/
         //Get result for Create Category page
-        public IActionResult Create()
+
+        public IActionResult Upsert(int? id)
         {
-            return View();
+            var category = new Category();
+            if (id == null || id == 0)
+            {
+                return View(category);
+            }
+            else
+            {
+                category = UnitOfWork.CategoryRepository.Get(x => x.Id == id);
+                return View(category);
+            }
         }
-        //Post method handler for Create Category, being passed a Category to work with
+
         [HttpPost]
-        public IActionResult Create(Category obj)
+        public IActionResult Upsert(Category obj)
         {
             if (ModelState.IsValid)
             {
-                UnitOfWork.CategoryRepository.Add(obj);
+                bool create = obj.Id == 0;
+                if (create)
+                {
+                    UnitOfWork.CategoryRepository.Add(obj);
+                }
+                else
+                {
+                    UnitOfWork.CategoryRepository.Update(obj);
+                }
                 UnitOfWork.Save();
-                //Save to tempdata for accessing on next view w/ toastr.
-                TempData["success"] = $"Category {obj.Name} created successfully!";
+                TempData["success"] = $"Category {obj.Name} {(create ? "created" : "updated")} successfully!";
                 return RedirectToAction("Index", "Category");
             }
-            return View();
-        }
-
-
-
-        /************************************
-        UPDATE CATEGORY
-        ************************************/
-        //Get for Edit Category page. Takes in an id passed to it from form via POST.
-        public IActionResult Edit(int? id)
-        {
-            if (id == null || id == 0)
+            else
             {
-                return NotFound();
+                return View(obj);
             }
-            /*Category? categoryFromDb = _dbContext.Categories.Find(id);*/ //Nullable category, which is checked on next line.
-            Category? categoryFromDb = UnitOfWork.CategoryRepository.Get(c => c.Id == id);
-            //if (categoryFromDb == null) { return NotFound(); } //If find returned null, NotFound
-            return View(categoryFromDb);
         }
 
-        [HttpPost]
-        public IActionResult Edit(Category obj)
-        {
-            UnitOfWork.CategoryRepository.Update(obj); //Update the model and save changes.
-            UnitOfWork.Save();
-            TempData["success"] = $"Category {obj.Name} updated successfully!";
-            return RedirectToAction("Index", "Category");
-        }
 
 
 

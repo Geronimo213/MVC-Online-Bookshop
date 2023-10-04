@@ -85,7 +85,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
 
 
-            int pageSize = 3;
+            int pageSize = 4;
             return View(await PaginatedList<Product>.CreateAsync(books.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
@@ -172,7 +172,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            Product productFromDb = UnitOfWork.ProductRepository.Get(c => c.Id == id);
+            Product productFromDb = UnitOfWork.ProductRepository.Get(c => c.Id == id, includeOperators: "Category");
 
             return View(productFromDb);
         }
