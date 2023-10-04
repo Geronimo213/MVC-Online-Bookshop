@@ -12,25 +12,44 @@
         </div>
     </div>
     <div class="card-body p-4">
-        <form method="post" class="row" onsubmit="return confirm('Are you sure you want to delete category @Model.Name?');">
+        <form method="post" class="row">
+            <input asp-for="Name" hidden/>
+            <input asp-for="Id" hidden/>
             <div class="p-3">
-
+                @*CATEGORY NAME*@
                 <div class="mt-2 row col-sm-12 col-md-6 offset-md-3 form-floating">
                     <input asp-for="Name" type="text" class="form-control" disabled/>
                     <label asp-for="Name" class=""></label>
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
+                @*DISPLAY ORDER*@
                 <div class="mt-2 mb-3 col-sm-12 col-md-6 offset-md-3 form-floating">
                     <input asp-for="DisplayOrder" class="form-control" disabled/>
                     <label asp-for="DisplayOrder" class=""></label>
                     <span asp-validation-for="DisplayOrder" class="text-danger"></span>
                 </div>
-                <div class="row">
-                    <div class="col-sm-6 col-md-3 offset-md-3">
-                        <button type="submit" class="btn btn-outline-danger form-control">Delete</button>
-                    </div>
-                    <div class="col-sm-6 col-md-3">
-                        <a asp-controller="Category" asp-action="Index" class="btn btn-outline-primary form-control">Back</a>
+                @*SUBMIT / BACK*@
+                <div class="container">
+                    <div class="row col-6 offset-3">
+                        <div class="col-sm-6 col-md-6">
+                            <div id="confirmDeleteSpan" style="display:none" class="">
+                                <div class="row gap-1">
+                                    <button type="submit" class="btn btn-danger form-control col">Yes</button>
+                                    <a href="#!" class="btn btn-primary form-control col"
+                                       onclick="confirmDelete(false)">No</a>
+                                </div>
+
+                                <p class="text-center mt-1 text-danger">Are you sure you want to delete?</p>
+                            </div>
+                            <div id="deleteSpan">
+                                <a type="button" href="#!" class="btn btn-danger form-control"
+                                   onclick="confirmDelete(true)">Delete</a>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-md-6">
+                            <a href="#!" onclick="history.go(-1)" class="btn btn-outline-primary form-control">Back</a>
+                        </div>
                     </div>
                 </div>
 
@@ -44,4 +63,19 @@
     @{
         <partial name="_ValidationScriptsPartial" />
     }
+    <script type="text/javascript">
+        function confirmDelete(isDeleteClicked) {
+            var deleteSpan = 'deleteSpan';
+            var confirmDeleteSpan = 'confirmDeleteSpan';
+
+            if (isDeleteClicked) {
+                $('#' + deleteSpan).hide();
+                $('#' + confirmDeleteSpan).show();
+            } else {
+                $('#' + deleteSpan).show();
+                $('#' + confirmDeleteSpan).hide();
+            }
+        }
+
+    </script>
 }
