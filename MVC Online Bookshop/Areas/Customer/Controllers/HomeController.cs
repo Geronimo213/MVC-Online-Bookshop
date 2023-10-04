@@ -72,6 +72,15 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public IActionResult Cart()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            List<ShoppingCart> items = unitOfWork.ShoppingCartRepository.GetAll(includeOperators: "User,Product").Where(x => x.UserId == userId).ToList();
+
+            return View(items);
+        }
+
         public IActionResult Privacy()
         {
             return View();
