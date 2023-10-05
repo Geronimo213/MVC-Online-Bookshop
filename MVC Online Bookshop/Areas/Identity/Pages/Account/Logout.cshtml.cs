@@ -3,7 +3,10 @@
 #nullable disable
 
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Bookshop.DataAccess.Repository;
+using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +30,7 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation("User logged out.");
+            HttpContext.Session.Clear();
             if (returnUrl != null)
             {
                 return LocalRedirect(returnUrl);
