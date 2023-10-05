@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -9,6 +11,7 @@
     <link rel="stylesheet" href="~/MVC Online Bookshop.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+
 </head>
 <body>
     <header>
@@ -45,13 +48,21 @@
                         </li>
                     </ul>
                     <partial name="_LoginPartial"/>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" asp-area="Customer" asp-controller="Cart" asp-action="Index">
+                                <i class="bi bi-cart-fill fs-5"></i><span class="badge text-bg-danger ms-1">@HttpContextAccessor.HttpContext.Session.GetInt32(SD.SessionCart)</span>
+                            </a>
+
+                        </li>
+                    </ul>
                 </div>
             </div>
         </nav>
     </header>
     <div class="container">
         <main role="main" class="pb-3">
-            <partial name="_Notification" />
+            <partial name="_Notification"/>
             @RenderBody()
         </main>
     </div>
