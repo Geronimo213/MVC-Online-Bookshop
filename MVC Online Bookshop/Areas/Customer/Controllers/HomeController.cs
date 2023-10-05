@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.DataAccess.Repository;
+using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
@@ -12,22 +13,29 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private IUnitOfWork unitOfWork { get; set; }
+        private IUnitOfWork UnitOfWork { get;}
 
         public HomeController(IUnitOfWork unitOfWork, ILogger<HomeController> logger)
         {
-            this.unitOfWork = unitOfWork;
+            this.UnitOfWork = unitOfWork;
             this._logger = logger;
         }
 
 
         public IActionResult Index()
         {
-            var books = unitOfWork.ProductRepository.GetAll(includeOperators: "Category").ToList();
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier);
+            if (claim is not null)
+            {
+                HttpContext.Session.SetInt32(SD.SessionCart, 
+                    UnitOfWork.ShoppingCartRepository.GetAll().Count(x => x.UserId == claim.Value));
+            }
+            var books = UnitOfWork.ProductRepository.GetAll(includeOperators: "Category").ToList();
             return View(books);
         }
 
-        public IActionResult BookDetails(int productId)
+        public IActionResult BookDetails(int? productId)
         {
             if (productId == null)
             {
@@ -36,8 +44,8 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             }
             ShoppingCart cart = new()
             {
-                Product = unitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Category"),
-                ProductId = productId,
+                Product = UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Category"),
+                ProductId = (int)productId,
                 Count = 1
             };
             //var book = unitOfWork.ProductRepository.Get(x => x.Id == id, includeOperators: "Category");
@@ -52,34 +60,31 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
             cart.UserId = userId;
-            var book = unitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId) ?? new Product() {Title = "BOOK_NOT_FOUND"};
+            var book = UnitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId) ?? new Product() {Title = "BOOK_NOT_FOUND"};
 
-            ShoppingCart? cartFromDb = unitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId);
+            ShoppingCart? cartFromDb = UnitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId);
 
             if (cartFromDb != null)
             {
                 cartFromDb.Count += cart.Count;
-                unitOfWork.ShoppingCartRepository.Update(cartFromDb);
+                UnitOfWork.ShoppingCartRepository.Update(cartFromDb);
+                UnitOfWork.Save();
             }
             else
             {
-                unitOfWork.ShoppingCartRepository.Add(cart);
+                UnitOfWork.ShoppingCartRepository.Add(cart);
+                UnitOfWork.Save();
+
+                HttpContext.Session.SetInt32(SD.SessionCart, 
+                    UnitOfWork.ShoppingCartRepository.GetAll().Count(x => x.UserId == userId));
             }
 
             TempData["success"] = $"Added {book.Title} to the cart!";
 
-            unitOfWork.Save();
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Cart()
-        {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-            List<ShoppingCart> items = unitOfWork.ShoppingCartRepository.GetAll(includeOperators: "User,Product").Where(x => x.UserId == userId).ToList();
-
-            return View(items);
-        }
+        
 
         public IActionResult Privacy()
         {
