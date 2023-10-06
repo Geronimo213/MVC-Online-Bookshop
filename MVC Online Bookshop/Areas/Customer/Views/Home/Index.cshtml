@@ -14,8 +14,8 @@
             <div class="container-fluid pt-2 pe-0 ps-0 pb-2 mb-2 z-1 text-center text-wrap">
                 <p class="p-0 m-0 text-primary">@book.Title</p>
                 <p class="text-dark p-0 m-0">@book.Author</p>
-                <p class="text-info">$@book.Price</p>
-                <a role="button" asp-area="Customer" asp-controller="Home" asp-action="BookDetails" asp-route-productId="@book.Id" class="btn btn-dark">More Details</a>
+                <p class="text-info mb-0">$@book.Price</p>
+                <a role="button" asp-area="Customer" asp-controller="Home" asp-action="BookDetails" asp-route-productId="@book.Id" class="btn btn-dark btn-sm my-0">More Details</a>
             </div>
         </div>
     }
