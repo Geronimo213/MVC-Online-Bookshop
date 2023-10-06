@@ -1,6 +1,7 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
 @model PaginatedList<Product>;
 @{
     ViewData["Title"] = "Products";
@@ -76,26 +77,79 @@
         }
         
         
+        <div class="">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a asp-area="Admin"
+                       asp-controller="Product"
+                       asp-action="Index"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-pageNumber="@(Model.PageIndex - 1)"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       class="page-link @prevDisabled">
+                        &laquo;
+                    </a>
+                </li>
+                
+                <li class="page-item">
+                    <a asp-area="Admin"
+                       asp-controller="Product"
+                       asp-action="Index"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-pageNumber="1"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       class="page-link @(Model.PageIndex == 1 ? "active" : "")">
+                        1
+                    </a>
+                </li>
 
-        <a asp-area="Admin"
-           asp-controller="Product"
-           asp-action="Index"
-           asp-route-sortOrder="@ViewData["CurrentSort"]"
-           asp-route-pageNumber="@(Model.PageIndex - 1)"
-           asp-route-currentFilter="@ViewData["CurrentFilter"]"
-           class="btn btn-default @prevDisabled">
-            Previous
-        </a>
+                @for (int i = Math.Max(2, Model.PageIndex - SD.PagesAroundIndex); i < Model.TotalPages && i <= Model.PageIndex + SD.PagesAroundIndex; i++)
+                {
+                    string active = i == Model.PageIndex ? "active" : "";
+                    <li class="page-item @active">
+                        <a class="page-link"
+                           asp-area="Admin"
+                           asp-controller="Product"
+                           asp-action="Index"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           asp-route-pageNumber="@i"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                            @i
+                        </a>
+                    </li>
+                }
+                
+                @if (Model.TotalPages > 1)
+                {
+                    <li class="page-item">
+                        <a asp-area="Admin"
+                           asp-controller="Product"
+                           asp-action="Index"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           asp-route-pageNumber="@(Model.TotalPages)"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           class="page-link @(Model.PageIndex == @Model.TotalPages ? "active" : "")">
+                            @Model.TotalPages
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item">
+                    <a asp-area="Admin"
+                       asp-controller="Product"
+                       asp-action="Index"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-pageNumber="@(Model.PageIndex + 1)"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       class="page-link @nextDisabled">
+                        &raquo;
+                    </a>
+                </li>
+
+            </ul>
+            
+        </div>
         
-        <a asp-area="Admin"
-           asp-controller="Product"
-           asp-action="Index"
-           asp-route-sortOrder="@ViewData["CurrentSort"]"
-           asp-route-pageNumber="@(Model.PageIndex + 1)"
-           asp-route-currentFilter="@ViewData["CurrentFilter"]"
-           class="btn btn-default @nextDisabled">
-            Next
-        </a>
 
     </div>
 
