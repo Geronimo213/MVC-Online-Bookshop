@@ -24,13 +24,6 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claim = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier);
-            if (claim is not null)
-            {
-                HttpContext.Session.SetInt32(SD.SessionCart, 
-                    UnitOfWork.ShoppingCartRepository.GetAll().Count(x => x.UserId == claim.Value));
-            }
             var books = UnitOfWork.ProductRepository.GetAll(includeOperators: "Category").ToList();
             return View(books);
         }
@@ -44,8 +37,8 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             }
             ShoppingCart cart = new()
             {
-                Product = UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Category"),
-                ProductId = (int)productId,
+                Product = UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Category")!,
+                ProductId = (int)productId!,
                 Count = 1
             };
             //var book = unitOfWork.ProductRepository.Get(x => x.Id == id, includeOperators: "Category");
@@ -58,7 +51,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         public IActionResult BookDetails(ShoppingCart cart)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             cart.UserId = userId;
             var book = UnitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId) ?? new Product() {Title = "BOOK_NOT_FOUND"};
 
