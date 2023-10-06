@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = SD.Role_Admin)]
+    [Authorize(Roles = SD.RoleAdmin)]
     public class ProductController : Controller
     {
         private IUnitOfWork UnitOfWork { get; }
@@ -85,7 +85,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
 
 
-            int pageSize = 4;
+            int pageSize = SD.PageSizeProduct;
             return View(await PaginatedList<Product>.CreateAsync(books.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
