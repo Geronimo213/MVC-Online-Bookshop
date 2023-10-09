@@ -5,60 +5,24 @@
     double total = 0;
 }
 <div class="row justify-content-center m-0 p-0">
-    <div class="card shadow px-0 mx-0 mt-4 mb-4 w-75">
+    <div class="card shadow px-0 mx-0 mt-4 mb-4 col-lg-9 col-12">
         <div class="row card-header py-2 m-0">
             <div class="col-6">
                 <h2 class="text-primary">Shopping Cart</h2>
             </div>
             <div class="col-6 text-end">
-                @* <a asp-controller="Home" asp-action="Cate" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> Category</a> *@
             </div>
         </div>
-       @*  <div class="card-body row justify-content-center text-center">
-            
-
-            <table class="table table-striped table-responsive">
-                <thead>
-                <tr>
-                    <th class="text-start">
-                        Book
-                    </th>
-                    <th>
-                        Amount
-                    </th>
-                    <th class="text-end">
-                        Price / Book
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var obj in Model.OrderBy(u => u.Product.Title))
-                {
-                    total += Math.Round(obj.Count * obj.Product.Price ?? 0, 2);
-                    <tr>
-                        <td class="text-start">@obj.Product.Title</td>
-                        <td>@obj.Count</td>
-                        <td class="text-end">@obj.Product.Price</td>
-                    </tr>}
-                <tr>
-                    <td colspan="2"></td>
-                    <td class="text-end text-primary">@total.ToString("c")<br/>
-                        <button class="mt-2 btn btn-success">Checkout</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-
-        </div> *@
         <div class="container pt-3">
+            
             @foreach (var item in Model)
             {
                 var book = item.Product;
                 double price = Math.Round(item.Count * book.Price ?? 0, 2);
                 total += price;
-                <div class="card-body row justify-content-center">
+                <div class="card-body row justify-content-center d-flex flex-nowrap h-auto">
                     <div class="col d-flex justify-content-center">
-                        <img src="~/@book.ImageURL" width="100px" height="160px"/>
+                        <img class="shadow img-fluid" src="~/@book.ImageURL" />
                     </div>
 
                     <div class="col d-flex">
@@ -69,10 +33,10 @@
                             <li class="text-muted list-group-item">@book.ISBN</li>
                         </ul>
                     </div>
-                    
+
                     <div class="d-flex col row justify-content-center my-auto">
                         <form method="post">
-                            <div class="container row gap-1 my-auto">
+                            <div class="container row gap-1 my-auto mx-auto">
                                 <button class="btn btn-outline-primary col"
                                         asp-area="Customer"
                                         asp-controller="Cart"
@@ -92,32 +56,32 @@
                                 </button>
                             </div>
                         </form>
-                        
+
                     </div>
-                    
+
                     <div class="d-flex col justify-content-center">
                         <h4 class="text-center my-auto"> x @book.Price = <span class="text-info">@(price.ToString("C"))</span></h4>
                     </div>
-                    
+
                     <div class="d-flex col-1 justify-content-center my-auto">
                         <form method="post">
                             <button class="btn btn-danger"
-                            asp-area="Customer"
-                            asp-controller="Cart"
-                            asp-action="RemoveItem"
-                            asp-route-cartId="@item.Id">
+                                    asp-area="Customer"
+                                    asp-controller="Cart"
+                                    asp-action="RemoveItem"
+                                    asp-route-cartId="@item.Id">
                                 <i class="bi bi-trash3-fill"></i>
                             </button>
                         </form>
                     </div>
 
                 </div>
-                
-                
+
+
 
                 <hr/>
             }
-            
+
             <div class="row">
                 <div class="d-flex col justify-content-end my-auto pb-3">
                     <h4 class="text-center my-auto">Total = <span class="text-info">@(total.ToString("C"))</span></h4>
@@ -125,7 +89,7 @@
             </div>
             <div class="row">
                 <div class="d-flex col justify-content-end my-auto mt-0 pt-0 pb-3">
-                    <button class="btn btn-success">Checkout</button>
+                    <a class="btn btn-success btn-lg" asp-area="Customer" asp-controller="Checkout" asp-action="Index">Checkout</a>
                 </div>
             </div>
 
