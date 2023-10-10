@@ -38,3 +38,7 @@ body {
 #module a:not(.collapsed)::after {
     content: '- Show Less';
 }
+
+#toast-container > div {
+    opacity: 1;
+}
