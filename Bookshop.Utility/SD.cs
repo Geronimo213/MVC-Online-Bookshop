@@ -15,7 +15,7 @@ namespace Bookshop.Utility
         public const string SessionCart = "SessionShoppingCart";
 
         public const int PagesAroundIndex = 4;
-        public const int PageSizeProduct = 4;
+        public const int PageSizeProduct = 5;
 
         public const string CartIncrement = "Increment";
         public const string CartDecrement = "Decrement";
