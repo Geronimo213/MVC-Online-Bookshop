@@ -15,7 +15,8 @@ namespace Bookshop.DataAccess.Repository
         public IProductRepository ProductRepository { get; }
         public IShoppingCartRepository ShoppingCartRepository { get; }
         public IAppUserRepository AppUserRepository { get; }
-
+        public IOrderRepository OrderRepository { get; }
+        public IOrderLinesRepository OrderLinesRepository { get; }
         public UnitOfWork(AppDBContext dbContext)
         {
             this.DbContext = dbContext;
@@ -23,6 +24,8 @@ namespace Bookshop.DataAccess.Repository
             this.ProductRepository = new ProductRepository(dbContext);
             this.ShoppingCartRepository = new ShoppingCartRepository(dbContext);
             this.AppUserRepository = new AppUserRepository(dbContext);
+            this.OrderRepository = new OrderRepository(dbContext);
+            this.OrderLinesRepository = new OrderLinesRepository(dbContext);
         }
 
         public void Save()
