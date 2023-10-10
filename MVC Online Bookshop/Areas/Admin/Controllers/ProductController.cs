@@ -32,14 +32,15 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         ************************************/
 
         //Handler for main Category page
-        public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? pageNumber)
+        public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter,int? pageSize, int? pageNumber)
         {
+            ViewData["CurrentSort"] = sortOrder;
             ViewData["TitleSortParam"] = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
             ViewData["AuthorSortParam"] = sortOrder == "Author" ? "auth_desc" : "Author";
             ViewData["CategorySortParam"] = sortOrder == "Category" ? "cat_desc" : "Category";
             ViewData["PriceSortParam"] = sortOrder == "Price" ? "price_desc" : "Price";
 
-            if (!String.IsNullOrEmpty(searchString))
+            if (searchString != null)
             {
                 pageNumber = 1;
             }
@@ -48,6 +49,9 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 searchString = currentFilter;
             }
             ViewData["CurrentFilter"] = searchString;
+
+            pageSize ??= SD.PageSizeProduct;
+            ViewData["CurrentPageSize"] = (int)pageSize;
 
             var books =  UnitOfWork.ProductRepository.GetAll(includeOperators: "Category");
             books = String.IsNullOrEmpty(searchString) ? books : books.Where(s => 
@@ -85,8 +89,8 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
 
 
-            int pageSize = SD.PageSizeProduct;
-            return View(await PaginatedList<Product>.CreateAsync(books.AsNoTracking(), pageNumber ?? 1, pageSize));
+            //int pageSize = SD.PageSizeProduct;
+            return View(await PaginatedList<Product>.CreateAsync(books.AsNoTracking(), pageNumber ?? 1, (int)pageSize));
         }
 
         /************************************
