@@ -4,7 +4,11 @@
 <ul class="navbar-nav">
     <li class="nav-item d-flex flex-nowrap">
         <a class="nav-link active d-flex flex-nowrap" asp-area="Customer" asp-controller="Cart" asp-action="Index">
-            <i class="bi bi-cart-fill fs-5 d-inline-flex"></i><span class="badge text-bg-danger ms-1 d-inline-flex" @(Model == 0 ? "hidden" : "")>@Model</span>
+            <i class="bi bi-cart-fill fs-5 d-inline-flex"></i>
+            @if (@Model > 0)
+            {
+                <span class="badge text-bg-danger ms-1 d-inline-flex">@Model</span>
+            }
         </a>
 
     </li>
