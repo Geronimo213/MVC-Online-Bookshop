@@ -20,8 +20,8 @@
             <div class="container pt-3 mb-2">
                 <form method="post" asp-controller="Checkout" asp-action="ConfirmOrder">
                     <h5 class="text-muted">Shipping Address</h5>
-                    <input asp-for="Order.UserId" hidden/>
-                    <input asp-for="Items" hidden/>
+                    <input asp-for="Order.UserId" value="@Model.Order.UserId" hidden/>
+                    <input asp-for="Items" value="@Model.Items" hidden/>
                     <input id="submit-form" type="submit" hidden/>
 
                     @*Name*@

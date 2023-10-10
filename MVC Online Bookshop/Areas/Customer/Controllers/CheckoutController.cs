@@ -43,9 +43,29 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             return View(model);
         }
 
+        [HttpPost]
         public IActionResult ConfirmOrder(CheckoutVM checkoutVm)
         {
-            return View();
+            List<ShoppingCart> items = UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == checkoutVm.Order.UserId).ToList();
+            checkoutVm.Items = items;
+            checkoutVm.Order.PlaceDate = DateTime.Now;
+            UnitOfWork.OrderRepository.Add(checkoutVm.Order);
+            UnitOfWork.Save();
+
+            foreach (var vmItem in checkoutVm.Items)
+            {
+                OrderLines orderLines = new OrderLines()
+                {
+                    OrderId = checkoutVm.Order.OrderId,
+                    ProductId = vmItem.ProductId,
+                    Quantity = vmItem.Count
+                };
+                UnitOfWork.OrderLinesRepository.Add(orderLines);
+            }
+            UnitOfWork.Save();
+
+
+            return View(checkoutVm);
         }
     }
 }
