@@ -3,11 +3,13 @@ using Bookshop.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Bookshop.Models.ViewModels;
+using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
     [Area("Customer")]
+    [Authorize]
     public class CheckoutController : Controller
     {
         private IUnitOfWork UnitOfWork { get; set; }
@@ -21,6 +23,12 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             List<ShoppingCart> items = UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == userId).ToList();
+
+            if (items.Count < 1)
+            {
+                TempData["warning"] = "Try adding some items to your cart first!";
+                return RedirectToAction("Index", "Cart");
+            }
 
             var order = new Order()
             {
@@ -62,9 +70,10 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 };
                 UnitOfWork.OrderLinesRepository.Add(orderLines);
             }
+            UnitOfWork.ShoppingCartRepository.DeleteRange(items);
             UnitOfWork.Save();
-
-
+            
+            HttpContext.Session.Clear();
             return View(checkoutVm);
         }
     }
