@@ -63,5 +63,19 @@ namespace Bookshop.DataAccess.Repository
             }
             return query;
         }
+
+        public IQueryable<T>? GetAll(Expression<Func<T, bool>> filter, string? includeOperators = null)
+        {
+            IQueryable<T> query = DbSet;
+            query = query.Where(filter);
+            if (!String.IsNullOrEmpty(includeOperators))
+            {
+                foreach (var includeOperator in includeOperators.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeOperator);
+                }
+            }
+            return query;
+        }
     }
 }
