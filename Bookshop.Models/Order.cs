@@ -31,17 +31,25 @@ namespace Bookshop.Models
         /// <summary>
         /// Shipping Address
         /// </summary>
+        [Required]
         public string? ShipStreetAddress { get; set; }
+        [Required]
         public string? ShipCity { get; set; }
+        [Required]
         public string? ShipState { get; set; }
+        [Required]
         public string? ShipPostalCode { get; set; }
 
         /// <summary>
         /// Billing Address
         /// </summary>
+        [Required]
         public string? BillStreetAddress { get; set; }
+        [Required]
         public string? BillCity { get; set; }
+        [Required]
         public string? BillState { get; set; }
+        [Required]
         public string? BillPostalCode { get; set; }
 
         public string PhoneNumber { get; set; } = "(XXX) XXX-XXXX";
