@@ -26,6 +26,7 @@ namespace Bookshop.Models
         public DateTime? ShipDate { get; set; }
         public string OrderStatus { get; set; } = "Placed";
 
+        [Required]
         public string Name { get; set; } = "Anonymous";
 
         /// <summary>
@@ -52,6 +53,8 @@ namespace Bookshop.Models
         [Required]
         public string? BillPostalCode { get; set; }
 
+        [Required]
+        [Phone]
         public string PhoneNumber { get; set; } = "(XXX) XXX-XXXX";
 
         /// <summary>
