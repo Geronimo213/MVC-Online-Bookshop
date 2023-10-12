@@ -35,8 +35,9 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item @(Context.Request.Path == "/Admin/Category" ? "active" : "")" asp-area="Admin" asp-controller="Category" asp-action="Index" >Categories</a></li>
-                                    <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item @(Context.Request.Path == "/Admin/Product" ? "active" : "")" asp-area="Admin" asp-controller="Product" asp-action="Index">Books</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item @(Context.Request.Path == "/Admin/OrderManagement" ? "active" : "")" asp-area="Admin" asp-controller="OrderManagement" asp-action="Index" >Orders</a></li>
                                 </ul>
 
                             
