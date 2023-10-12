@@ -6,12 +6,15 @@ using Bookshop.Utility;
 using Microsoft.AspNetCore.Mvc;
 using static System.Reflection.Metadata.BlobBuilder;
 using System.Drawing.Printing;
+using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class OrderManagementController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -23,7 +26,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? pageSize, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
-            ViewData["IdSortParam"] = String.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
+            ViewData["IdSortParam"] = String.IsNullOrEmpty(sortOrder) ? "id_asc" : "";
             ViewData["NameSortParam"] = sortOrder == "Name" ? "name_desc" : "Name";
             ViewData["PlaceDateSortParam"] = sortOrder == "PlaceDate" ? "place_date_desc" : "PlaceDate";
             ViewData["ShipDateSortParam"] = sortOrder == "ShipDate" ? "ship_date_desc" : "ShipDate";
@@ -44,20 +47,20 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
 
             List<OrderVM> orders = new List<OrderVM>();
-
+            DateTime.TryParse(searchString, out DateTime searchDate);
             var orderQuery = _unitOfWork.OrderRepository.GetAll();
             orderQuery = String.IsNullOrEmpty(searchString) ? orderQuery : orderQuery.Where(s =>
                 s.OrderId.ToString().Contains(searchString)
                 || s.Name.Contains(searchString)
-                || s.PlaceDate.ToString("MM/dd/yyyy").Contains(searchString)
+                || s.PlaceDate.Date == searchDate.Date
                 || s.BillState!.Contains(searchString)
                 || s.BillCity!.Contains(searchString)
                 );
 
             switch (sortOrder)
             {
-                case "id_desc":
-                    orderQuery = orderQuery.OrderByDescending(s => s.OrderId);
+                case "id_asc":
+                    orderQuery = orderQuery.OrderBy(s => s.OrderId);
                     break;
                 case "Name":
                     orderQuery = orderQuery.OrderBy(s => s.Name);
@@ -84,7 +87,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                     orderQuery = orderQuery.OrderByDescending(s => s.OrderStatus);
                     break;
                 default:
-                    orderQuery = orderQuery.OrderBy(s => s.OrderId);
+                    orderQuery = orderQuery.OrderByDescending(s => s.OrderId);
                     break;
             }
 
@@ -107,7 +110,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             var orderLinesQuery = _unitOfWork.OrderLinesRepository.GetAll();
 
             var orderReports = await
-                PaginatedList<OrderVM>.CreateAsync(orderQuery, orderLinesQuery, pageNumber ?? 1, (int)pageSize);
+                PaginatedList<OrderVM>.CreateAsync(orderQuery, orderLinesQuery, pageNumber ?? 1, (int)pageSize, includeOperators:"Product");
 
             return View(orderReports);
         }
