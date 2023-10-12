@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Bookshop.Models;
 using Bookshop.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 namespace Bookshop.Utility
@@ -39,7 +40,7 @@ namespace Bookshop.Utility
             var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
         }
-        public static async Task<PaginatedList<OrderVM>> CreateAsync(IQueryable<Order> source, IQueryable<OrderLines> joinSource, int pageIndex, int pageSize)
+        public static async Task<PaginatedList<OrderVM>> CreateAsync(IQueryable<Order> source, IQueryable<OrderLines> joinSource, int pageIndex, int pageSize, string? includeOperators)
         {
             var count = await source.CountAsync();
             var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
@@ -48,9 +49,17 @@ namespace Bookshop.Utility
             {
                 var orderVM = new OrderVM
                 {
-                    Header = item,
-                    Lines = await joinSource.Where(x => x.OrderId == item.OrderId).ToListAsync()
+                    Header = item
                 };
+                var lineQuery = joinSource.Where(x => x.OrderId == item.OrderId);
+                if (!String.IsNullOrEmpty(includeOperators))
+                {
+                    foreach (var includeOperator in includeOperators.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        lineQuery = lineQuery.Include(includeOperator);
+                    }
+                }
+                orderVM.Lines = lineQuery;
                 orderList.Add(orderVM);
             }
 
