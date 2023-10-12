@@ -54,27 +54,34 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         [HttpPost]
         public IActionResult ConfirmOrder(CheckoutVM checkoutVm)
         {
-            List<ShoppingCart> items = UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == checkoutVm.Order.UserId).ToList();
-            checkoutVm.Items = items;
-            checkoutVm.Order.PlaceDate = DateTime.Now;
-            UnitOfWork.OrderRepository.Add(checkoutVm.Order);
-            UnitOfWork.Save();
-
-            foreach (var vmItem in checkoutVm.Items)
+            if (ModelState.IsValid)
             {
-                OrderLines orderLines = new OrderLines()
+                List<ShoppingCart> items = UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == checkoutVm.Order.UserId).ToList();
+                checkoutVm.Items = items;
+                checkoutVm.Order.PlaceDate = DateTime.Now;
+                UnitOfWork.OrderRepository.Add(checkoutVm.Order);
+                UnitOfWork.Save();
+
+                foreach (var vmItem in checkoutVm.Items)
                 {
-                    OrderId = checkoutVm.Order.OrderId,
-                    ProductId = vmItem.ProductId,
-                    Quantity = vmItem.Count
-                };
-                UnitOfWork.OrderLinesRepository.Add(orderLines);
+                    OrderLines orderLines = new OrderLines()
+                    {
+                        OrderId = checkoutVm.Order.OrderId,
+                        ProductId = vmItem.ProductId,
+                        Quantity = vmItem.Count
+                    };
+                    UnitOfWork.OrderLinesRepository.Add(orderLines);
+                }
+                UnitOfWork.ShoppingCartRepository.DeleteRange(items);
+                UnitOfWork.Save();
+
+                HttpContext.Session.Clear();
+                return View(checkoutVm);
             }
-            UnitOfWork.ShoppingCartRepository.DeleteRange(items);
-            UnitOfWork.Save();
-            
-            HttpContext.Session.Clear();
-            return View(checkoutVm);
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }
