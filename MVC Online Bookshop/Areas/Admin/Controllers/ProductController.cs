@@ -40,7 +40,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             ViewData["CategorySortParam"] = sortOrder == "Category" ? "cat_desc" : "Category";
             ViewData["PriceSortParam"] = sortOrder == "Price" ? "price_desc" : "Price";
 
-            if (searchString != null)
+            if (!String.IsNullOrEmpty(searchString))
             {
                 pageNumber = 1;
             }
