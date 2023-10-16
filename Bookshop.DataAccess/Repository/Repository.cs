@@ -37,7 +37,7 @@ namespace Bookshop.DataAccess.Repository
             DbSet.RemoveRange(entities);
         }
 
-        public T? Get(Expression<Func<T, bool>> filter, string? includeOperators = null, bool tracked = false)
+        public async Task<T?> Get(Expression<Func<T, bool>> filter, string? includeOperators = null, bool tracked = false)
         {
             IQueryable<T> query = tracked ? DbSet : DbSet.AsNoTracking();
             query = query.Where(filter);
@@ -48,7 +48,7 @@ namespace Bookshop.DataAccess.Repository
                     query = query.Include(includeOperator);
                 }
             }
-            return query.FirstOrDefault();
+            return await query.FirstOrDefaultAsync();
         }
 
         public IQueryable<T> GetAll(string? includeOperators = null)

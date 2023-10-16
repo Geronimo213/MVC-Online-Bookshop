@@ -12,7 +12,7 @@ namespace Bookshop.DataAccess.Repository.IRepository
         //For Category type
         IQueryable<T> GetAll(string? includeOperators = null);
         IQueryable<T>? GetAll(Expression<Func<T, bool>> filter, string? includeOperators = null);
-        T? Get(Expression<Func<T, bool>> filter, string? includeOperators = null, bool tracked = false);
+        Task<T?> Get(Expression<Func<T, bool>> filter, string? includeOperators = null, bool tracked = false);
         void Add(T entity);
         void Delete(T entity);
         void DeleteRange(IEnumerable<T> entities);
