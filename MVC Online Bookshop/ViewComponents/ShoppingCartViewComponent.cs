@@ -3,6 +3,7 @@ using Bookshop.Utility;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Bookshop.DataAccess.Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace MVC_Online_Bookshop.ViewComponents
 {
@@ -17,7 +18,7 @@ namespace MVC_Online_Bookshop.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var claim = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier);
 
             if (claim is not null)
@@ -25,7 +26,7 @@ namespace MVC_Online_Bookshop.ViewComponents
                 if (HttpContext.Session.GetInt32(SD.SessionCart) is null)
                 {
                     HttpContext.Session.SetInt32(SD.SessionCart,
-                        UnitOfWork.ShoppingCartRepository.GetAll().Count(x => x.UserId == claim.Value));
+                        await UnitOfWork.ShoppingCartRepository.GetAll().CountAsync(x => x.UserId == claim.Value));
                 }
                 
                 return View((int)HttpContext.Session.GetInt32(SD.SessionCart)!);
