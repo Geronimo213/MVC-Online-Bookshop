@@ -32,7 +32,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             ViewData["ShipDateSortParam"] = sortOrder == "ShipDate" ? "ship_date_desc" : "ShipDate";
             ViewData["StatusSortParam"] = sortOrder == "Status" ? "status_desc" : "Status";
 
-            if (searchString != null)
+            if (!String.IsNullOrEmpty(searchString))
             {
                 pageNumber = 1;
             }
@@ -113,6 +113,34 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 PaginatedList<OrderVM>.CreateAsync(orderQuery, orderLinesQuery, pageNumber ?? 1, (int)pageSize, includeOperators:"Product");
 
             return View(orderReports);
+        }
+
+        public async Task<IActionResult> OrderDetails(int? orderId)
+        {
+            if (orderId is not null)
+            {
+                var order = new OrderVM()
+                {
+                    Header = await _unitOfWork.OrderRepository.Get(x => x.OrderId == orderId) ?? new Order(),
+                    Lines = await _unitOfWork.OrderLinesRepository.GetAll(x => x.OrderId == orderId, includeOperators: "Product")!.ToListAsync()
+                };
+                return View(order);
+            }
+            TempData["error"] = "Order not found.";
+            var returnUri = HttpContext.Request.Headers.Referer.ToString();
+            return NotFound();
+        }
+
+        public async Task<IActionResult> UpdateShipping(OrderVM order)
+        {
+            if (order.Header.OrderId != 0)
+            {
+                _unitOfWork.OrderRepository.Update(order.Header);
+                _unitOfWork.Save();
+                TempData["success"] = "Tracking updated!";
+            }
+            var returnUri = HttpContext.Request.Headers.Referer.ToString();
+            return RedirectToAction(nameof(OrderDetails), order.Header.OrderId);
         }
     }
 }
