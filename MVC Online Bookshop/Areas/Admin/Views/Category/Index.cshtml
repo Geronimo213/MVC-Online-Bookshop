@@ -5,7 +5,7 @@
 @model PaginatedList<Category>;
 @{
     ViewData["Title"] = "Categories";
-    int currentPageSize = (int)ViewData["CurrentPageSize"];
+    int? currentPageSize = (int?)ViewData["CurrentPageSize"];
 }
 
 <div class="card shadow mt-4 mb-4">
@@ -22,7 +22,7 @@
             <div class="form-control">
                 <h6 class="text-info pt-3 my-auto">
                     Search <input class="ms-1 my-auto align-middle" type="text" name="searchString" value="@ViewData["CurrentFilter"]" />
-                    <input type="submit" value="Search" class="btn btn-info" />&nbsp; |
+                    <input type="submit" value="Search" class="btn btn-info"/>&nbsp; |
                     <a asp-area="Admin" asp-controller="Category" asp-action="Index" class="ps-1 text-info">Reset Filters</a> &nbsp; |
                     Rows per page:
                     <a asp-area="Admin"
@@ -30,18 +30,21 @@
                        asp-action="Index"
                        asp-route-pageSize="5"
                        asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
                        class="link-underline-primary link-opacity-50-hover @(currentPageSize == 5 ? "text-muted link-underline-opacity-0" : "")">5</a>&nbsp;
                     <a asp-area="Admin"
                        asp-controller="Category"
                        asp-action="Index"
                        asp-route-pageSize="10"
                        asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
                        class="link-underline-primary link-opacity-50-hover @(currentPageSize == 10 ? "text-muted link-underline-opacity-0" : "")">10</a>&nbsp;
                     <a asp-area="Admin"
                        asp-controller="Category"
                        asp-action="Index"
                        asp-route-pageSize="25"
                        asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
                        class="link-underline-primary link-opacity-50-hover @(currentPageSize == 25 ? "text-muted link-underline-opacity-0" : "")">25</a>
                 </h6>
             </div>

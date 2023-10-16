@@ -5,7 +5,8 @@
 @model PaginatedList<Product>;
 @{
     ViewData["Title"] = "Products";
-    int currentPageSize = (int)ViewData["CurrentPageSize"];
+    int? currentPageSize = (int?)ViewData["CurrentPageSize"];
+    
 }
 
 <div class="card shadow mt-4 mb-4">
@@ -30,18 +31,21 @@
                        asp-action="Index"
                        asp-route-pageSize="5"
                        asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
                        class="link-underline-primary link-opacity-50-hover @(currentPageSize == 5 ? "text-muted link-underline-opacity-0" : "")">5</a>&nbsp;
                     <a asp-area="Admin"
                        asp-controller="Product"
                        asp-action="Index"
                        asp-route-pageSize="10"
-                       asp-route-sortOrder="@ViewData["CurrentSort"]" 
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
                        class="link-underline-primary link-opacity-50-hover @(currentPageSize == 10 ? "text-muted link-underline-opacity-0" : "")">10</a>&nbsp;
                     <a asp-area="Admin"
                        asp-controller="Product"
                        asp-action="Index"
                        asp-route-pageSize="25"
                        asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
                        class="link-underline-primary link-opacity-50-hover @(currentPageSize == 25 ? "text-muted link-underline-opacity-0" : "")">25</a>
                 </h6>
             </div>

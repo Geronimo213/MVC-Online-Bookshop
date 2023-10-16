@@ -1,12 +1,9 @@
 ﻿
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
 @using Microsoft.EntityFrameworkCore.Metadata.Internal
 @model PaginatedList<OrderVM>
 @{
     ViewData["Title"] = "Order Management";
-    int currentPageSize = (int)ViewData["CurrentPageSize"]!;
+    int? currentPageSize = (int?)ViewData["CurrentPageSize"];
 }
 
 <div class="card shadow mt-4 mb-4">
@@ -24,7 +21,7 @@
         <form method="get" asp-area="Admin" asp-controller="OrderManagement" asp-action="Index">
             <div class="form-control">
                 <h6 class="text-info pt-3 my-auto">
-                    Search: <input class="ms-1 my-auto align-middle" type="text" name="searchString" value="@ViewData["CurrentFilter"]" />
+                    Search: <input class="ms-1 my-auto align-middle" type="text" name="searchString" value="@ViewData["CurrentFilter"]"/>
                     <input type="submit" value="Search" class="btn btn-info" />&nbsp; |
                     <a asp-area="Admin" asp-controller="OrderManagement" asp-action="Index" class="ps-1 text-info">Reset Filters</a> &nbsp; |
                     Rows per page:&nbsp;
@@ -110,12 +107,13 @@
                     <td class="text-primary fw-bold">@order.Header.PlaceDate.ToString("MM/dd/yyyy")</td>
                     <td class="text-primary fw-bold">@(order.Header.ShipDate is null ? "N/A" : order.Header.ShipDate?.ToString("MM/dd/yyyy"))</td>
                     <td class="text-primary fw-bold">@order.Header.ShipPostalCode</td>
-
+                    
+                    @* MANAGEMENT BUTTONS *@
                     @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
                     {
                         <td class="text-sm-center align-middle">
                             <div class=" btn-group gap-2" role="group">
-                                <a asp-area="Admin" asp-controller="OrderManagement" asp-action="" asp-route-id="@order.Header.OrderId" class="btn btn-primary"><i class="bi bi-box2-heart"></i> Add Shipping</a>
+                                    <a asp-area="Admin" asp-controller="OrderManagement" asp-action="OrderDetails" asp-route-orderId="@order.Header.OrderId" class="btn btn-primary"><i class="bi bi-card-list"></i> Details</a>
                                 @if (User.IsInRole("Admin"))
                                 {
                                     <a asp-area="Admin" asp-controller="OrderManagement" asp-action="" asp-route-id="@order.Header.OrderId" class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Delete</a>
@@ -143,7 +141,7 @@
                             <tbody>
                             @foreach (var line in order.Lines)
                             {
-                                totalPrice += (double)((line.Product.Price ?? 1.00) * line.Quantity);
+                                totalPrice += Math.Round((line.Product.Price ?? 1.00) * line.Quantity, 2);
                                 <tr class="text-body-secondary">
                                     <td>@line.Product.Title</td>
                                     <td>@line.Product.Author</td>
