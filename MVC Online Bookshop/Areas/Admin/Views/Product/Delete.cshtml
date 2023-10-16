@@ -34,7 +34,7 @@
                     @*CATEGORY SELECTION*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12 form-floating">
                         <select asp-for="CategoryId" class="form-select pb-2" disabled>
-                            <option selected disabled>@Model.Category.Name</option>
+                            <option selected disabled>@Model.Category?.Name</option>
                         </select>
                         <label asp-for="CategoryId" class="">Category</label>
                         <span asp-validation-for="CategoryId" class="text-danger"></span>
@@ -123,14 +123,8 @@
         tinymce.init({
             readonly: true,
             selector: 'textarea',
-            plugins: 'tinycomments mentions charmap emoticons lists table visualblocks wordcount checklist casechange export formatpainter permanentpen footnotes advtemplate advtable advcode tableofcontents mergetags powerpaste tinymcespellchecker autocorrect a11ychecker typography inlinecss',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | table mergetags | align lineheight | tinycomments | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-            tinycomments_mode: 'embedded',
-            tinycomments_author: 'Author name',
-            mergetags_list: [
-                { value: 'First.Name', title: 'First Name' },
-                { value: 'Email', title: 'Email' },
-            ]
+            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
         });
     </script>
 }
