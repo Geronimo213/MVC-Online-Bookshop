@@ -1,0 +1,196 @@
+﻿
+@model OrderVM
+
+@{
+    ViewData["Title"] = "Order Details";
+    double total = 0;
+}
+<div class="float-start mt-2">
+    @* Back Button *@
+    <a class="btn btn-outline-danger btn-lg" onclick="window.history.go(-1)">Back to Orders</a>
+</div>
+<div class="container d-flex flex-wrap gap-3 justify-content-around">
+
+    <div class="row d-flex justify-content-center m-0 p-0">
+        <div class="card shadow px-0 mx-0 mt-4 mb-auto">
+            <div class="row card-header py-2 m-0">
+                <h2 class="text-primary">Order Details</h2>
+            </div>
+            <div class="container pt-3 mb-2">
+                <form method="post" asp-controller="OrderManagement" asp-action="UpdateShipping">
+                    <h5 class="text-muted">Shipping Address</h5>
+                    <input asp-for="Header.OrderId" value="@Model.Header.OrderId" hidden />
+                    <input id="submit-form" type="submit" hidden />
+
+                    <div class="d-flex flex-sm-row flex-sm-nowrap mt-2 gap-1">
+                        <div class="mt-2 form-floating col-12 col-md-auto pe-md-1 my-auto">
+                            <input asp-for="Header.TrackingNumber" type="text" class="form-control" placeholder="Tracking#"/>
+                            <label asp-for="Header.TrackingNumber">Tracking#</label>
+                        </div>
+                        <div class="col-12 col-md-auto justify-content-center m-0 p-0 mt-3">
+                            <label for="submit-form" tabindex="0" class="btn btn-primary my-auto">Add/Update Shipping</label>
+                        </div>
+                    </div>
+                    
+
+                    @*Name*@
+                    <div class="mt-2 form-floating">
+                        <input asp-for="Header.Name" type="text" class="form-control" placeholder="Full Name" disabled/>
+                        <label asp-for="Header.Name">Full Name</label>
+                    </div>
+                    @*ShippingStreet*@
+                    <div class="mt-2 form-floating">
+                        <input asp-for="Header.ShipStreetAddress" type="text" class="form-control" placeholder="Street" disabled/>
+                        <label asp-for="Header.ShipStreetAddress">Street</label>
+                    </div>
+                    @*ShippingCity*@
+                    <div class="mt-2 form-floating">
+                        <input asp-for="Header.ShipCity" type="text" class="form-control" placeholder="City" />
+                        <label asp-for="Header.ShipCity" class="">City</label>
+                    </div>
+
+                    @* ShippingState and ShippingPostalCode *@
+                    <div class="d-flex flex-sm-row flex-wrap mt-2">
+                        <div class="form-floating mb-3 col-12 col-md-6 pe-md-1">
+                            <input asp-for="Header.ShipState" class="form-control" autocomplete="address-level1" aria-required="true" placeholder="State" disabled/>
+                            <label asp-for="Header.ShipState">State</label>
+                        </div>
+                        <div class="form-floating col-12 col-md-6 ps-md-1">
+                            <input asp-for="Header.ShipPostalCode" class="form-control" autocomplete="postal-code" aria-required="true" placeholder="Post Code" disabled/>
+                            <label asp-for="Header.ShipPostalCode">Postal Code</label>
+                        </div>
+                    </div>
+
+                    @*Phone*@
+                    <div class="mt-2 form-floating">
+                        <input asp-for="Header.PhoneNumber" type="text" class="form-control" placeholder="Phone Number" disabled />
+                        <label asp-for="Header.PhoneNumber" class=""></label>
+                    </div>
+
+                    <hr />
+
+                    <h5 class="text-muted">Billing Address</h5>
+                    @*Billing Street*@
+                    <div class="mt-2 form-floating">
+                        <input asp-for="Header.BillStreetAddress" type="text" class="form-control" placeholder="Street" disabled/>
+                        <label asp-for="Header.BillStreetAddress" class="">Billing Street</label>
+                    </div>
+                    @*Billing City*@
+                    <div class="mt-2 form-floating">
+                        <input asp-for="Header.BillCity" type="text" class="form-control" placeholder="City" disabled/>
+                        <label asp-for="Header.BillCity" class="">City</label>
+                    </div>
+
+                    @* Billing State and Post Code *@
+                    <div class="d-flex flex-sm-row flex-wrap mt-2">
+                        <div class="form-floating mb-3 col-12 col-md-6 pe-md-1">
+                            <input asp-for="Header.BillState" class="form-control" autocomplete="address-level1" aria-required="true" placeholder="State" disabled/>
+                            <label asp-for="Header.BillState">State</label>
+                        </div>
+                        <div class="form-floating col-12 col-md-6 ps-md-1">
+                            <input asp-for="Header.BillPostalCode" class="form-control" autocomplete="postal-code" aria-required="true" placeholder="Post Code" disabled />
+                            <label asp-for="Header.BillPostalCode">Postal Code</label>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row d-flex justify-content-center m-0 p-0">
+        <div class="card shadow px-0 mx-0 mt-4 mb-4 mb-auto">
+            <div class="row card-header py-2 m-0">
+                <div class="">
+                    <h2 class="text-primary">Order Summary</h2>
+                </div>
+            </div>
+            <div class="container pt-3">
+                @foreach (var line in Model.Lines)
+                {
+                    var book = line.Product;
+                    double price = Math.Round(line.Quantity * (book.Price ?? 0), 2);
+                    total += price;
+                    <div class="card-body row justify-content-center">
+                        <div class="col d-flex justify-content-center">
+                            <img class="img-thumbnail shadow" src="~/@book.ImageURL" width="100px" height="160px" />
+                        </div>
+
+                        <div class="col d-flex">
+                            <ul class="list-group my-auto">
+                                @* <li class="list-group-item"><span class="badge rounded-pill bg-primary">@book.Category?.Name</span></li> *@
+                                <li class="text-primary list-group-item">@book.Title</li>
+                                <li class="text-dark list-group-item">@book.Author</li>
+                                <li class="text-muted list-group-item">@book.ISBN</li>
+                            </ul>
+                        </div>
+
+                        @*                         <div class="d-flex col row justify-content-center my-auto">
+                    <form method="post">
+                    <div class="container row gap-1 my-auto">
+                    <button class="btn btn-outline-primary col"
+                    asp-area="Customer"
+                    asp-controller="Cart"
+                    asp-action="ChangeItemCount"
+                    asp-route-cartId="@item.Id"
+                    asp-route-changeAction="@SD.CartIncrement">
+                    <i class="bi bi-plus-square"></i>
+                    </button>
+                    <h4 class="col my-0 text-center">@item.Count</h4>
+                    <button class="btn btn-outline-danger col"
+                    asp-area="Customer"
+                    asp-controller="Cart"
+                    asp-action="ChangeItemCount"
+                    asp-route-cartId="@item.Id"
+                    asp-route-changeAction="@SD.CartDecrement">
+                    <i class="bi bi-dash-square"></i>
+                    </button>
+                    </div>
+                    </form>
+
+                    </div> *@
+
+                        <div class="d-flex col justify-content-center">
+                            <h4 class="text-center my-auto"> @line.Quantity@@@book.Price = <span class="text-info">@(price.ToString("C"))</span></h4>
+                        </div>
+
+                        @* <div class="d-flex col-1 justify-content-center my-auto">
+                    <form method="post">
+                    <button class="btn btn-danger"
+                    asp-area="Customer"
+                    asp-controller="Cart"
+                    asp-action="RemoveItem"
+                    asp-route-cartId="@item.Id">
+                    <i class="bi bi-trash3-fill"></i>
+                    </button>
+                    </form>
+                    </div> *@
+
+                    </div>
+
+
+
+                    <hr />
+                }
+
+                <div class="row">
+                    <div class="d-flex col justify-content-end my-auto pb-3">
+                        <h4 class="text-center my-auto">Total = <span class="text-info">@(total.ToString("C"))</span></h4>
+                    </div>
+                </div>
+                @* <div class="row">
+                <div class="d-flex col justify-content-end my-auto mt-0 pt-0 pb-3">
+                <a class="btn btn-success" asp-area="Customer" asp-controller="Checkout" asp-action="Index">Checkout</a>
+                </div>
+                </div> *@
+
+            </div>
+
+        </div>
+    </div>
+</div>
+@* <div class="row justify-content-center m-0 p-0 mt-3">
+    <label for="submit-form" tabindex="0" class="btn btn-primary btn-lg my-auto w-50">Place Order</label>
+</div> *@
+
