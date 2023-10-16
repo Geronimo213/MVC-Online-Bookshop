@@ -10,8 +10,8 @@ namespace Bookshop.Models
 {
     public class AppUser : IdentityUser
     {
-        [Required]
-        public string Name { get; set; }
+        [Required] 
+        public string Name { get; set; } = "Unknown";
 
         public string? StreetAddress { get; set; }
         public string? City { get; set; }
