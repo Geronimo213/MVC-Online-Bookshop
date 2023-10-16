@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
@@ -18,11 +19,11 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         {
             this.UnitOfWork = unitOfWork;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            List<ShoppingCart> items = UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == userId).ToList();
+            var claimsIdentity = (ClaimsIdentity?)User.Identity;
+            var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            List<ShoppingCart> items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == userId).ToListAsync();
 
             if (items.Count < 1)
             {
@@ -52,11 +53,11 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        public IActionResult ConfirmOrder(CheckoutVM checkoutVm)
+        public async Task<IActionResult> ConfirmOrder(CheckoutVM checkoutVm)
         {
             if (ModelState.IsValid)
             {
-                List<ShoppingCart> items = UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == checkoutVm.Order.UserId).ToList();
+                List<ShoppingCart> items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == checkoutVm.Order.UserId).ToListAsync();
                 checkoutVm.Items = items;
                 checkoutVm.Order.PlaceDate = DateTime.Now;
                 UnitOfWork.OrderRepository.Add(checkoutVm.Order);
@@ -78,10 +79,8 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 HttpContext.Session.Clear();
                 return View(checkoutVm);
             }
-            else
-            {
-                return RedirectToAction(nameof(Index));
-            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

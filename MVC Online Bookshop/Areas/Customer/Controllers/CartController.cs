@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Bookshop.DataAccess.Data;
 using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Utility;
+using Microsoft.EntityFrameworkCore;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
@@ -17,49 +18,54 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         {
             this.UnitOfWork = unitOfWork;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
 
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            List<ShoppingCart> items = UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "User,Product,Product.Category").Where(x => x.UserId == userId).ToList();
+            var claimsIdentity = (ClaimsIdentity?)User.Identity;
+            var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            List<ShoppingCart> items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "User,Product,Product.Category").Where(x => x.UserId == userId).ToListAsync();
 
             return View(items);
         }
 
         [HttpPost]
-        public IActionResult ChangeItemCount(int cartId, string changeAction)
+        public async Task<IActionResult> ChangeItemCount(int cartId, string changeAction)
         {
-            var cartItem =
+            var cartItem = await
                 UnitOfWork.ShoppingCartRepository.Get(x => x.Id == cartId);
-            if (cartItem != null)
+
+            if (cartItem == null)
             {
-                switch (changeAction)
-                {
-                    case SD.CartIncrement:
-                        cartItem.Count++;
-                        break;
-                    case SD.CartDecrement:
-                        cartItem.Count--;
-                        break;
-                    default:
-                        break;
-                }
-                UnitOfWork.ShoppingCartRepository.Update(cartItem);
-                UnitOfWork.Save();
-                if (cartItem.Count < 1)
-                {
-                    return RemoveItem(cartId);
-                }
+                TempData["error"] = "ERROR: Cart Item not Found";
+                return RedirectToAction(nameof(Index));
             }
 
-            return RedirectToAction(nameof(Index));
+            switch (changeAction)
+            {
+                case SD.CartIncrement:
+                    cartItem.Count++;
+                    break;
+                case SD.CartDecrement:
+                    cartItem.Count--;
+                    break;
+                default:
+                    break;
+            }
+            UnitOfWork.ShoppingCartRepository.Update(cartItem);
+            UnitOfWork.Save();
+            if (cartItem.Count < 1)
+            {
+                return await RemoveItem(cartId);
+            }
+
+            return RedirectToAction((nameof(Index)));
+
         }
 
         [HttpPost]
-        public IActionResult RemoveItem(int cartId)
+        public async Task<IActionResult> RemoveItem(int cartId)
         {
-            var cartItem =
+            var cartItem = await
                 UnitOfWork.ShoppingCartRepository.Get(x => x.Id == cartId, tracked:true);
             if (cartItem != null)
             {

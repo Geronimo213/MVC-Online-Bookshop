@@ -28,7 +28,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
 
         /************************************
-        RECIEVE PRODUCTS (INDEX)
+        RECEIVE PRODUCTS (INDEX)
         ************************************/
 
         //Handler for main Category page
@@ -97,7 +97,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         CREATE OR UPDATE PRODUCT
         ************************************/
         //Get result for Create Book page
-        public IActionResult Upsert(int? id)
+        public async Task<IActionResult> Upsert(int? id)
         {
             ProductVM productVm = new ProductVM()
             {
@@ -110,7 +110,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
             else
             {
-                productVm.Product = UnitOfWork.ProductRepository.Get((x => x.Id == id));
+                productVm.Product = await UnitOfWork.ProductRepository.Get((x => x.Id == id)) ?? new Product();
                 return View(productVm);
             }
         }
@@ -170,13 +170,13 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         /************************************
         DELETE PRODUCT
         ************************************/
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || id == 0) //Null check for id
             {
                 return NotFound();
             }
-            Product productFromDb = UnitOfWork.ProductRepository.Get(c => c.Id == id, includeOperators: "Category");
+            Product productFromDb = await UnitOfWork.ProductRepository.Get(c => c.Id == id, includeOperators: "Category") ?? new Product();
 
             return View(productFromDb);
         }

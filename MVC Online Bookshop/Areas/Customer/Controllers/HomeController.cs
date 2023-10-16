@@ -6,6 +6,7 @@ using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.DataAccess.Repository;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
@@ -22,13 +23,13 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         }
 
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var books = UnitOfWork.ProductRepository.GetAll(includeOperators: "Category").ToList();
+            var books = await UnitOfWork.ProductRepository.GetAll(includeOperators: "Category").ToListAsync();
             return View(books);
         }
 
-        public IActionResult BookDetails(int? productId)
+        public async Task<IActionResult> BookDetails(int? productId)
         {
             if (productId == null)
             {
@@ -37,7 +38,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             }
             ShoppingCart cart = new()
             {
-                Product = UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Category")!,
+                Product = await UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Category") ?? new Product(),
                 ProductId = (int)productId!,
                 Count = 1
             };
@@ -48,14 +49,14 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult BookDetails(ShoppingCart cart)
+        public async Task<IActionResult> BookDetails(ShoppingCart cart)
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            cart.UserId = userId;
-            var book = UnitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId) ?? new Product() {Title = "BOOK_NOT_FOUND"};
+            cart.UserId = userId ?? "";
+            var book = await UnitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId) ?? new Product() {Title = "BOOK_NOT_FOUND"};
 
-            ShoppingCart? cartFromDb = UnitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId);
+            ShoppingCart? cartFromDb = await UnitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId);
 
             if (cartFromDb != null)
             {

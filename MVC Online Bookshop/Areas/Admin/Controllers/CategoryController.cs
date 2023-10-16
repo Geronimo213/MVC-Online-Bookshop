@@ -75,7 +75,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         ************************************/
         //Get result for Create Category page
 
-        public IActionResult Upsert(int? id)
+        public async Task<IActionResult> Upsert(int? id)
         {
             var category = new Category();
             if (id == null || id == 0)
@@ -84,7 +84,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
             else
             {
-                category = UnitOfWork.CategoryRepository.Get(x => x.Id == id);
+                category = await UnitOfWork.CategoryRepository.Get(x => x.Id == id);
                 return View(category);
             }
         }
@@ -119,14 +119,14 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         /************************************
         DELETE CATEGORY
         ************************************/
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || id == 0) //Null check for id
             {
                 return NotFound();
             }
             /*Category? categoryFromDb = _dbContext.Categories.Find(id);*/ //If find returns null, NotFound
-            Category? categoryFromDb = UnitOfWork.CategoryRepository.Get(c => c.Id == id);
+            Category? categoryFromDb = await UnitOfWork.CategoryRepository.Get(c => c.Id == id);
             if (categoryFromDb == null) { return NotFound(); }
 
             return View(categoryFromDb);
