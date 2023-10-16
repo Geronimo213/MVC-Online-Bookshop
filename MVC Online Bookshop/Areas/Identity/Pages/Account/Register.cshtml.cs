@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -121,7 +120,7 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
         }
 
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string? returnUrl = null)
         {
             if (!_roleManager.RoleExistsAsync(SD.RoleAdmin).GetAwaiter().GetResult())
             {
@@ -136,7 +135,7 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
                     .Select(i => new SelectListItem { Text = i, Value = i })
             };
 
-            ReturnUrl = returnUrl;
+            ReturnUrl = returnUrl ?? "";
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
