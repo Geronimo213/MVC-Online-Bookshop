@@ -8,6 +8,7 @@ using static System.Reflection.Metadata.BlobBuilder;
 using System.Drawing.Printing;
 using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         }
         public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? pageSize, int? pageNumber)
         {
+
             ViewData["CurrentSort"] = sortOrder;
             ViewData["IdSortParam"] = String.IsNullOrEmpty(sortOrder) ? "id_asc" : "";
             ViewData["NameSortParam"] = sortOrder == "Name" ? "name_desc" : "Name";
@@ -91,21 +93,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                     break;
             }
 
-            //var orderHeaders =
-            //    await PaginatedList<Order>.CreateAsync(orderQuery.AsNoTracking(), pageNumber ?? 1, (int)pageSize);
-            //var orderReports = new PaginatedList<OrderVM>(orderQuery.Count(), pageNumber ?? 1, (int)pageSize);
-            //foreach (var order in orderHeaders)
-            //{
-            //    var orderLinesQuery = _unitOfWork.OrderLinesRepository.GetAll(x => x.OrderId == order.OrderId);
-            //    var orderReport = new OrderVM();
-            //    if (orderLinesQuery is not null)
-            //    {
-            //        orderReport.Header = order;
-            //        orderReport.Lines = await orderLinesQuery.ToListAsync();
 
-            //    }
-            //    orderReports.Add(orderReport);
-            //}
 
             var orderLinesQuery = _unitOfWork.OrderLinesRepository.GetAll();
 
@@ -115,8 +103,10 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             return View(orderReports);
         }
 
-        public async Task<IActionResult> OrderDetails(int? orderId)
+        public async Task<IActionResult> OrderDetails(int? orderId, Uri? returnUri)
         {
+            returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
+            ViewData["ReturnUri"] = returnUri;
             if (orderId is not null)
             {
                 var order = new OrderVM()
@@ -127,20 +117,55 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 return View(order);
             }
             TempData["error"] = "Order not found.";
-            var returnUri = HttpContext.Request.Headers.Referer.ToString();
             return NotFound();
         }
 
-        public async Task<IActionResult> UpdateShipping(OrderVM order)
+        public async Task<IActionResult> UpdateShipping(OrderVM order, Uri? returnUri)
         {
-            if (order.Header.OrderId != 0)
+            if (order.Header.OrderId is not 0)
             {
+                order.Header.OrderStatus = "Shipped";
+                order.Header.ShipDate = DateTime.Now;
                 _unitOfWork.OrderRepository.Update(order.Header);
-                _unitOfWork.Save();
+                await _unitOfWork.SaveAsync();
                 TempData["success"] = "Tracking updated!";
             }
-            var returnUri = HttpContext.Request.Headers.Referer.ToString();
-            return RedirectToAction(nameof(OrderDetails), order.Header.OrderId);
+            return RedirectToAction(nameof(OrderDetails), new {orderId = order.Header.OrderId, returnUri = returnUri});
+        }
+
+        public async Task<IActionResult> RemoveOrder(int? orderId)
+        {
+            var returnUri = HttpContext.Request.GetTypedHeaders().Referer;
+            ViewData["ReturnUri"] = returnUri;
+
+            if (orderId is null)
+            {
+                return returnUri is null ? RedirectToAction(nameof(Index)) : Redirect(returnUri.ToString()); //Update to use local path
+            }
+            var order = new OrderVM()
+            {
+                Header = await _unitOfWork.OrderRepository.Get(x => x.OrderId == orderId) ?? new Order(),
+                Lines = await _unitOfWork.OrderLinesRepository.GetAll(x => x.OrderId == orderId, includeOperators: "Product")!.ToListAsync()
+            };
+
+
+            return View(order);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveOrder(OrderVM order, Uri? returnUri)
+        {
+            var linesToDelete = await _unitOfWork.OrderLinesRepository.GetAll(x => x.OrderId == order.Header.OrderId)!.ToListAsync();
+            _unitOfWork.OrderLinesRepository.DeleteRange(order.Lines);
+            _unitOfWork.OrderRepository.Delete(order.Header);
+            await _unitOfWork.SaveAsync();
+
+            if (returnUri is not null)
+            {
+                return LocalRedirect(returnUri.LocalPath + returnUri.Query);
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }
