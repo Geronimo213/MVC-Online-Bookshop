@@ -7,7 +7,7 @@
 }
 <div class="float-start mt-2">
     @* Back Button *@
-    <a class="btn btn-outline-danger btn-lg" onclick="window.history.go(-1)">Back to Orders</a>
+    <a class="btn btn-outline-danger btn-lg" href="@ViewData["ReturnUri"]">Back to Orders</a>
 </div>
 <div class="container d-flex flex-wrap gap-3 justify-content-around">
 
@@ -17,9 +17,13 @@
                 <h2 class="text-primary">Order Details</h2>
             </div>
             <div class="container pt-3 mb-2">
-                <form method="post" asp-controller="OrderManagement" asp-action="UpdateShipping">
+                <form method="post" asp-controller="OrderManagement" asp-action="UpdateShipping" asp-route-returnUri="@ViewData["ReturnUri"]">
                     <h5 class="text-muted">Shipping Address</h5>
                     <input asp-for="Header.OrderId" value="@Model.Header.OrderId" hidden />
+                    <input asp-for="Header.UserId" hidden/>
+                    <input asp-for="Header.OrderStatus" hidden/>
+                    <input asp-for="Header.PlaceDate" hidden/>
+
                     <input id="submit-form" type="submit" hidden />
 
                     <div class="d-flex flex-sm-row flex-sm-nowrap mt-2 gap-1">
@@ -35,36 +39,42 @@
 
                     @*Name*@
                     <div class="mt-2 form-floating">
-                        <input asp-for="Header.Name" type="text" class="form-control" placeholder="Full Name" disabled/>
+                        <input asp-for="Header.Name" type="text" class="form-control" placeholder="Full Name"/>
                         <label asp-for="Header.Name">Full Name</label>
+                        <span asp-validation-for="Header.Name"></span>
                     </div>
                     @*ShippingStreet*@
                     <div class="mt-2 form-floating">
-                        <input asp-for="Header.ShipStreetAddress" type="text" class="form-control" placeholder="Street" disabled/>
+                        <input asp-for="Header.ShipStreetAddress" type="text" class="form-control" placeholder="Street"/>
                         <label asp-for="Header.ShipStreetAddress">Street</label>
+                        <span asp-validation-for="Header.ShipStreetAddress"></span>
                     </div>
                     @*ShippingCity*@
                     <div class="mt-2 form-floating">
-                        <input asp-for="Header.ShipCity" type="text" class="form-control" placeholder="City" />
+                        <input asp-for="Header.ShipCity" type="text" class="form-control" placeholder="City"/>
                         <label asp-for="Header.ShipCity" class="">City</label>
+                        <span asp-validation-for="Header.ShipCity"></span>
                     </div>
 
                     @* ShippingState and ShippingPostalCode *@
                     <div class="d-flex flex-sm-row flex-wrap mt-2">
                         <div class="form-floating mb-3 col-12 col-md-6 pe-md-1">
-                            <input asp-for="Header.ShipState" class="form-control" autocomplete="address-level1" aria-required="true" placeholder="State" disabled/>
+                            <input asp-for="Header.ShipState" class="form-control" autocomplete="address-level1" aria-required="true" placeholder="State"/>
                             <label asp-for="Header.ShipState">State</label>
+                            <span asp-validation-for="Header.ShipState"></span>
                         </div>
                         <div class="form-floating col-12 col-md-6 ps-md-1">
-                            <input asp-for="Header.ShipPostalCode" class="form-control" autocomplete="postal-code" aria-required="true" placeholder="Post Code" disabled/>
+                            <input asp-for="Header.ShipPostalCode" class="form-control" autocomplete="postal-code" aria-required="true" placeholder="Post Code"/>
                             <label asp-for="Header.ShipPostalCode">Postal Code</label>
+                            <span asp-validation-for="Header.ShipPostalCode"></span>
                         </div>
                     </div>
 
                     @*Phone*@
                     <div class="mt-2 form-floating">
-                        <input asp-for="Header.PhoneNumber" type="text" class="form-control" placeholder="Phone Number" disabled />
+                        <input asp-for="Header.PhoneNumber" type="text" class="form-control" placeholder="Phone Number" />
                         <label asp-for="Header.PhoneNumber" class=""></label>
+                        <span asp-validation-for="Header.PhoneNumber"></span>
                     </div>
 
                     <hr />
@@ -72,24 +82,28 @@
                     <h5 class="text-muted">Billing Address</h5>
                     @*Billing Street*@
                     <div class="mt-2 form-floating">
-                        <input asp-for="Header.BillStreetAddress" type="text" class="form-control" placeholder="Street" disabled/>
+                        <input asp-for="Header.BillStreetAddress" type="text" class="form-control" placeholder="Street"/>
                         <label asp-for="Header.BillStreetAddress" class="">Billing Street</label>
+                        <span asp-validation-for="Header.BillStreetAddress"></span>
                     </div>
                     @*Billing City*@
                     <div class="mt-2 form-floating">
-                        <input asp-for="Header.BillCity" type="text" class="form-control" placeholder="City" disabled/>
+                        <input asp-for="Header.BillCity" type="text" class="form-control" placeholder="City"/>
                         <label asp-for="Header.BillCity" class="">City</label>
+                        <span asp-validation-for="Header.BillCity"></span>
                     </div>
 
                     @* Billing State and Post Code *@
                     <div class="d-flex flex-sm-row flex-wrap mt-2">
                         <div class="form-floating mb-3 col-12 col-md-6 pe-md-1">
-                            <input asp-for="Header.BillState" class="form-control" autocomplete="address-level1" aria-required="true" placeholder="State" disabled/>
+                            <input asp-for="Header.BillState" class="form-control" autocomplete="address-level1" aria-required="true" placeholder="State"/>
                             <label asp-for="Header.BillState">State</label>
+                            <span asp-validation-for="Header.BillState"></span>
                         </div>
                         <div class="form-floating col-12 col-md-6 ps-md-1">
-                            <input asp-for="Header.BillPostalCode" class="form-control" autocomplete="postal-code" aria-required="true" placeholder="Post Code" disabled />
+                            <input asp-for="Header.BillPostalCode" class="form-control" autocomplete="postal-code" aria-required="true" placeholder="Post Code" />
                             <label asp-for="Header.BillPostalCode">Postal Code</label>
+                            <span asp-validation-for="Header.BillPostalCode"></span>
                         </div>
                     </div>
 
