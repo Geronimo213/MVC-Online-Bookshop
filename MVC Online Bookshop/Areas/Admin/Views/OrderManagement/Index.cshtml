@@ -113,10 +113,16 @@
                     {
                         <td class="text-sm-center align-middle">
                             <div class=" btn-group gap-2" role="group">
-                                    <a asp-area="Admin" asp-controller="OrderManagement" asp-action="OrderDetails" asp-route-orderId="@order.Header.OrderId" class="btn btn-primary"><i class="bi bi-card-list"></i> Details</a>
+                                <a asp-area="Admin" asp-controller="OrderManagement" 
+                                   asp-action="OrderDetails" 
+                                   asp-route-orderId="@order.Header.OrderId"
+                                   class="btn btn-primary"><i class="bi bi-card-list"></i> Details</a>
                                 @if (User.IsInRole("Admin"))
                                 {
-                                    <a asp-area="Admin" asp-controller="OrderManagement" asp-action="" asp-route-id="@order.Header.OrderId" class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Delete</a>
+                                    <a asp-area="Admin" asp-controller="OrderManagement" 
+                                       asp-action="RemoveOrder" 
+                                       asp-route-orderId="@order.Header.OrderId" 
+                                       class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Delete</a>
                                 }
                             </div>
                         </td>
@@ -151,7 +157,7 @@
                                 </tr>
                             }
                             <tr>
-                                <td colspan="4"></td>
+                                <td colspan="4" class="text-start fw-bold text-info">@(order.Header.TrackingNumber is null ? "" : "Tracking: " + order.Header.TrackingNumber)</td>
                                 <td class="text-end">@totalPrice.ToString("C")</td>
                             </tr>
 
