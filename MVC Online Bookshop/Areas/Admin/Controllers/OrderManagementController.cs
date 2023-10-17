@@ -122,14 +122,15 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
         public async Task<IActionResult> UpdateShipping(OrderVM order, Uri? returnUri)
         {
-            if (order.Header.OrderId is not 0)
+            if (order.Header.OrderId != 0 && order.Header.TrackingNumber != null)
             {
                 order.Header.OrderStatus = "Shipped";
                 order.Header.ShipDate = DateTime.Now;
-                _unitOfWork.OrderRepository.Update(order.Header);
-                await _unitOfWork.SaveAsync();
+                
                 TempData["success"] = "Tracking updated!";
             }
+            _unitOfWork.OrderRepository.Update(order.Header);
+            await _unitOfWork.SaveAsync();
             return RedirectToAction(nameof(OrderDetails), new {orderId = order.Header.OrderId, returnUri = returnUri});
         }
 
