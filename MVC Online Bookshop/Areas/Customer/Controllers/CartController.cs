@@ -52,7 +52,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                     break;
             }
             UnitOfWork.ShoppingCartRepository.Update(cartItem);
-            UnitOfWork.Save();
+            await UnitOfWork.SaveAsync();
             if (cartItem.Count < 1)
             {
                 return await RemoveItem(cartId);
@@ -70,7 +70,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             if (cartItem != null)
             {
                 UnitOfWork.ShoppingCartRepository.Delete(cartItem);
-                UnitOfWork.Save();
+                await UnitOfWork.SaveAsync();
             }
             if (HttpContext.Session.GetInt32(SD.SessionCart) is not null)
             {

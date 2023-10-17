@@ -116,7 +116,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         }
         //Post method handler for Create Book, being passed a Book to work with
         [HttpPost]
-        public IActionResult Upsert(ProductVM obj, IFormFile? file)
+        public async Task<IActionResult> Upsert(ProductVM obj, IFormFile? file)
         {
             if (ModelState.IsValid)
             {
@@ -132,9 +132,9 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
                     }
 
-                    using (Stream fs = new FileStream(path, FileMode.Create))
+                    await using (Stream fs = new FileStream(path, FileMode.Create))
                     {
-                        file.CopyTo(fs);
+                        await file.CopyToAsync(fs);
                     }
 
                     obj.Product.ImageURL = filename;
@@ -148,18 +148,18 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 {
                     UnitOfWork.ProductRepository.Update(obj.Product);
                 }
-                UnitOfWork.Save();
+                await UnitOfWork.SaveAsync();
                 //Save to tempdata for accessing on next view w/ toastr.
                 TempData["success"] = $"Book {obj.Product.Title} created successfully!";
                 return RedirectToAction("Index", "Product");
             }
             else
             {
-                ProductVM productVm = new ProductVM()
+                var productVm = new ProductVM()
                 {
                     CategoryList = UnitOfWork.CategoryRepository.GetAll().Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }),
                     Product = new Product()
-                };
+                };  
                 return View(productVm);
             }
             
@@ -172,7 +172,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         ************************************/
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || id == 0) //Null check for id
+            if (id is null or 0) //Null check for id
             {
                 return NotFound();
             }
@@ -182,7 +182,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete(Product toDelete)
+        public async Task<IActionResult> Delete(Product toDelete)
         {
             if (toDelete.ImageURL is not null)
             {
@@ -195,7 +195,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 }
             }
             UnitOfWork.ProductRepository.Delete(toDelete);
-            UnitOfWork.Save();
+            await UnitOfWork.SaveAsync();
             TempData["success"] = $"Book {toDelete.Title} removed successfully!";
             return RedirectToAction("Index", "Product");
         }

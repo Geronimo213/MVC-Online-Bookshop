@@ -62,15 +62,15 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             {
                 cartFromDb.Count += cart.Count;
                 UnitOfWork.ShoppingCartRepository.Update(cartFromDb);
-                UnitOfWork.Save();
+                await UnitOfWork.SaveAsync();
             }
             else
             {
                 UnitOfWork.ShoppingCartRepository.Add(cart);
-                UnitOfWork.Save();
+                await UnitOfWork.SaveAsync();
 
                 HttpContext.Session.SetInt32(SD.SessionCart, 
-                    UnitOfWork.ShoppingCartRepository.GetAll().Count(x => x.UserId == userId));
+                    await UnitOfWork.ShoppingCartRepository.GetAll().CountAsync(x => x.UserId == userId));
             }
 
             TempData["success"] = $"Added {book.Title} to the cart!";

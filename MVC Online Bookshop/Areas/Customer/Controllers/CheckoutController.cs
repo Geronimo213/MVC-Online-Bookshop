@@ -61,7 +61,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 checkoutVm.Items = items;
                 checkoutVm.Order.PlaceDate = DateTime.Now;
                 UnitOfWork.OrderRepository.Add(checkoutVm.Order);
-                UnitOfWork.Save();
+                await UnitOfWork.SaveAsync();
 
                 foreach (var vmItem in checkoutVm.Items)
                 {
@@ -74,7 +74,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                     UnitOfWork.OrderLinesRepository.Add(orderLines);
                 }
                 UnitOfWork.ShoppingCartRepository.DeleteRange(items);
-                UnitOfWork.Save();
+                await UnitOfWork.SaveAsync();
 
                 HttpContext.Session.Clear();
                 return View(checkoutVm);

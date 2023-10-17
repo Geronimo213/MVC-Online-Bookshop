@@ -90,7 +90,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upsert(Category obj)
+        public async Task<IActionResult> Upsert(Category obj)
         {
             if (ModelState.IsValid)
             {
@@ -103,7 +103,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 {
                     UnitOfWork.CategoryRepository.Update(obj);
                 }
-                UnitOfWork.Save();
+                await UnitOfWork.SaveAsync();
                 TempData["success"] = $"Category {obj.Name} {(create ? "created" : "updated")} successfully!";
                 return RedirectToAction("Index", "Category");
             }
@@ -133,13 +133,13 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete(Category toDelete)
+        public async Task<IActionResult> Delete(Category toDelete)
         {
             //Category? toDelete = _dbContext.Categories.Find(id); //Old code from messing with retrieving specific fields from POSTed model as parameter.
             //if (toDelete == null) { return NotFound(); }
 
             UnitOfWork.CategoryRepository.Delete(toDelete);
-            UnitOfWork.Save();
+            await UnitOfWork.SaveAsync();
             TempData["success"] = $"Category {toDelete.Name} removed successfully!";
             return RedirectToAction("Index", "Category");
         }
