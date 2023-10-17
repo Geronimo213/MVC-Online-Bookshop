@@ -28,9 +28,17 @@ namespace Bookshop.DataAccess.Repository
             this.OrderLinesRepository = new OrderLinesRepository(dbContext);
         }
 
-        public void Save()
+        public async Task SaveAsync()
         {
-            DbContext.SaveChanges();
+            try
+            {
+                await DbContext.SaveChangesAsync();
+                await Task.CompletedTask;
+            }
+            catch (Exception e)
+            {
+                await Task.FromException(e);
+            }
         }
     }
 }

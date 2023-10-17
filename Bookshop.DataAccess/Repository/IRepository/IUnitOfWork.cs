@@ -17,6 +17,6 @@ namespace Bookshop.DataAccess.Repository.IRepository
         public IOrderRepository OrderRepository { get; }
         public IOrderLinesRepository OrderLinesRepository { get; }
 
-        void Save();
+        Task SaveAsync();
     }
 }
