@@ -37,12 +37,14 @@ namespace Bookshop.Utility
         public static async Task<PaginatedList<T>> CreateAsync(IQueryable<T> source, int pageIndex, int pageSize)
         {
             var count = await source.CountAsync();
+            pageIndex = Math.Min(pageIndex, (int)Math.Ceiling(count / (double)pageSize));
             var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
         }
         public static async Task<PaginatedList<OrderVM>> CreateAsync(IQueryable<Order> source, IQueryable<OrderLines> joinSource, int pageIndex, int pageSize, string? includeOperators)
         {
             var count = await source.CountAsync();
+            pageIndex = Math.Min(pageIndex, (int)Math.Ceiling(count / (double)pageSize));
             var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
             var orderList = new List<OrderVM>();
             foreach (var item in items)
