@@ -94,7 +94,7 @@
             <ul class="pagination">
                 <li class="page-item">
                     <a asp-area="Admin"
-                       asp-controller="Product"
+                       asp-controller="Category"
                        asp-action="Index"
                        asp-route-sortOrder="@ViewData["CurrentSort"]"
                        asp-route-pageNumber="@(Model.PageIndex - 1)"
@@ -107,7 +107,7 @@
 
                 <li class="page-item">
                     <a asp-area="Admin"
-                       asp-controller="Product"
+                       asp-controller="Category"
                        asp-action="Index"
                        asp-route-sortOrder="@ViewData["CurrentSort"]"
                        asp-route-pageNumber="1"
@@ -125,7 +125,7 @@
                     <li class="page-item @active">
                         <a class="page-link"
                            asp-area="Admin"
-                           asp-controller="Product"
+                           asp-controller="Category"
                            asp-action="Index"
                            asp-route-sortOrder="@ViewData["CurrentSort"]"
                            asp-route-pageNumber="@currentPage"
@@ -140,7 +140,7 @@
                 {
                     <li class="page-item">
                         <a asp-area="Admin"
-                           asp-controller="Product"
+                           asp-controller="Category"
                            asp-action="Index"
                            asp-route-sortOrder="@ViewData["CurrentSort"]"
                            asp-route-pageNumber="@(Model.TotalPages)"
@@ -154,7 +154,7 @@
 
                 <li class="page-item">
                     <a asp-area="Admin"
-                       asp-controller="Product"
+                       asp-controller="Category"
                        asp-action="Index"
                        asp-route-sortOrder="@ViewData["CurrentSort"]"
                        asp-route-pageNumber="@(Model.PageIndex + 1)"
