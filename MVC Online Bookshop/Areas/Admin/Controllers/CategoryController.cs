@@ -6,6 +6,7 @@ using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using static System.Reflection.Metadata.BlobBuilder;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
@@ -78,8 +79,9 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         public async Task<IActionResult> Upsert(int? id)
         {
             var category = new Category();
-            if (id == null || id == 0)
+            if (id is null or 0)
             {
+                category.DisplayOrder = await UnitOfWork.CategoryRepository.GetAll().CountAsync() + 1;
                 return View(category);
             }
             else
