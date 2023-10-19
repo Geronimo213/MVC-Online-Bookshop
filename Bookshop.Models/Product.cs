@@ -29,10 +29,7 @@ namespace Bookshop.Models
         [Range(1, 1000)]
         [RegularExpression(@"(([1-9]\d{0,2}(,\d{3})*)|(([1-9]\d*)?\d))(\.\d\d)?$", ErrorMessage = "Invalid price. Price must be between $1.00 and $1000.00 and rounded to two (2) decimal places.")]
         public double? Price { get; set; }
-        public int CategoryId { get; set; }
-        [ForeignKey("CategoryId")]
-        [ValidateNever]
-        public Category? Category { get; set; }
+        public virtual ICollection<Category> Categories { get; set; } = new HashSet<Category>();
         [AllowNull]
         public string? ImageURL { get; set; }
     }
