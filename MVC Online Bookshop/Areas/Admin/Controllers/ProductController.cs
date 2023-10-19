@@ -53,40 +53,24 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             pageSize ??= SD.PageSizeProduct;
             ViewData["CurrentPageSize"] = (int)pageSize;
 
-            var books =  UnitOfWork.ProductRepository.GetAll(includeOperators: "Category");
-            books = String.IsNullOrEmpty(searchString) ? books : books.Where(s => 
+            var books =  UnitOfWork.ProductRepository.GetAll(includeOperators: "Categories");
+            books = string.IsNullOrEmpty(searchString) ? books : books.Where(s => 
                 s.Title.Contains(searchString)
                 || s.Author!.Contains(searchString)
                 || s.ISBN!.Contains(searchString)
-                || s.Category!.Name.Contains(searchString));
+                || s.Categories.Any(category => category.Name.Contains(searchString)));
 
-            switch (sortOrder)
+            books = sortOrder switch
             {
-                case "title_desc":
-                    books = books.OrderByDescending(s => s.Title);
-                    break;
-                case "Author":
-                    books = books.OrderBy(s => s.Author);
-                    break;
-                case "auth_desc":
-                    books = books.OrderByDescending(s => s.Author);
-                    break;
-                case "Category":
-                    books = books.OrderBy(s => s.Category!.Name);
-                    break;
-                case "cat_desc":
-                    books = books.OrderByDescending(s => s.Category!.Name);
-                    break;
-                case "Price":
-                    books = books.OrderBy(s => s.Price);
-                    break;
-                case "price_desc":
-                    books = books.OrderByDescending(s => s.Price);
-                    break;
-                default:
-                    books = books.OrderBy(s => s.Title);
-                    break;
-            }
+                "title_desc" => books.OrderByDescending(s => s.Title),
+                "Author" => books.OrderBy(s => s.Author),
+                "auth_desc" => books.OrderByDescending(s => s.Author),
+                "Category" => books.OrderBy(s => s.Categories.OrderBy(x => x.DisplayOrder).FirstOrDefault()),
+                "cat_desc" => books.OrderByDescending(s => s.Categories.OrderByDescending(x => x.DisplayOrder).FirstOrDefault()),
+                "Price" => books.OrderBy(s => s.Price),
+                "price_desc" => books.OrderByDescending(s => s.Price),
+                _ => books.OrderBy(s => s.Title),
+            };
 
 
             //int pageSize = SD.PageSizeProduct;
@@ -99,9 +83,9 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         //Get result for Create Book page
         public async Task<IActionResult> Upsert(int? id)
         {
-            ProductVM productVm = new ProductVM()
+            var productVm = new ProductVM()
             {
-                CategoryList = UnitOfWork.CategoryRepository.GetAll().Select(x => new SelectListItem {Text = x.Name, Value = x.Id.ToString()}),
+                CategoryList = UnitOfWork.CategoryRepository.GetAll().Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }),
                 Product = new Product()
             };
             if (id == null || id == 0)
@@ -110,19 +94,23 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
             else
             {
-                productVm.Product = await UnitOfWork.ProductRepository.Get((x => x.Id == id)) ?? new Product();
+                productVm.Product = await UnitOfWork.ProductRepository.Get((x => x.Id == id), includeOperators:"Categories") ?? new Product();
+                foreach (var category in productVm.Product.Categories)
+                {
+                    productVm.CategoryIds.Add(category.Id);
+                }
                 return View(productVm);
             }
         }
         //Post method handler for Create Book, being passed a Book to work with
         [HttpPost]
-        public async Task<IActionResult> Upsert(ProductVM obj, IFormFile? file)
+        public async Task<IActionResult> Upsert(ProductVM vm, IFormFile? file)
         {
             if (ModelState.IsValid)
             {
                 if (file is not null)
                 {
-                    string filename = obj.Product.ImageURL ?? @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
+                    string filename = vm.Product.ImageURL ?? @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
                     string path = Path.Combine(appEnvironment.WebRootPath, filename);
                     if (System.IO.File.Exists(path))
                     {
@@ -137,20 +125,25 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                         await file.CopyToAsync(fs);
                     }
 
-                    obj.Product.ImageURL = filename;
+                    vm.Product.ImageURL = filename;
                 }
 
-                if (obj.Product.Id == 0)
+                
+
+                if (vm.Product.Id == 0)
                 {
-                    UnitOfWork.ProductRepository.Add(obj.Product);
+                    await UnitOfWork.ProductRepository.Add(vm);
+                    TempData["success"] = $"Book {vm.Product.Title} created successfully!";
                 }
                 else
                 {
-                    UnitOfWork.ProductRepository.Update(obj.Product);
+                    await UnitOfWork.ProductRepository.Update(vm);
+                    TempData["success"] = $"Book {vm.Product.Title} updated successfully!";
                 }
+
                 await UnitOfWork.SaveAsync();
                 //Save to tempdata for accessing on next view w/ toastr.
-                TempData["success"] = $"Book {obj.Product.Title} created successfully!";
+                
                 return RedirectToAction("Index", "Product");
             }
             else
@@ -167,6 +160,8 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
 
 
+
+
         /************************************
         DELETE PRODUCT
         ************************************/
@@ -176,7 +171,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            Product productFromDb = await UnitOfWork.ProductRepository.Get(c => c.Id == id, includeOperators: "Category") ?? new Product();
+            Product productFromDb = await UnitOfWork.ProductRepository.Get(c => c.Id == id, includeOperators: "Categories") ?? new Product();
 
             return View(productFromDb);
         }
