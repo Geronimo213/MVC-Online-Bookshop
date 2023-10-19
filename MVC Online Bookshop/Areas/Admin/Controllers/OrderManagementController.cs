@@ -59,41 +59,19 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 || s.BillCity!.Contains(searchString)
                 );
 
-            switch (sortOrder)
+            orderQuery = sortOrder switch
             {
-                case "id_asc":
-                    orderQuery = orderQuery.OrderBy(s => s.OrderId);
-                    break;
-                case "Name":
-                    orderQuery = orderQuery.OrderBy(s => s.Name);
-                    break;
-                case "name_desc":
-                    orderQuery = orderQuery.OrderByDescending(s => s.Name);
-                    break;
-                case "PlaceDate":
-                    orderQuery = orderQuery.OrderBy(s => s.PlaceDate);
-                    break;
-                case "place_date_desc":
-                    orderQuery = orderQuery.OrderByDescending(s => s.PlaceDate);
-                    break;
-                case "ShipDate":
-                    orderQuery = orderQuery.OrderBy(s => s.ShipDate);
-                    break;
-                case "ship_date_desc":
-                    orderQuery = orderQuery.OrderByDescending(s => s.ShipDate);
-                    break;
-                case "Status":
-                    orderQuery = orderQuery.OrderBy(s => s.OrderStatus);
-                    break;
-                case "status_desc":
-                    orderQuery = orderQuery.OrderByDescending(s => s.OrderStatus);
-                    break;
-                default:
-                    orderQuery = orderQuery.OrderByDescending(s => s.OrderId);
-                    break;
-            }
-
-
+                "id_asc" => orderQuery.OrderBy(s => s.OrderId),
+                "Name" => orderQuery.OrderBy(s => s.Name),
+                "name_desc" => orderQuery.OrderByDescending(s => s.Name),
+                "PlaceDate" => orderQuery.OrderBy(s => s.PlaceDate),
+                "place_date_desc" => orderQuery.OrderByDescending(s => s.PlaceDate),
+                "ShipDate" => orderQuery.OrderBy(s => s.ShipDate),
+                "ship_date_desc" => orderQuery.OrderByDescending(s => s.ShipDate),
+                "Status" => orderQuery.OrderBy(s => s.OrderStatus),
+                "status_desc" => orderQuery.OrderByDescending(s => s.OrderStatus),
+                _ => orderQuery.OrderByDescending(s => s.OrderId)
+            };
 
             var orderLinesQuery = _unitOfWork.OrderLinesRepository.GetAll();
 
