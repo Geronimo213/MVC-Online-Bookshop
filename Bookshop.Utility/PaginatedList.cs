@@ -45,15 +45,15 @@ namespace Bookshop.Utility
         {
             var count = await source.CountAsync();
             pageIndex = Math.Min(pageIndex, (int)Math.Ceiling(count / (double)pageSize));
-            var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            var orders = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
             var orderList = new List<OrderVM>();
-            foreach (var item in items)
+            foreach (var order in orders)
             {
                 var orderVM = new OrderVM
                 {
-                    Header = item
+                    Header = order
                 };
-                var lineQuery = joinSource.Where(x => x.OrderId == item.OrderId);
+                var lineQuery = joinSource.Where(x => x.OrderId == order.OrderId);
                 if (!String.IsNullOrEmpty(includeOperators))
                 {
                     foreach (var includeOperator in includeOperators.Split(',', StringSplitOptions.RemoveEmptyEntries))
