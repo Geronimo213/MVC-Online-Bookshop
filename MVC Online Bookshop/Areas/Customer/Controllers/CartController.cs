@@ -23,7 +23,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            List<ShoppingCart> items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "User,Product,Product.Category").Where(x => x.UserId == userId).ToListAsync();
+            List<ShoppingCart> items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "User,Product,Product.Categories").Where(x => x.UserId == userId).ToListAsync();
 
             return View(items);
         }

@@ -25,7 +25,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var books = await UnitOfWork.ProductRepository.GetAll(includeOperators: "Category").ToListAsync();
+            var books = await UnitOfWork.ProductRepository.GetAll().ToListAsync();
             return View(books);
         }
 
@@ -38,7 +38,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             }
             ShoppingCart cart = new()
             {
-                Product = await UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Category") ?? new Product(),
+                Product = await UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators:"Categories") ?? new Product(),
                 ProductId = (int)productId!,
                 Count = 1
             };
