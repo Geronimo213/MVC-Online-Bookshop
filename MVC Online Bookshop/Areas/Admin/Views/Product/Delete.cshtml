@@ -33,11 +33,12 @@
                     </div>
                     @*CATEGORY SELECTION*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12 form-floating">
-                        <select asp-for="CategoryId" class="form-select pb-2" disabled>
-                            <option selected disabled>@Model.Category?.Name</option>
+                        <select asp-for="Categories" class="form-select pb-2" disabled="disabled" multiple="multiple" data-placeholder="No Categories">
+                            @foreach (var category in Model.Categories)
+                            {
+                            }
+                            
                         </select>
-                        <label asp-for="CategoryId" class="">Category</label>
-                        <span asp-validation-for="CategoryId" class="text-danger"></span>
                     </div>
                     @*COVER ART*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12">
@@ -121,9 +122,22 @@
 
     <script>
         tinymce.init({
-            selector: 'textarea',
+            selector: '#editor',
             plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
         });
+    </script>
+
+    <script type="text/javascript">
+
+        $('.form-select').select2(
+            {
+                theme: 'bootstrap-5',
+                width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                placeholder: $(this).data('placeholder'),
+                closeOnSelect: false,
+                allowClear: true,
+            });
+
     </script>
 }
