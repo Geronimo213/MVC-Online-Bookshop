@@ -1,0 +1,202 @@
+﻿
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@model PaginatedList<AppUser>;
+@{
+    ViewData["Title"] = "User Management";
+    int? currentPageSize = (int?)ViewData["CurrentPageSize"];
+    
+}
+
+<div class="card shadow mt-4 mb-4">
+    <div class="row py-2 m-0 card-header border-0 shadow-none">
+        <div class="col-6">
+            <h2 class="text-primary">@ViewData["Title"]</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> User</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="get" asp-area="Admin" asp-controller="User" asp-action="Index">
+            <div class="form-control">
+                <h6 class="text-info pt-3 my-auto">
+                    Find by Title/Author: <input class="ms-1 my-auto align-middle" type="text" name="searchString" value="@ViewData["CurrentFilter"]" />
+                    <input type="submit" value="Search" class="btn btn-info" />&nbsp; |
+                    <a asp-area="Admin" asp-controller="User" asp-action="Index" class="ps-1 text-info">Reset Filters</a> &nbsp; |
+                    Rows per page:
+                    <a asp-area="Admin"
+                       asp-controller="User"
+                       asp-action="Index"
+                       asp-route-pageSize="5"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       class="link-underline-primary link-opacity-50-hover @(currentPageSize == 5 ? "text-muted link-underline-opacity-0" : "")">5</a>&nbsp;
+                    <a asp-area="Admin"
+                       asp-controller="User"
+                       asp-action="Index"
+                       asp-route-pageSize="10"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       class="link-underline-primary link-opacity-50-hover @(currentPageSize == 10 ? "text-muted link-underline-opacity-0" : "")">10</a>&nbsp;
+                    <a asp-area="Admin"
+                       asp-controller="User"
+                       asp-action="Index"
+                       asp-route-pageSize="25"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       class="link-underline-primary link-opacity-50-hover @(currentPageSize == 25 ? "text-muted link-underline-opacity-0" : "")">25</a>
+                </h6>
+            </div>
+        </form>
+        <table class="table table-bordered table-striped w-100 ">
+            <thead>
+            <tr>
+                <th>
+                    <a class="text-info"asp-area="Admin"
+                       asp-action="Index"
+                       asp-route-sortOrder="@ViewData["IdSortParam"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-pageSize="@ViewData["CurrentPageSize"]">ID</a>
+                </th>
+                <th>
+                    <a class="text-info" asp-area="Admin"
+                       asp-action="Index"
+                       asp-route-sortOrder="@ViewData["NameSortParam"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-pageSize="@ViewData["CurrentPageSize"]">Name</a>
+                </th>
+                <th>
+                    <a class="text-info" asp-area="Admin"
+                       asp-action="Index"
+                       asp-route-sortOrder="@ViewData["RoleSortParam"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-pageSize="@ViewData["CurrentPageSize"]">Role</a>
+                </th>
+                <th>
+                    Email
+                </th>
+                <th>
+                    Phone
+                </th>
+
+            </tr>
+            </thead>
+            <tbody>
+            @* Edit and Delete buttons *@
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.Id</td>
+                    <td>@user.Name</td>
+                    <td>@user.Role</td>
+                    <td>@user.NormalizedEmail</td>
+                    <td>@user.PhoneNumber</td>
+                    <td class="text-sm-center align-middle">
+                        <div class=" btn-group" role="group">
+                            @if (user.LockoutEnd > DateTime.Now)
+                            {
+                                <a asp-area="Admin" asp-controller="User" asp-action="" asp-route-id="@user.Id" class="btn btn-danger mx-2"><i class="bi bi-lock-fill"></i> Locked</a>
+                            }
+                            else
+                            {
+                                <a asp-area="Admin" asp-controller="User" asp-action="" asp-route-id="@user.Id" class="btn btn-success mx-2"><i class="bi bi-unlock-fill"></i> Unlocked</a>
+                            }
+                            <a asp-area="Admin" asp-controller="User" asp-action="Upsert" asp-route-id="@user.Id" class="btn btn-primary mx-2"><i class="bi bi-pencil-fill"></i> Edit</a>
+                            <a asp-area="Admin" asp-controller="User" asp-action="Delete" asp-route-id="@user.Id" class="btn btn-danger mx-2"><i class="bi bi-trash3-fill"></i> Delete</a>
+                        </div>
+                    </td>
+                </tr>
+
+            }
+            </tbody>
+        </table>
+        
+        @{
+            var prevDisabled = Model.HasPreviousPage ? "" : "disabled";
+            var nextDisabled = Model.HasNextPage ? "" : "disabled";
+        }
+        
+        
+        <div class="">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a asp-area="Admin"
+                       asp-controller="User"
+                       asp-action="Index"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-pageNumber="@(Model.PageIndex - 1)"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                       class="page-link @prevDisabled">
+                        &laquo;
+                    </a>
+                </li>
+                
+                <li class="page-item">
+                    <a asp-area="Admin"
+                       asp-controller="User"
+                       asp-action="Index"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-pageNumber="1"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                       class="page-link @(Model.PageIndex == 1 ? "active" : "")">
+                        1
+                    </a>
+                </li>
+
+                @for (int i = Math.Max(2, Model.PageIndex - SD.PagesAroundIndex); i < Model.TotalPages && i <= Model.PageIndex + SD.PagesAroundIndex; i++)
+                {
+                    string active = i == Model.PageIndex ? "active" : "";
+                    int currentPage = i;
+                    <li class="page-item @active">
+                        <a class="page-link"
+                           asp-area="Admin"
+                           asp-controller="User"
+                           asp-action="Index"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           asp-route-pageNumber="@currentPage"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-pageSize="@ViewData["CurrentPageSize"]">
+                            @currentPage
+                        </a>
+                    </li>
+                }
+                
+                @if (Model.TotalPages > 1)
+                {
+                    <li class="page-item">
+                        <a asp-area="Admin"
+                           asp-controller="User"
+                           asp-action="Index"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           asp-route-pageNumber="@(Model.TotalPages)"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                           class="page-link @(Model.PageIndex == @Model.TotalPages ? "active" : "")">
+                            @Model.TotalPages
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item">
+                    <a asp-area="Admin"
+                       asp-controller="User"
+                       asp-action="Index"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-pageNumber="@(Model.PageIndex + 1)"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                       class="page-link @nextDisabled">
+                        &raquo;
+                    </a>
+                </li>
+
+            </ul>
+            
+        </div>
+        
+
+    </div>
+
+</div>
