@@ -10,7 +10,7 @@ namespace Bookshop.DataAccess.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private AppDBContext DbContext { get; }
+        public AppDBContext DbContext { get; }
         public ICategoryRepository CategoryRepository { get; }
         public IProductRepository ProductRepository { get; }
         public IShoppingCartRepository ShoppingCartRepository { get; }
@@ -19,13 +19,13 @@ namespace Bookshop.DataAccess.Repository
         public IOrderLinesRepository OrderLinesRepository { get; }
         public UnitOfWork(AppDBContext dbContext)
         {
-            this.DbContext = dbContext;
-            this.CategoryRepository = new CategoryRepository(dbContext);
-            this.ProductRepository = new ProductRepository(dbContext);
-            this.ShoppingCartRepository = new ShoppingCartRepository(dbContext);
-            this.AppUserRepository = new AppUserRepository(dbContext);
-            this.OrderRepository = new OrderRepository(dbContext);
-            this.OrderLinesRepository = new OrderLinesRepository(dbContext);
+            this.DbContext ??= dbContext;
+            this.CategoryRepository ??= new CategoryRepository(dbContext);
+            this.ProductRepository ??= new ProductRepository(dbContext);
+            this.ShoppingCartRepository ??= new ShoppingCartRepository(dbContext);
+            this.AppUserRepository ??= new AppUserRepository(dbContext);
+            this.OrderRepository ??= new OrderRepository(dbContext);
+            this.OrderLinesRepository ??= new OrderLinesRepository(dbContext);
         }
 
         public async Task SaveAsync()
