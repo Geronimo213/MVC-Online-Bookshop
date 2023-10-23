@@ -38,6 +38,7 @@ namespace Bookshop.Utility
         {
             var count = await source.CountAsync();
             pageIndex = Math.Min(pageIndex, (int)Math.Ceiling(count / (double)pageSize));
+            pageIndex = pageIndex < 1 ? 1 : pageIndex;
             var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
         }
@@ -45,6 +46,7 @@ namespace Bookshop.Utility
         {
             var count = await source.CountAsync();
             pageIndex = Math.Min(pageIndex, (int)Math.Ceiling(count / (double)pageSize));
+            pageIndex = pageIndex < 1 ? 1 : pageIndex;
             var orders = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
             var orderList = new List<OrderVM>();
             foreach (var order in orders)
