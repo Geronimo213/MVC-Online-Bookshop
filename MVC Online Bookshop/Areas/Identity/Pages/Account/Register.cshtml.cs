@@ -116,12 +116,16 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
             public string? State { get; set; }
             public string? PostalCode { get; set; }
 
-            public string? PhoneNuber { get; set; }
+            public string? PhoneNumber { get; set; }
         }
 
 
         public async Task OnGetAsync(string? returnUrl = null)
         {
+            if (User.Identity?.IsAuthenticated == true && !User.IsInRole(SD.RoleAdmin))
+            {
+                LocalRedirect(returnUrl ?? "~/");
+            }
             if (!_roleManager.RoleExistsAsync(SD.RoleAdmin).GetAwaiter().GetResult())
             {
                 _roleManager.CreateAsync(new IdentityRole(SD.RoleAdmin)).GetAwaiter().GetResult();
@@ -154,7 +158,7 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
                 user.City = Input.City;
                 user.State = Input.State;
                 user.PostalCode = Input.PostalCode;
-                user.PhoneNumber = Input.PhoneNuber;
+                user.PhoneNumber = Input.PhoneNumber;
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
@@ -188,7 +192,14 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        if (User.IsInRole(SD.RoleAdmin))
+                        {
+                            TempData["success"] = $"New user {user.NormalizedEmail} created successfully.";
+                        }
+                        else
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                        }
                         return LocalRedirect(returnUrl);
                     }
                 }

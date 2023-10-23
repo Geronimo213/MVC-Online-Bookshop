@@ -1,7 +1,7 @@
 ﻿@page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = User.IsInRole(SD.RoleAdmin) ? "Register - ADMIN VIEW" : "Register";
 }
 
 <h1 class="text-primary">@ViewData["Title"]</h1>
@@ -35,12 +35,16 @@
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
-            <div class="form-floating mb-3">
-                <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select align-middle" id="floatingSelect">
-                    <option selected disabled>Choose Role</option>
-                </select>
-                <label for="floatingSelect">Role</label>
-            </div>
+            @if (User.IsInRole(SD.RoleAdmin))
+            {
+                <div class="form-floating mb-3">
+                    <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select align-middle" id="floatingSelect">
+                        <option selected disabled>Choose Role</option>
+                    </select>
+                    <label for="floatingSelect">Role</label>
+                </div>
+            }
+            
             <div class="d-flex flex-sm-row flex-wrap">
                 <div class="form-floating pe-md-1 mb-3 col-12 col-md-6">
                     <input asp-for="Input.StreetAddress" class="form-control" autocomplete="street-address" aria-required="true" placeholder="123 Hilda St." />
@@ -68,9 +72,9 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNuber" class="form-control" autocomplete="tel-national" aria-required="true" placeholder="(555) 555-5555)" />
-                <label asp-for="Input.PhoneNuber">Phone Number</label>
-                <span asp-validation-for="Input.PhoneNuber" class="text-danger"></span>
+                <input asp-for="Input.PhoneNumber" class="form-control" autocomplete="tel-national" aria-required="true" placeholder="(555) 555-5555)" />
+                <label asp-for="Input.PhoneNumber">Phone Number</label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
             </div>
 
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
