@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Net;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Bookshop.DataAccess.Data;
 using Bookshop.Models;
@@ -20,28 +21,32 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
     public class UserController : Controller
     {
         private IUnitOfWork UnitOfWork { get; }
-        private IWebHostEnvironment appEnvironment { get; set; }
+        private IWebHostEnvironment AppEnvironment { get; set; }
+        private UserManager<IdentityUser> AppUserManager { get; set; }
+        private RoleManager<IdentityRole> RoleManager { get; set; }
 
-        public UserController(IUnitOfWork unitOfWork, IWebHostEnvironment appEnvironment)
+        public UserController(IUnitOfWork unitOfWork, IWebHostEnvironment appEnvironment, RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> appUserManager)
         {
             this.UnitOfWork = unitOfWork;
-            this.appEnvironment = appEnvironment;
+            this.AppEnvironment = appEnvironment;
+            this.AppUserManager = appUserManager;
+            this.RoleManager = roleManager;
         }
 
 
         /************************************
-        RECEIVE PRODUCTS (INDEX)
+        RECEIVE USERS (INDEX)
         ************************************/
 
         //Handler for main Category page
         public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? pageSize, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
-            ViewData["IdSortParam"] = String.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
+            ViewData["IdSortParam"] = string.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
             ViewData["NameSortParam"] = sortOrder == "Name" ? "name_desc" : "Name";
             ViewData["RoleSortParam"] = sortOrder == "Role" ? "role_desc" : "Role";
 
-            if (!String.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString))
             {
                 pageNumber = 1;
             }
@@ -54,26 +59,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             pageSize ??= SD.PageSizeProduct;
             ViewData["CurrentPageSize"] = (int)pageSize;
 
-
-
-            var users = (from user in UnitOfWork.AppUserRepository.GetAll()
-                join ur in UnitOfWork.DbContext.UserRoles on user.Id equals ur.UserId
-                join r in UnitOfWork.DbContext.Roles on ur.RoleId equals r.Id
-                select new AppUser()
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Role = r.Name,
-                    Email = user.Email,
-                    City = user.City,
-                    State = user.State,
-                    PostalCode = user.PostalCode,
-                    NormalizedEmail = user.NormalizedEmail,
-                    LockoutEnabled = user.LockoutEnabled,
-                    LockoutEnd = user.LockoutEnd,
-                    PhoneNumber = user.PhoneNumber,
-                    StreetAddress = user.StreetAddress
-                });
+            var users = UnitOfWork.AppUserRepository.GetAllWithRoles(); //Custom linq query joining USERS, USER_ROLES, ROLES, selecting user columns and roles
             
             
             users = string.IsNullOrEmpty(searchString) ? users : users.Where(s =>
@@ -100,37 +86,126 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         }
 
         /************************************
-        CREATE OR UPDATE PRODUCT
+        UPDATE PERMISSIONS
         ************************************/
-        //Get result for Create Book page
-        public async Task<IActionResult> Upsert(int? id)
+  
+        public async Task<IActionResult> EditPermissions(string? userId, Uri? returnUri)
         {
-            return NotFound();
+            if (userId == null) return NotFound();
+
+            returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
+            ViewData["ReturnUri"] = returnUri;
+
+            var userFromDb = await UnitOfWork.AppUserRepository.Get(x => x.Id == userId);
+            if (userFromDb == null) return NotFound();
+            userFromDb.Role = (await AppUserManager.GetRolesAsync(userFromDb)).FirstOrDefault();
+            var rolesFromDb = (await RoleManager.Roles.ToListAsync()).Select(x => new SelectListItem(text: x.Name, value: x.Name));
+            var user = new UserVM()
+            {
+                User = userFromDb,
+                RoleList = rolesFromDb
+            };
+
+
+            return View(user);
         }
-        //Post method handler for Create Book, being passed a Book to work with
+ 
         [HttpPost]
-        public async Task<IActionResult> Upsert(ProductVM vm, IFormFile? file)
+        public async Task<IActionResult> EditPermissions(UserVM vm, Uri? returnUri)
         {
-            return NotFound();
+            ViewData["ReturnUri"] = returnUri;
+
+            var userFromDb = await UnitOfWork.AppUserRepository.Get(x => x.Id == vm.User.Id, tracked:true);
+            if (userFromDb == null) { return NotFound(); }
+
+            var originalRole = (await AppUserManager.GetRolesAsync(userFromDb)).FirstOrDefault();
+
+            if (originalRole == vm.User.Role ||
+                vm.User.Role is null || originalRole is null)
+            {
+                TempData["error"] = $"Error! Please be sure to select a role!";
+                return RedirectToAction(nameof(EditPermissions), new { returnUri });
+            }
+
+            await AppUserManager.RemoveFromRoleAsync(userFromDb, originalRole);
+            await UnitOfWork.SaveAsync();
+            await AppUserManager.AddToRoleAsync(userFromDb, vm.User.Role);
+            await UnitOfWork.SaveAsync();
+
+            TempData["success"] =
+                $"Successfully changed role from {originalRole} to {vm.User.Role} for user {userFromDb.Name}";
+            return RedirectToAction(nameof(EditPermissions), new { returnUri });
 
         }
 
+        /************************************
+        LOCK/UNLOCK USER
+        ************************************/
+        public async Task<IActionResult> ToggleLock(string? userId, Uri? returnUri)
+        {
+ 
+            returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
+            if (userId == null || userId == User.FindFirst(ClaimTypes.NameIdentifier)!.Value)
+            {
+                TempData["warning"] = "Cannot find user with given ID. You cannot lock the current user.";
+                return returnUri is not null ? LocalRedirect(returnUri.LocalPath + returnUri.Query) : RedirectToAction(nameof(Index));
+            }
 
+            var user = await UnitOfWork.AppUserRepository.Get(u => u.Id == userId);
+            if (user == null) { return NotFound(); }
 
+            user.LockoutEnd = user.LockoutEnd > DateTime.Now ? null : DateTime.Now.AddYears(1000);
+
+            await UnitOfWork.SaveAsync();
+            if (returnUri is not null)
+            {
+                return LocalRedirect(returnUri.LocalPath + returnUri.Query);
+            }
+            return RedirectToAction(nameof(Index));
+        }
 
 
         /************************************
-        DELETE PRODUCT
+        REMOVE USER
         ************************************/
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> RemoveUser(string? userId)
         {
-            return NotFound();
+            var returnUri = HttpContext.Request.GetTypedHeaders().Referer;
+            ViewData["ReturnUri"] = returnUri;
+
+            if (userId == null || userId == User.FindFirst(ClaimTypes.NameIdentifier)!.Value)
+            {
+                TempData["warning"] = "Cannot find user with given ID. You cannot remove the current user.";
+                return returnUri is not null ? LocalRedirect(returnUri.LocalPath + returnUri.Query) : RedirectToAction(nameof(Index));
+            }
+
+            var userFromDb = await UnitOfWork.AppUserRepository.Get(x => x.Id == userId);
+            if (userFromDb == null) return NotFound();
+            userFromDb.Role = (await AppUserManager.GetRolesAsync(userFromDb)).FirstOrDefault();
+
+
+            return View(userFromDb);
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteProduct(int? id)
+        public async Task<IActionResult> RemoveUser(string? userId, Uri? returnUri)
         {
-            return NotFound();
+            if (userId is null)
+            {
+                return NotFound();
+            }
+
+            var userFromDb = await UnitOfWork.AppUserRepository.Get(x => x.Id == userId, tracked: true);
+            if (userFromDb == null) { return NotFound(); }
+
+            await AppUserManager.DeleteAsync(userFromDb);
+            await UnitOfWork.SaveAsync();
+
+            if (returnUri is not null)
+            {
+                return LocalRedirect(returnUri.LocalPath + returnUri.Query);
+            }
+            return RedirectToAction(nameof(Index));
         }
 
     }
