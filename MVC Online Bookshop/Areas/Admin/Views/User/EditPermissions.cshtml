@@ -1,0 +1,92 @@
+﻿@model UserVM
+
+@{
+    ViewData["Title"] = "Update Permissions";
+}
+<div class="float-start mt-2 mb-4">
+    @* Back Button *@
+    <a class="btn btn-outline-danger btn-lg" href="@ViewData["ReturnUri"]">Back to Users</a>
+</div>
+<div class="container d-flex gap-3 card shadow px-0 mx-0 mt-4 mb-auto">
+    <div class="row card-header py-2 m-0">
+        <h2 class="text-primary">User Permissions</h2>
+    </div>
+    <div class="container pt-3 mb-2 card-body">
+        <form asp-action="EditPermissions" asp-route-returnUri="@ViewData["ReturnUri"]" method="post">
+            <input asp-for="User.Id" hidden="hidden"/>
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+            <div class="d-flex flex-sm-row flex-wrap">
+                <div class="form-floating pe-md-1 mb-3 col-12 col-md-6">
+                    <input asp-for="User.Name" class="form-control" autocomplete="name" aria-required="true" placeholder="Jane Doe" disabled="disabled"/>
+                    <label asp-for="User.Name">Full Name</label>
+                    <span asp-validation-for="User.Name" class="text-danger"></span>
+                </div>
+                <div class="form-floating pe-md-1 mb-3 col-12 col-md-6">
+                    <input asp-for="User.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" disabled="disabled"/>
+                    <label asp-for="User.Email">Email</label>
+                    <span asp-validation-for="User.Email" class="text-danger"></span>
+                </div>
+            </div>
+            @* <div class="form-floating mb-3">
+                <input asp-for="User.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <label asp-for="User.Password">Password</label>
+                <span asp-validation-for="User.Password" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="User.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <label asp-for="User.ConfirmPassword">Confirm Password</label>
+                <span asp-validation-for="User.ConfirmPassword" class="text-danger"></span>
+            </div> *@
+
+            <div class="form-floating mb-3">
+                <select asp-for="User.Role" asp-items="@Model.RoleList" class="form-select align-middle" id="floatingSelect">
+                    <option selected disabled>@Model.User.Role</option>
+                </select>
+                <label for="floatingSelect">Role</label>
+            </div>
+
+
+            <div class="d-flex flex-sm-row flex-wrap">
+                <div class="form-floating pe-md-1 mb-3 col-12 col-md-6">
+                    <input asp-for="User.StreetAddress" class="form-control" autocomplete="street-address" aria-required="true" placeholder="123 Hilda St." disabled="disabled"/>
+                    <label asp-for="User.StreetAddress">Street Address</label>
+                    <span asp-validation-for="User.StreetAddress" class="text-danger"></span>
+                </div>
+                <div class="form-floating ps-md-1 mb-3 col-12 col-md-6">
+                    <input asp-for="User.City" class="form-control" autocomplete="address-level2" aria-required="true" placeholder="Night City" disabled="disabled"/>
+                    <label asp-for="User.City">City</label>
+                    <span asp-validation-for="User.City" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="d-flex flex-sm-row flex-wrap">
+                <div class="form-floating mb-3 col-12 col-md-6 pe-md-1">
+                    <input asp-for="User.State" class="form-control" autocomplete="address-level1" aria-required="true" placeholder="123 Hilda St." disabled="disabled"/>
+                    <label asp-for="User.State">State</label>
+                    <span asp-validation-for="User.State" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3 col-12 col-md-6 ps-md-1">
+                    <input asp-for="User.PostalCode" class="form-control" autocomplete="postal-code" aria-required="true" placeholder="12345" disabled="disabled"/>
+                    <label asp-for="User.PostalCode">Postal Code</label>
+                    <span asp-validation-for="User.PostalCode" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="User.PhoneNumber" class="form-control" autocomplete="tel-national" aria-required="true" placeholder="(555) 555-5555)" disabled="disabled"/>
+                <label asp-for="User.PhoneNumber">Phone Number</label>
+                <span asp-validation-for="User.PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Update Permissions</button>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
