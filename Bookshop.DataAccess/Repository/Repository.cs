@@ -37,16 +37,13 @@ namespace Bookshop.DataAccess.Repository
             DbSet.RemoveRange(entities);
         }
 
-        public async Task<T?> Get(Expression<Func<T, bool>> filter, string? includeOperators = null, bool tracked = false)
+        public async Task<T?> Get(Expression<Func<T, bool>> filter, string? includeOperators = null, bool tracked = true)
         {
             IQueryable<T> query = tracked ? DbSet : DbSet.AsNoTracking();
             query = query.Where(filter);
-            if (!String.IsNullOrEmpty(includeOperators))
+            if (!string.IsNullOrEmpty(includeOperators))
             {
-                foreach (var includeOperator in includeOperators.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeOperator);
-                }
+                query = includeOperators.Split(',', StringSplitOptions.RemoveEmptyEntries).Aggregate(query, (current, includeOperator) => current.Include(includeOperator));
             }
             return await query.FirstOrDefaultAsync();
         }
@@ -54,12 +51,9 @@ namespace Bookshop.DataAccess.Repository
         public IQueryable<T> GetAll(string? includeOperators = null)
         {
             IQueryable<T> query = DbSet;
-            if (!String.IsNullOrEmpty(includeOperators))
+            if (!string.IsNullOrEmpty(includeOperators))
             {
-                foreach (var includeOperator in includeOperators.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeOperator);
-                }
+                query = includeOperators.Split(',', StringSplitOptions.RemoveEmptyEntries).Aggregate(query, (current, includeOperator) => current.Include(includeOperator));
             }
             return query;
         }
@@ -68,12 +62,9 @@ namespace Bookshop.DataAccess.Repository
         {
             IQueryable<T> query = DbSet;
             query = query.Where(filter);
-            if (!String.IsNullOrEmpty(includeOperators))
+            if (!string.IsNullOrEmpty(includeOperators))
             {
-                foreach (var includeOperator in includeOperators.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeOperator);
-                }
+                query = includeOperators.Split(',', StringSplitOptions.RemoveEmptyEntries).Aggregate(query, (current, includeOperator) => current.Include(includeOperator));
             }
             return query;
         }
