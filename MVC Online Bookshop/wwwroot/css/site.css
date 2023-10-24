@@ -39,6 +39,6 @@ body {
     content: '- Show Less';
 }
 
-#toast-container > div {
+body #toast-container > div{
     opacity: 1;
 }
