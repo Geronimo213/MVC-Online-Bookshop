@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-using Bookshop.DataAccess.Data;
+﻿using Bookshop.DataAccess.Data;
 using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
 using Bookshop.Models.ViewModels;

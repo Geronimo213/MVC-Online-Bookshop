@@ -1,12 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Bookshop.Models;
-using System.Diagnostics;
-using System.Security.Claims;
 using Bookshop.DataAccess.Repository.IRepository;
-using Bookshop.DataAccess.Repository;
+using Bookshop.Models;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using System.Security.Claims;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
@@ -14,7 +13,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private IUnitOfWork UnitOfWork { get;}
+        private IUnitOfWork UnitOfWork { get; }
 
         public HomeController(IUnitOfWork unitOfWork, ILogger<HomeController> logger)
         {
@@ -38,7 +37,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             }
             ShoppingCart cart = new()
             {
-                Product = await UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators:"Categories") ?? new Product(),
+                Product = await UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Categories") ?? new Product(),
                 ProductId = (int)productId!,
                 Count = 1
             };
@@ -54,7 +53,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             cart.UserId = userId ?? "";
-            var book = await UnitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId) ?? new Product() {Title = "BOOK_NOT_FOUND"};
+            var book = await UnitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId) ?? new Product() { Title = "BOOK_NOT_FOUND" };
 
             ShoppingCart? cartFromDb = await UnitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId);
 
@@ -69,7 +68,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 UnitOfWork.ShoppingCartRepository.Add(cart);
                 await UnitOfWork.SaveAsync();
 
-                HttpContext.Session.SetInt32(SD.SessionCart, 
+                HttpContext.Session.SetInt32(SD.SessionCart,
                     await UnitOfWork.ShoppingCartRepository.GetAll().CountAsync(x => x.UserId == userId));
             }
 
@@ -78,7 +77,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        
+
 
         public IActionResult Privacy()
         {

@@ -1,11 +1,10 @@
 ﻿using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Bookshop.Models.ViewModels;
-using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
@@ -48,7 +47,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 Items = items
             };
 
-            
+
             return View(model);
         }
 

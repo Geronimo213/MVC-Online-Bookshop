@@ -1,13 +1,9 @@
-﻿using System.Drawing;
-using System.Net;
-using Microsoft.AspNetCore.Mvc;
-using Bookshop.DataAccess.Data;
+﻿using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
-using Bookshop.DataAccess.Repository;
-using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,7 +28,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         ************************************/
 
         //Handler for main Category page
-        public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter,int? pageSize, int? pageNumber)
+        public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? pageSize, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
             ViewData["TitleSortParam"] = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
@@ -53,8 +49,8 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             pageSize ??= SD.PageSizeProduct;
             ViewData["CurrentPageSize"] = (int)pageSize;
 
-            var books =  UnitOfWork.ProductRepository.GetAll(includeOperators: "Categories");
-            books = string.IsNullOrEmpty(searchString) ? books : books.Where(s => 
+            var books = UnitOfWork.ProductRepository.GetAll(includeOperators: "Categories");
+            books = string.IsNullOrEmpty(searchString) ? books : books.Where(s =>
                 s.Title.Contains(searchString)
                 || s.Author!.Contains(searchString)
                 || s.ISBN!.Contains(searchString)
@@ -94,7 +90,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
             else
             {
-                productVm.Product = await UnitOfWork.ProductRepository.Get((x => x.Id == id), includeOperators:"Categories") ?? new Product();
+                productVm.Product = await UnitOfWork.ProductRepository.Get((x => x.Id == id), includeOperators: "Categories") ?? new Product();
                 foreach (var category in productVm.Product.Categories)
                 {
                     productVm.CategoryIds.Add(category.Id);
@@ -128,7 +124,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                     vm.Product.ImageURL = filename;
                 }
 
-                
+
 
                 if (vm.Product.Id == 0)
                 {
@@ -143,7 +139,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
                 await UnitOfWork.SaveAsync();
                 //Save to tempdata for accessing on next view w/ toastr.
-                
+
                 return RedirectToAction("Index", "Product");
             }
             else
@@ -152,10 +148,10 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 {
                     CategoryList = UnitOfWork.CategoryRepository.GetAll().Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }),
                     Product = new Product()
-                };  
+                };
                 return View(productVm);
             }
-            
+
         }
 
 

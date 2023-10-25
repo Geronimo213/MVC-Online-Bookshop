@@ -1,18 +1,13 @@
-﻿using System.Drawing;
-using System.Net;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
-using Bookshop.DataAccess.Data;
+﻿using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
-using Bookshop.DataAccess.Repository;
-using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
@@ -60,14 +55,14 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             ViewData["CurrentPageSize"] = (int)pageSize;
 
             var users = UnitOfWork.AppUserRepository.GetAllWithRoles(); //Custom linq query joining USERS, USER_ROLES, ROLES, selecting user columns and roles
-            
-            
+
+
             users = string.IsNullOrEmpty(searchString) ? users : users.Where(s =>
                 s.Name.Contains(searchString)
                 || (s.NormalizedEmail != null && s.NormalizedEmail.Contains(searchString))
                 || (s.State != null && s.State.Contains(searchString))
                 || (s.City != null && s.City.Contains(searchString))
-                || (s.Role!= null && s.Role.Contains(searchString))
+                || (s.Role != null && s.Role.Contains(searchString))
                 );
 
             users = sortOrder switch
@@ -88,7 +83,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         /************************************
         UPDATE PERMISSIONS
         ************************************/
-  
+
         public async Task<IActionResult> EditPermissions(string? userId, Uri? returnUri)
         {
             if (userId == null) return NotFound();
@@ -109,13 +104,13 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
             return View(user);
         }
- 
+
         [HttpPost]
         public async Task<IActionResult> EditPermissions(UserVM vm, Uri? returnUri)
         {
             ViewData["ReturnUri"] = returnUri;
 
-            var userFromDb = await UnitOfWork.AppUserRepository.Get(x => x.Id == vm.User.Id, tracked:true);
+            var userFromDb = await UnitOfWork.AppUserRepository.Get(x => x.Id == vm.User.Id, tracked: true);
             if (userFromDb == null) { return NotFound(); }
 
             var originalRole = (await AppUserManager.GetRolesAsync(userFromDb)).FirstOrDefault();
@@ -143,7 +138,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         ************************************/
         public async Task<IActionResult> ToggleLock(string? userId, Uri? returnUri)
         {
- 
+
             returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
             if (userId == null || userId == User.FindFirst(ClaimTypes.NameIdentifier)!.Value)
             {

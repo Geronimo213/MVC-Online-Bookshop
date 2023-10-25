@@ -1,15 +1,9 @@
-﻿using Bookshop.DataAccess.Data;
-using Bookshop.DataAccess.Repository.IRepository;
+﻿using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
 using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
-using Microsoft.AspNetCore.Mvc;
-using static System.Reflection.Metadata.BlobBuilder;
-using System.Drawing.Printing;
-using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.Build.Framework;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
@@ -76,7 +70,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             var orderLinesQuery = _unitOfWork.OrderLinesRepository.GetAll();
 
             var orderReports = await
-                PaginatedList<OrderVM>.CreateAsync(orderQuery, orderLinesQuery, pageNumber ?? 1, (int)pageSize, includeOperators:"Product");
+                PaginatedList<OrderVM>.CreateAsync(orderQuery, orderLinesQuery, pageNumber ?? 1, (int)pageSize, includeOperators: "Product");
 
             return View(orderReports);
         }
@@ -104,12 +98,12 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             {
                 order.Header.OrderStatus = "Shipped";
                 order.Header.ShipDate = DateTime.Now;
-                
+
                 TempData["success"] = "Tracking updated!";
             }
             _unitOfWork.OrderRepository.Update(order.Header);
             await _unitOfWork.SaveAsync();
-            return RedirectToAction(nameof(OrderDetails), new {orderId = order.Header.OrderId, returnUri = returnUri});
+            return RedirectToAction(nameof(OrderDetails), new { orderId = order.Header.OrderId, returnUri = returnUri });
         }
 
         public async Task<IActionResult> RemoveOrder(int? orderId)

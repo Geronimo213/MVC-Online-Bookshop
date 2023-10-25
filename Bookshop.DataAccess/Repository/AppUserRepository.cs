@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Bookshop.DataAccess.Data;
+﻿using Bookshop.DataAccess.Data;
 using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Bookshop.DataAccess.Repository
 {
@@ -20,26 +14,26 @@ namespace Bookshop.DataAccess.Repository
 
         public IQueryable<AppUser> GetAllWithRoles()
         {
-             var query = (from user in DbSet
-                join ur in _dbContext.UserRoles on user.Id equals ur.UserId
-                join r in _dbContext.Roles on ur.RoleId equals r.Id
-                select new AppUser()
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Email = user.Email,
-                    NormalizedEmail = user.NormalizedEmail,
-                    City = user.City,
-                    State = user.State,
-                    PostalCode = user.PostalCode,
-                    LockoutEnabled = user.LockoutEnabled,
-                    LockoutEnd = user.LockoutEnd,
-                    PhoneNumber = user.PhoneNumber,
-                    StreetAddress = user.StreetAddress,
-                    UserName = user.UserName,
-                    NormalizedUserName = user.NormalizedUserName,
-                    Role = r.Name
-                });
+            var query = (from user in DbSet
+                         join ur in _dbContext.UserRoles on user.Id equals ur.UserId
+                         join r in _dbContext.Roles on ur.RoleId equals r.Id
+                         select new AppUser()
+                         {
+                             Id = user.Id,
+                             Name = user.Name,
+                             Email = user.Email,
+                             NormalizedEmail = user.NormalizedEmail,
+                             City = user.City,
+                             State = user.State,
+                             PostalCode = user.PostalCode,
+                             LockoutEnabled = user.LockoutEnabled,
+                             LockoutEnd = user.LockoutEnd,
+                             PhoneNumber = user.PhoneNumber,
+                             StreetAddress = user.StreetAddress,
+                             UserName = user.UserName,
+                             NormalizedUserName = user.NormalizedUserName,
+                             Role = r.Name
+                         });
             return query;
         }
 

@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Bookshop.DataAccess.Data;
+﻿using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
-using Bookshop.DataAccess.Repository;
-using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {

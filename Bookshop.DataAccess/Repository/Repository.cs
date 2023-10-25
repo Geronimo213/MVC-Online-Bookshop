@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Bookshop.DataAccess.Data;
+﻿using Bookshop.DataAccess.Data;
 using Bookshop.DataAccess.Repository.IRepository;
-using Bookshop.Models;
-using Microsoft.CodeAnalysis.Scripting.Hosting;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Bookshop.DataAccess.Repository
 {
@@ -20,7 +13,7 @@ namespace Bookshop.DataAccess.Repository
         {
             this.DbSet = dbContext.Set<T>();
         }
-        
+
 
         public void Add(T entity)
         {

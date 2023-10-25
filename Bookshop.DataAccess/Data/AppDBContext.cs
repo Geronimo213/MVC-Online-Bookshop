@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Bookshop.Models;
+﻿using Bookshop.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bookshop.DataAccess.Data
 {
@@ -9,7 +9,7 @@ namespace Bookshop.DataAccess.Data
     {
         public AppDBContext(DbContextOptions<AppDBContext> options) : base(options)
         {
-            
+
         }
 
         public DbSet<Category> Categories { get; set; }
@@ -27,7 +27,7 @@ namespace Bookshop.DataAccess.Data
                 new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },
                 new Category { Id = 3, Name = "History", DisplayOrder = 3 },
                 new Category { Id = 4, Name = "Poetry", DisplayOrder = 4 },
-                new Category { Id = 5, Name = "Fantasy", DisplayOrder = 5}
+                new Category { Id = 5, Name = "Fantasy", DisplayOrder = 5 }
                 );
 
             modelBuilder.Entity<Product>().HasData(

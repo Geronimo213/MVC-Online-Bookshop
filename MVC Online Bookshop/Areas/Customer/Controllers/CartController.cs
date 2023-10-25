@@ -1,11 +1,9 @@
-﻿using Bookshop.DataAccess.Repository;
+﻿using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Bookshop.DataAccess.Data;
-using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Utility;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
@@ -66,7 +64,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         public async Task<IActionResult> RemoveItem(int cartId)
         {
             var cartItem = await
-                UnitOfWork.ShoppingCartRepository.Get(x => x.Id == cartId, tracked:true);
+                UnitOfWork.ShoppingCartRepository.Get(x => x.Id == cartId, tracked: true);
             if (cartItem != null)
             {
                 UnitOfWork.ShoppingCartRepository.Delete(cartItem);
