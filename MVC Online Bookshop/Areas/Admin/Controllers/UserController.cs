@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using LinqKit;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
@@ -34,7 +35,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         ************************************/
 
         //Handler for main Category page
-        public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? pageSize, int? pageNumber)
+        public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? pageSize, int? pageNumber, PaginatedUserVM? vm)
         {
             ViewData["CurrentSort"] = sortOrder;
             ViewData["IdSortParam"] = string.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
@@ -54,8 +55,26 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             pageSize ??= SD.PageSizeProduct;
             ViewData["CurrentPageSize"] = (int)pageSize;
 
-            var users = UnitOfWork.AppUserRepository.GetAllWithRoles(); //Custom linq query joining USERS, USER_ROLES, ROLES, selecting user columns and roles
+            var users = UnitOfWork.AppUserRepository.GetAllWithRoles(); //Custom linq query joining USERS, USER_ROLES, ROLES, selecting most user columns and roles
+            var rolesFromDb =
+                (await RoleManager.Roles.ToListAsync()).Select(x => new SelectListItem(text: x.Name, value: x.Name)).ToList();
 
+            vm ??= new PaginatedUserVM();
+            if (vm.SelectedRoles.Count < 1)
+            {
+                foreach (var selectListItem in rolesFromDb.Where(x => x.Value != "Customer"))
+                {
+                    vm.SelectedRoles.Add(selectListItem.Value);
+                }
+            }
+
+            var rolePredicate = PredicateBuilder.New<AppUser>();
+            foreach (var selectedRole in vm.SelectedRoles)
+            {
+                rolePredicate = rolePredicate.Or(p => p.Role == selectedRole);
+            }
+
+            users = users.Where(rolePredicate);
 
             users = string.IsNullOrEmpty(searchString) ? users : users.Where(s =>
                 s.Name.Contains(searchString)
@@ -76,8 +95,13 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             };
 
 
+
+            var paginatedUsers = await PaginatedList<AppUser>.CreateAsync(users, pageNumber ?? 1, (int)pageSize);
+
+            vm.Users = paginatedUsers;
+            vm.RoleList = rolesFromDb;
             //int pageSize = SD.PageSizeProduct;
-            return View(await PaginatedList<AppUser>.CreateAsync(users, pageNumber ?? 1, (int)pageSize));
+            return View(vm);
         }
 
         /************************************
