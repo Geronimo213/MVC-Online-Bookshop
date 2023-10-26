@@ -70,7 +70,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             var orderLinesQuery = _unitOfWork.OrderLinesRepository.GetAll();
 
             var orderReports = await
-                PaginatedList<OrderVM>.CreateAsync(orderQuery, orderLinesQuery, pageNumber ?? 1, (int)pageSize, includeOperators: "Product");
+                PaginatedOrders.CreateAsync(orderQuery, orderLinesQuery, pageNumber ?? 1, (int)pageSize, includeOperators: "Product");
 
             return View(orderReports);
         }
