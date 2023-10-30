@@ -1,0 +1,34 @@
+﻿@model List<Category>
+@{
+    var displayBadges = true;
+@if (ViewData["DisplayBadges"] is not null)
+{
+    displayBadges = (bool)ViewData["DisplayBadges"]!;
+}
+
+}
+
+<div class="vstack gap-3">
+    <h4>
+        Categories
+    </h4>
+    <div class="list-group">
+        @foreach (var category in Model)
+        {
+            bool currentCategory = category.Name == ViewData["CategoryParam"]?.ToString();
+            <a asp-area="Customer" asp-controller="Home" asp-action="Shop" asp-route-id="@category.Name" role="button"
+               class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover list-group-item list-group-item-action @(currentCategory ? "active" : "")">
+                @category.Name
+                
+                @if (displayBadges)
+                {
+                    <div class="float-end">
+                        <span class="badge rounded-pill @(currentCategory ? "bg-light" : "bg-primary")">@category.ProductCount</span>
+                    </div>
+                }
+                
+            </a>
+            
+        }
+    </div>
+</div>
