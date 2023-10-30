@@ -81,10 +81,10 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         {
             var productVm = new ProductVM()
             {
-                CategoryList = UnitOfWork.CategoryRepository.GetAll().Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }),
+                CategoryList = await UnitOfWork.CategoryRepository.GetAll().Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }).ToListAsync(),
                 Product = new Product()
             };
-            if (id == null || id == 0)
+            if (id is null or 0)
             {
                 return View(productVm);
             }
