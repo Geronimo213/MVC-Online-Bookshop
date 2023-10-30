@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Bookshop.Models
 {
@@ -21,5 +23,9 @@ namespace Bookshop.Models
 
 
         public virtual ICollection<Product> Products { get; set; } = new HashSet<Product>();
+
+        [NotMapped]
+        [ValidateNever]
+        public int ProductCount { get; set; } = 0;
     }
 }
