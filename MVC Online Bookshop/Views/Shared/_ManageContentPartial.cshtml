@@ -1,0 +1,16 @@
+﻿<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle @(Context.Request.Path.StartsWithSegments("/Admin") ? "active":"")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Manage Content
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item @(Context.Request.Path == "/Admin/Category" ? "active" : "")" asp-area="Admin" asp-controller="Category" asp-action="Index" >Categories</a></li>
+        <li><a class="dropdown-item @(Context.Request.Path == "/Admin/Product" ? "active" : "")" asp-area="Admin" asp-controller="Product" asp-action="Index">Books</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item @(Context.Request.Path == "/Admin/OrderManagement" ? "active" : "")" asp-area="Admin" asp-controller="OrderManagement" asp-action="Index" >Orders</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Register">Register Account</a></li>
+        <li> <a class="dropdown-item @(Context.Request.Path == "/Admin/User" ? "active" : "")" asp-area="Admin" asp-controller="User" asp-action="Index">Manage Users</a></li>
+    </ul>
+
+                            
+</li>
