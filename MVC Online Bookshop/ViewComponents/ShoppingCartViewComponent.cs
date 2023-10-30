@@ -31,11 +31,10 @@ namespace MVC_Online_Bookshop.ViewComponents
                 return View((int)HttpContext.Session.GetInt32(SD.SessionCart)!);
             }
 
-            else
-            {
-                HttpContext.Session.Clear();
-                return View(0);
-            }
+
+            HttpContext.Session.Clear();
+            return View(0);
+
         }
     }
 }
