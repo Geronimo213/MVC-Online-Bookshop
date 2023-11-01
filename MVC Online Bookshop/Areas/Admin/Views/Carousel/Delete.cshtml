@@ -1,0 +1,76 @@
+﻿@model Carousel
+@{
+    ViewData["Title"] = "Delete Carousel";
+}
+
+<div class="float-start mt-2 mb-4">
+    @* Back Button *@
+    <a class="btn btn-outline-danger btn-lg px-4" href="@ViewData["ReturnUri"]">Back</a>
+</div>
+<div class="container d-flex">
+    <div class="card shadow border-0 mt-4 mb-5 col-9 offset-2">
+        <div class="card-header">
+            <div class="row text-center">
+                <h2 class="text-danger">Delete Carousel</h2>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <form method="post" class="" asp-area="Admin" asp-controller="Carousel" asp-action="Delete">
+                <div class="form-floating vstack gap-3">
+                    @*CATEGORY NAME*@
+                    <div class="form-floating">
+                        <input asp-for="Title" type="text" class="form-control" placeholder="Category Name" disabled="disabled"/>
+                        <label asp-for="Title" class=""></label>
+                    </div>
+
+                    @*Tag*@
+                    <div class="form-floating">
+                        <select asp-for="CategoryId" class="form-select align-middle scrollable-select" id="floatingSelect2" disabled="disabled">
+                            <option selected disabled>Select a tag</option>
+                        </select>
+                        <label for="floatingSelect2">Category/Tag</label>
+                    </div>
+                    @*SORT ORDER*@
+                    <div class="form-floating">
+                        <select asp-for="SortOrder" class="form-select align-middle" id="floatingSelect1" disabled="disabled">
+                            <option selected disabled>@Model.SortOrder</option>
+                        </select>
+                        <label for="floatingSelect1">Sort Order</label>
+                    </div>
+                    @* DISPLAY ORDER *@
+                    <div class="form-floating">
+                        <input type="number" asp-for="DisplayOrder" class="form-control" placeholder="Order on Page" disabled="disabled"/>
+                        <label asp-for="DisplayOrder"></label>
+                    </div>
+                    @*SUBMIT*@
+                    <div class="container">
+                        <div class="row col-6 offset-3">
+                            <div class="col-8 mx-auto">
+                                <div id="confirmDeleteSpan" style="display:none" class="">
+                                    <div class="row gap-1">
+                                        <button type="submit" class="btn btn-danger form-control col">Yes</button>
+                                        <a href="#!" class="btn btn-primary form-control col"
+                                           onclick="confirmDelete(false)">No</a>
+                                    </div>
+
+                                    <p class="text-center mt-1 text-danger">Are you sure you want to delete?</p>
+                                </div>
+                                <div id="deleteSpan">
+                                    <a type="button" href="#!" class="btn btn-danger form-control"
+                                       onclick="confirmDelete(true)">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ConfirmDeleteScriptPartial"/>
+}
