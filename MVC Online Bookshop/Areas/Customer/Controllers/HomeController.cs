@@ -11,7 +11,7 @@ using LinqKit;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
-    [Area("Customer")]
+    [Area(SD.RoleCustomer)]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -26,8 +26,12 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var books = await UnitOfWork.ProductRepository.GetAll().ToListAsync();
-            return View(books);
+            var vm = new FrontPageVM
+            {
+                Carousels = await UnitOfWork.CarouselRepository.GetAll().ToListAsync()
+            };
+
+            return View(vm);
         }
 
         public async Task<IActionResult> BookDetails(int? productId)
@@ -43,7 +47,6 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 ProductId = (int)productId!,
                 Count = 1
             };
-            //var book = unitOfWork.ProductRepository.Get(x => x.Id == id, includeOperators: "Category");
 
             return View(cart);
         }
