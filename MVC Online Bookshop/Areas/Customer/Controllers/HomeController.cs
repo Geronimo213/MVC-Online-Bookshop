@@ -85,8 +85,10 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
         public async Task<IActionResult> Shop(string? id, int? pageIndex, int? pageSize, string? searchParam, string? sortOrder)
         {
-            var category = await UnitOfWork.CategoryRepository.Get(x => x.Name == id, includeOperators:"Products") ?? new Category();
-            var productQuery = UnitOfWork.ProductRepository.GetAll(x => x.Categories.Contains(category));
+            var category = await UnitOfWork.CategoryRepository.Get(x => x.Name == id);
+            var productQuery = category is not null
+                ? UnitOfWork.ProductRepository.GetAll(x => x.Categories.Contains(category))
+                : UnitOfWork.ProductRepository.GetAll();
             if (productQuery is null)
             {
                 return View();
@@ -109,7 +111,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             };
             var products = new PaginatedProductVM()
             {
-                CategoryName = category.Name,
+                CategoryName = category is not null ? category.Name : "Search",
                 Products = await PaginatedList<Product>.CreateAsync(productQuery, pageIndex ?? 1, pageSize ?? 25),
                 SearchParam = searchParam,
                 SortOrder = sortOrder
