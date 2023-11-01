@@ -1,0 +1,38 @@
+﻿
+@model CarouselVM
+@{
+    var id = $"a{Guid.NewGuid():N}";
+}
+<h2 class="text-start text-primary-emphasis">@Model.Title</h2>
+<div class="row">
+    <div class="container text-center my-3">
+        <div class="row mx-auto my-auto justify-content-center">
+            <div id="@id") class="carousel slide" data-bs-interval="false">
+                <div class="carousel-inner" role="listbox">
+
+                    @foreach (var book in Model.Products)
+                    {
+                        <div class="carousel-item @(Model.Products.First() == book ? "active" : "")">
+                            <div class="col">
+                                <a asp-area="Customer" asp-controller="Home" asp-action="BookDetails" asp-route-productId="@book.Id"><img class="img-thumbnail shadow book-cover img-fluid" src="~/@book.ImageURL" alt="Cover art for @book.Title by @book.Author" title="@book.Title by @book.Author" /></a>
+                                <div class="container-fluid pt-2 pe-0 ps-0 pb-2 mb-2 z-1 text-center text-wrap">
+                                    <p class="p-0 m-0 text-primary">@book.Title</p>
+                                    <p class="text-dark p-0 m-0">@book.Author</p>
+                                    <p class="text-info mb-0">$@book.Price</p>
+                                    <a role="button" asp-area="Customer" asp-controller="Home" asp-action="BookDetails" asp-route-productId="@book.Id" class="btn btn-dark btn-sm my-0">More Details</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+                </div>
+                <a class="carousel-control-prev w-aut" href="#@id" role="button" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon text-primary" aria-hidden="true"></span>
+                </a>
+                <a class="carousel-control-next w-aut" href="#@id" role="button" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
