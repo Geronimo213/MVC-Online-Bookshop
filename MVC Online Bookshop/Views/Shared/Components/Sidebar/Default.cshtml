@@ -1,12 +1,12 @@
 ﻿@model List<Category>
 @{
     var displayBadges = true;
+}
 @if (ViewData["DisplayBadges"] is not null)
 {
     displayBadges = (bool)ViewData["DisplayBadges"]!;
 }
 
-}
 
 <div class="vstack gap-3">
     <h4>
