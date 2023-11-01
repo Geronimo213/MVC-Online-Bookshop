@@ -12,6 +12,7 @@ namespace Bookshop.DataAccess.Repository
         public IAppUserRepository AppUserRepository { get; }
         public IOrderRepository OrderRepository { get; }
         public IOrderLinesRepository OrderLinesRepository { get; }
+        public ICarouselRepository CarouselRepository { get; }
         public UnitOfWork(AppDBContext dbContext)
         {
             this.DbContext ??= dbContext;
@@ -21,6 +22,7 @@ namespace Bookshop.DataAccess.Repository
             this.AppUserRepository ??= new AppUserRepository(dbContext);
             this.OrderRepository ??= new OrderRepository(dbContext);
             this.OrderLinesRepository ??= new OrderLinesRepository(dbContext);
+            this.CarouselRepository = new CarouselRepository(dbContext);
         }
 
         public async Task SaveAsync()
