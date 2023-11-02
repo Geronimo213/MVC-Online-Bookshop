@@ -83,25 +83,38 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         }
 
 
-        public async Task<IActionResult> Shop(string? id, int? pageIndex, int? pageSize, string? searchParam, string? sortOrder)
+        public async Task<IActionResult> Shop(string? id, int? pageIndex, int? pageSize, string? searchParam, string currentFilter, string? sortOrder)
         {
             var category = await UnitOfWork.CategoryRepository.Get(x => x.Name == id);
             var productQuery = category is not null
-                ? UnitOfWork.ProductRepository.GetAll(x => x.Categories.Contains(category))
-                : UnitOfWork.ProductRepository.GetAll();
+                ? UnitOfWork.ProductRepository.GetAll(x => x.Categories.Contains(category))?.AsNoTracking()
+                : UnitOfWork.ProductRepository.GetAll().AsNoTracking();
             if (productQuery is null)
             {
                 return View();
-
             }
             if (!string.IsNullOrEmpty(searchParam))
             {
+
+                pageIndex = 1;
+            }
+            else
+            {
+                searchParam = currentFilter ?? "";
+            }
+
+            var searchTerms = searchParam.ToLower().Split(' ', ',', '.', ';', ':').Except(SD.stopWords);
+            foreach (var term in searchTerms)
+            {
                 var productSearchPredicate = PredicateBuilder.New<Product>();
-                productSearchPredicate = productSearchPredicate.Or(x => x.Title.Contains(searchParam))
-                    .Or(x => x.Author!.Contains(searchParam))
-                    .Or(x => x.ISBN!.Contains(searchParam));
+                productSearchPredicate = productSearchPredicate
+                    .Or(x => x.Title.Contains(term))
+                    .Or(x => x.Author!.Contains(term))
+                    .Or(x => x.ISBN!.Contains(term));
                 productQuery = productQuery.Where(productSearchPredicate);
             }
+
+           
 
             productQuery = sortOrder switch
             {
@@ -111,9 +124,9 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             };
             var products = new PaginatedProductVM()
             {
-                CategoryName = category is not null ? category.Name : "Search",
+                CategoryName = category is not null ? category.Name : "All",
                 Products = await PaginatedList<Product>.CreateAsync(productQuery, pageIndex ?? 1, pageSize ?? 25),
-                SearchParam = searchParam,
+                CurrentFilter = searchParam,
                 SortOrder = sortOrder
 
             };
