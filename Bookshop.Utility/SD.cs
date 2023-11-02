@@ -14,5 +14,7 @@
         public const string CartIncrement = "Increment";
         public const string CartDecrement = "Decrement";
 
+        public static readonly string[] stopWords = { "the", "of", "a" };
+
     }
 }
