@@ -1,0 +1,87 @@
+﻿@model Header
+@{
+    bool create = @Model.Id == 0;
+}
+@{
+    ViewData["Title"] = $"{(create ? "Create" : "Update")} Slide";
+}
+
+<div class="float-start mt-2 mb-4">
+    @* Back Button *@
+    <a class="btn btn-outline-danger btn-lg p-3" href="@ViewData["ReturnUri"]">Back</a>
+</div>
+<div class="container d-flex">
+    <div class="card shadow border-0 mt-4 mb-5 col-9 offset-2">
+        <div class="card-header">
+            <div class="row col-12 text-center">
+                <h2 class="text-danger">Delete Slide</h2>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <form method="post" class="" asp-area="Admin" asp-controller="FrontPage" asp-action="HeaderUpsert">
+                <div class="form-floating vstack gap-3">
+                    @*SLIDE NAME*@
+                    <div class="form-floating">
+                        <input asp-for="Name" type="text" class="form-control" placeholder="Slide Name" disabled="disabled"/>
+                        <label asp-for="Name" class=""></label>
+                    </div>
+                    @*ALT TEXT*@
+                    <div class="form-floating">
+                        <input asp-for="AltText" type="text" class="form-control" placeholder="Alt Text" disabled="disabled"/>
+                        <label asp-for="AltText" class=""></label>
+                    </div>
+
+                    @*LINK*@
+                    <div class="form-floating">
+                        <input asp-for="LinkPath" type="text" class="form-control" placeholder="Link (optional)" disabled="disabled"/>
+                        <label asp-for="LinkPath" class=""></label>
+                    </div>
+
+                    @*Image*@
+                    <div class="mt-2 mb-3 col-sm-12 col-md-12">
+                        <label asp-for="ImagePath" class="pe-3 pt-2 bg-opacity-10 form-text text-muted">@(create ? "Cover Art" : $"Cover Art: {Model.ImagePath}")</label>
+                        <input name="file" type="file" accept="image/*" class="form-control" placeholder="Cover Art" disabled="disabled"/>
+                    </div>
+
+                    @* DISPLAY ORDER *@
+                    <div class="form-floating">
+                        <input type="number" asp-for="DisplayOrder" class="form-control" placeholder="Order in Slideshow" disabled="disabled"/>
+                        <label asp-for="DisplayOrder"></label>
+                    </div>
+                    @*SUBMIT*@
+                    <div class="container">
+                        <div class="row col-6 offset-3">
+                            <div class="col-8 mx-auto">
+                                <div id="confirmDeleteSpan" style="display:none" class="">
+                                    <div class="row gap-1">
+                                        <button type="submit" class="btn btn-danger form-control col">Yes</button>
+                                        <a href="#!" class="btn btn-primary form-control col"
+                                           onclick="confirmDelete(false)">No</a>
+                                    </div>
+
+                                    <p class="text-center mt-1 text-danger">Are you sure you want to delete?</p>
+                                </div>
+                                <div id="deleteSpan">
+                                    <a type="button" href="#!" class="btn btn-danger form-control"
+                                       onclick="confirmDelete(true)">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@section Scripts {
+    @{
+        <partial name="_ConfirmDeleteScriptPartial"/>
+    }
+}

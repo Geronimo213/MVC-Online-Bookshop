@@ -1,0 +1,92 @@
+﻿@model Header
+@{
+    bool create = @Model.Id == 0;
+}
+@{
+    ViewData["Title"] = $"{(create ? "Create" : "Update")} Slide";
+}
+
+<div class="float-start mt-2 mb-4">
+    @* Back Button *@
+    <a class="btn btn-outline-danger btn-lg px-3" href="@ViewData["ReturnUri"]">Back</a>
+</div>
+<div class="container d-flex">
+    <div class="card shadow border-0 mt-4 mb-5 col-9 offset-2">
+        <div class="card-header">
+            <div class="row col-12 text-center">
+                <h2 class="text-primary">@(create ? "Create" : "Update") Slide</h2>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <form method="post" class="" asp-area="Admin" asp-controller="FrontPage" asp-action="HeaderUpsert" enctype="multipart/form-data">
+                <input asp-for="Id" hidden />
+                <input asp-for="ImagePath" hidden />
+                <div class="form-floating vstack gap-3">
+                    @*SLIDE NAME*@
+                    <div class="form-floating">
+                        <input asp-for="Name" type="text" class="form-control" placeholder="Slide Name"/>
+                        <label asp-for="Name" class=""></label>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    @*ALT TEXT*@
+                    <div class="form-floating">
+                        <input asp-for="AltText" type="text" class="form-control" placeholder="Alt Text"/>
+                        <label asp-for="AltText" class=""></label>
+                        <span asp-validation-for="AltText" class="text-danger"></span>
+                    </div>
+
+                    @*LINK*@
+                    <div class="form-floating">
+                        <input asp-for="LinkPath" type="text" class="form-control" placeholder="Link (optional)"/>
+                        <label asp-for="LinkPath" class=""></label>
+                        <span asp-validation-for="LinkPath" class="text-danger"></span>
+                    </div>
+
+                    @*Image*@
+                    <div class="mt-2 mb-3 col-sm-12 col-md-12">
+                        <label asp-for="ImagePath" class="pe-3 pt-2 bg-opacity-10 form-text text-muted">@(create ? "Slide Image" : $"Slide Image: {Model.ImagePath}")</label>
+                        <input name="file" type="file" accept="image/*" class="form-control" placeholder="Slide Image"/>
+                    </div>
+
+                    @* DISPLAY ORDER *@
+                    <div class="form-floating">
+                        <input type="number" asp-for="DisplayOrder" class="form-control" placeholder="Order in Slideshow"/>
+                        <label asp-for="DisplayOrder"></label>
+                        <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                    </div>
+                    @*SUBMIT / BACK*@
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary form-control">@(create ? "Create" : "Update")</button>
+                        </div>
+                    </div>
+
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+
+        <script type="text/javascript">
+
+            $('.form-select').select2(
+                {
+                    theme: 'bootstrap-5',
+                    width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                    placeholder: $(this).data('placeholder'),
+                    closeOnSelect: true,
+                    allowClear: false,
+                });
+
+        </script>
+    }
+}

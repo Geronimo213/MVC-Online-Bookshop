@@ -2,7 +2,7 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @using Bookshop.DataAccess.Repository
-@model List<Carousel>
+@model FrontPageManageVM
 @{
     ViewData["Title"] = "Front Page Management";
     int? currentPageSize = (int?)ViewData["CurrentPageSize"];
@@ -11,42 +11,89 @@
 <div class="card shadow mt-4 mb-4">
     <div class="row py-2 m-0 card-header border-0 shadow-none">
         <div class="col-6">
-            <h2 class="text-primary">Carousels</h2>
+            <h2 class="text-primary">Header Slides</h2>
         </div>
         <div class="col-6 text-end">
-            <a asp-controller="FrontPage" asp-action="Upsert" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> Category</a>
+            <a asp-controller="FrontPage" asp-action="HeaderUpsert" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> Category</a>
         </div>
     </div>
     <div class="card-body">
         <table class="table table-bordered table-striped w-100 ">
             <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Category/Tag</th>
-                    <th>Sort Order</th>
-                    <th>Display Order</th>
-                </tr>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Image</th>
+                <th>Links to</th>
+                <th>Display Order</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach (var carousel in Model)
-                {
-                    <tr>
-                        <td>@carousel.Title</td>
-                        <td>@carousel.Category.Name</td>
-                        <td>@carousel.SortOrder</td>
-                        <td>@carousel.DisplayOrder</td>
-                        <td class="text-sm-center">
-                            <div class=" w-75 btn-group" role="group">
-                                <a asp-controller="FrontPage" asp-action="Upsert" asp-route-id="@carousel.Id" class="btn btn-primary mx-2"><i class="bi bi-pencil-fill"></i> Edit</a>
-                                <a asp-controller="FrontPage" asp-action="Delete" asp-route-id="@carousel.Id" class="btn btn-danger mx-2"><i class="bi bi-trash3-fill"></i> Delete</a>
-                            </div>
-                        </td>
-                    </tr>
-                }
+            @foreach (var slide in Model.Headers)
+            {
+                <tr>
+                    <td>@slide.Name</td>
+                    <td>@slide.AltText</td>
+                        <td><a href="~/@slide.ImagePath" target="_blank" rel="noreferrer noopener">Image</a></td>
+                    <td><a href="@slide.LinkPath" target="_blank" rel="noreferrer noopener">Links to</a></td>
+                    <td>@slide.DisplayOrder</td>
+                    <td class="text-sm-center">
+                        <div class=" w-75 btn-group" role="group">
+                            <a asp-controller="FrontPage" asp-action="HeaderUpsert" asp-route-id="@slide.Id" class="btn btn-primary mx-2"><i class="bi bi-pencil-fill"></i> Edit</a>
+                            <a asp-controller="FrontPage" asp-action="HeaderDelete" asp-route-id="@slide.Id" class="btn btn-danger mx-2"><i class="bi bi-trash3-fill"></i> Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            }
             </tbody>
         </table>
 
     </div>
 
 </div>
+
+
+<div class="card shadow mt-4 mb-4">
+    <div class="row py-2 m-0 card-header border-0 shadow-none">
+        <div class="col-6">
+            <h2 class="text-primary">Carousels</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="FrontPage" asp-action="CarouselUpsert" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> Category</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-striped w-100 ">
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category/Tag</th>
+                <th>Sort Order</th>
+                <th>Display Order</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var carousel in Model.Carousels)
+            {
+                <tr>
+                    <td>@carousel.Title</td>
+                    <td>@carousel.Category.Name</td>
+                    <td>@carousel.SortOrder</td>
+                    <td>@carousel.DisplayOrder</td>
+                    <td class="text-sm-center">
+                        <div class=" w-75 btn-group" role="group">
+                            <a asp-controller="FrontPage" asp-action="CarouselUpsert" asp-route-id="@carousel.Id" class="btn btn-primary mx-2"><i class="bi bi-pencil-fill"></i> Edit</a>
+                            <a asp-controller="FrontPage" asp-action="CarouselDelete" asp-route-id="@carousel.Id" class="btn btn-danger mx-2"><i class="bi bi-trash3-fill"></i> Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
 

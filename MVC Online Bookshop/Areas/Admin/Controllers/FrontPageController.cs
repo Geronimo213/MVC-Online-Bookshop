@@ -1,5 +1,6 @@
 ﻿using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
+using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,17 +17,122 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
     public class FrontPageController : Controller
     {
         private IUnitOfWork _unitOfWork;
-        public FrontPageController(IUnitOfWork unitOfWork)
+        private IWebHostEnvironment appEnvironment { get; }
+        public FrontPageController(IUnitOfWork unitOfWork, IWebHostEnvironment appEnvironment)
         {
             this._unitOfWork = unitOfWork;
-        }
-        public async Task<IActionResult> Index()
-        {
-            var carouselsDb = _unitOfWork.CarouselRepository.GetAll().Include(x => x.Category).OrderBy(x => x.DisplayOrder);
-            return View(await carouselsDb.ToListAsync());
+            this.appEnvironment = appEnvironment;
         }
 
-        public async Task<IActionResult> Upsert(int? id, Uri? returnUri)
+        //INDEX
+        public async Task<IActionResult> Index()
+        {
+            var vm = new FrontPageManageVM();
+            var carouselsDb = _unitOfWork.CarouselRepository.GetAll().Include(x => x.Category).OrderBy(x => x.DisplayOrder);
+            var headersDb = await _unitOfWork.HeaderRepository.GetAll().ToListAsync();
+            vm.Carousels = await carouselsDb.ToListAsync();
+            vm.Headers = headersDb;
+            return View(vm);
+        }
+
+        public async Task<IActionResult> HeaderUpsert(int? id, Uri? returnUri)
+        {
+            returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
+            ViewData["ReturnUri"] = returnUri;
+            if (id is null or 0)
+            {
+                return View(new Header());
+            }
+
+            var headerDb = await _unitOfWork.HeaderRepository.Get(x => x.Id == id);
+
+            return View(headerDb);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> HeaderUpsert(Header header, IFormFile? file)
+        {
+            if (ModelState.IsValid)
+            {
+                if (file is not null)
+                {
+                    string filename = header.ImagePath ?? @"Images\Slides\" + Guid.NewGuid().ToString() + file.FileName;
+                    string path = Path.Combine(appEnvironment.WebRootPath, filename);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        filename = @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
+                        path = Path.Combine(appEnvironment.WebRootPath, filename);
+
+                    }
+
+                    await using (Stream fs = new FileStream(path, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fs);
+                    }
+
+                    header.ImagePath = filename;
+                }
+
+                if (header.Id is 0)
+                {
+                    _unitOfWork.HeaderRepository.Add(header);
+                    TempData["success"] = "Created Slide";
+                }
+                else
+                {
+                    _unitOfWork.HeaderRepository.Update(header);
+                    TempData["success"] = "Updated Slide";
+                }
+
+                await _unitOfWork.SaveAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(header);
+        }
+
+        public async Task<IActionResult> HeaderDelete(int? id, Uri? returnUri)
+        {
+            returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
+            ViewData["ReturnUri"] = returnUri;
+
+            if (id is null or 0)
+            {
+                return NotFound();
+            }
+
+            var headerDb = await _unitOfWork.HeaderRepository.Get(x => x.Id == id);
+            return View(headerDb);
+        }
+        [HttpPost]
+        public async Task<IActionResult> HeaderDelete(Header header)
+        {
+            if (header.Id is 0)
+            {
+                return NotFound();
+            }
+
+            if (header.ImagePath is not null)
+            {
+                string filename = header.ImagePath;
+                string path = Path.Combine(appEnvironment.WebRootPath, filename);
+                if (System.IO.File.Exists(path))
+                {
+                    System.IO.File.Delete(path);
+
+                }
+            }
+
+            _unitOfWork.HeaderRepository.Delete(header);
+            await _unitOfWork.SaveAsync();
+
+            TempData["success"] = "Removed slide";
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> CarouselUpsert(int? id, Uri? returnUri)
         {
             returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
             ViewData["ReturnUri"] = returnUri;
@@ -51,26 +157,29 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Upsert(Carousel carousel, Uri? returnUri)
+        public async Task<IActionResult> CarouselUpsert(Carousel carousel, Uri? returnUri)
         {
             if (!ModelState.IsValid) return NotFound();
 
             if (carousel.Id is 0)
             {
                 _unitOfWork.CarouselRepository.Add(carousel);
+                TempData["success"] = "Created carousel";
             }
 
             else
             {
                 _unitOfWork.CarouselRepository.Update(carousel);
+                TempData["success"] = "Updated carousel";
             }
 
             await _unitOfWork.SaveAsync();
 
+            
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> CarouselDelete(int? id)
         {
             if (id is null) return NotFound();
             var returnUri = Url.Action(nameof(Index));
@@ -83,7 +192,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(Carousel carousel)
+        public async Task<IActionResult> CarouselDelete(Carousel carousel)
         {
             if (carousel.Id is 0)
             {
@@ -93,6 +202,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             _unitOfWork.CarouselRepository.Delete(carousel);
             await _unitOfWork.SaveAsync();
 
+            TempData["success"] = "Removed carousel";
             return RedirectToAction(nameof(Index));
         }
     }
