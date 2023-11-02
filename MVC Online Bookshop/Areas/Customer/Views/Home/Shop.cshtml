@@ -3,27 +3,38 @@
 @{ 
     ViewData["Title"] = "Shop - " + @Model.CategoryName;
 }
-
+@section Styles
+{
+    <style>
+        #side-bar{
+            position: relative;
+            top: 25%;
+        }
+    </style>
+}
 
 <div class="container row mt-4">
-    <div class="container col-2 my-auto pt-4">
-        @await Component.InvokeAsync("Sidebar", @Model.CategoryName)
+    <div class="container col-2">
+        <div class="text-primary" id="side-bar">
+            @await Component.InvokeAsync("Sidebar", new { currentCategory = @Model.CategoryName, search = @Model.CurrentFilter })
+        </div>
+       
     </div>
     <div class="col-10 container vstack gap-3">
         <div class="text-center">
-            <h1 class="display-3"><span class="text-primary">@(string.IsNullOrEmpty(Model.SearchParam) ? $"{@Model.CategoryName}" : $" {@Model.CategoryName} - \"{@Model.SearchParam}\"")</span> Books</h1>
+            <h1 class="display-3"><span class="text-primary">@(string.IsNullOrEmpty(Model.CurrentFilter) ? $"{@Model.CategoryName}" : $" {@Model.CategoryName} - \"{@Model.CurrentFilter}\"")</span> Books</h1>
         </div>
         <div class="">
-            <form class="form-floating" method="get">
+            <form class="form-floating" method="get" id="shopForm">
                 @* <input asp-for="CategoryName" hidden/> *@
                 <div class="d-flex flex-row flex-nowrap gap-3 form-floating justify-content-around">
-                    <input asp-for="SearchParam" id="searchBar" type="text" class="form-control" placeholder="Title, Author, ISBN" value="@Model.SearchParam"/>
-                    <label asp-for="SearchParam" for="searchBar">Title, Author, ISBN</label>
+                    <input name="searchParam" id="searchBar" type="text" class="form-control" placeholder="Title, Author, ISBN" value="@Model.CurrentFilter"/>
+                    <label  for="searchBar">Title, Author, ISBN</label>
 
-                    <button type="submit" class="btn btn-primary" asp-action="Shop" asp-route-id="@Model.CategoryName">Search</button>
+                    <button form="shopForm" type="submit" class="btn btn-primary" asp-action="Shop" asp-route-id="@Model.CategoryName">Search</button>
 
                     
-                    <select asp-for="SortOrder" onchange="this.form.submit()">
+                    <select asp-for="SortOrder" onchange="$('form#shopForm').submit();">
                         <option selected="selected" value="">Sort by</option>
                         @foreach (var param in Model.SortParams)
                         {
@@ -67,7 +78,7 @@
                        asp-action="Shop"
                        asp-route-sortOrder="@Model.SortOrder"
                        asp-route-pageNumber="@(Model.Products.PageIndex - 1)"
-                       asp-route-searchParam="@Model.SearchParam"
+                       asp-route-currentFilter="@Model.CurrentFilter"
                        class="page-link @prevDisabled">
                         &laquo;
                     </a>
@@ -79,7 +90,7 @@
                        asp-action="Shop"
                        asp-route-sortOrder="@Model.SortOrder"
                        asp-route-pageNumber="1"
-                       asp-route-searchParam="@Model.SearchParam"
+                       asp-route-currentFilter="@Model.CurrentFilter"
                        class="page-link @(Model.Products.PageIndex == 1 ? "active" : "")">
                         1
                     </a>
@@ -96,7 +107,7 @@
                            asp-action="Shop"
                            asp-route-sortOrder="@Model.SortOrder"
                            asp-route-pageNumber="@currentPage"
-                           asp-route-searchParam="@Model.SearchParam]">
+                           asp-route-currentFilter="@Model.CurrentFilter]">
                             @currentPage
                         </a>
                     </li>
@@ -110,7 +121,7 @@
                            asp-action="Shop"
                            asp-route-sortOrder="@Model.SortOrder"
                            asp-route-pageNumber="@(Model.Products.TotalPages)"
-                           asp-route-searchParam="@Model.SearchParam"
+                           asp-route-currentFilter="@Model.CurrentFilter"
                            class="page-link @(Model.Products.PageIndex == @Model.Products.TotalPages ? "active" : "")">
                             @Model.Products.TotalPages
                         </a>
@@ -123,7 +134,7 @@
                        asp-action="Shop"
                        asp-route-sortOrder="@Model.SortOrder"
                        asp-route-pageNumber="@(Model.Products.PageIndex + 1)"
-                       asp-route-searchParam="@Model.SearchParam"
+                       asp-route-currentFilter="@Model.CurrentFilter"
                        class="page-link @nextDisabled">
                         &raquo;
                     </a>
