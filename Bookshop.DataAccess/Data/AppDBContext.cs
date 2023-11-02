@@ -19,6 +19,7 @@ namespace Bookshop.DataAccess.Data
         public DbSet<OrderLines> OrderLines { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<Carousel> Carousels { get; set; }
+        public DbSet<Header> Headers { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
