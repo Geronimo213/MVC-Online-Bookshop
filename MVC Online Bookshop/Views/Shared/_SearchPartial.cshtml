@@ -1,4 +1,4 @@
-﻿<form class="d-flex" role="search" method="get" asp-area="Customer" asp-controller="Home" asp-action="Shop">
+﻿<form class="d-flex" role="search" method="get" asp-area="Customer" asp-controller="Home" asp-action="Shop" asp-route-id="" id="NavSearchForm">
     <input name="searchParam" class="form-control me-2" type="search" placeholder="Search books, authors, ISBNs" aria-label="Search books, authors, ISBNs">
-    <button class="btn btn-dark" type="submit" >Search</button>
+    <button class="btn btn-dark" type="submit" form="NavSearchForm">Search</button>
 </form>
