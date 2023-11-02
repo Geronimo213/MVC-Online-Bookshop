@@ -14,19 +14,23 @@ namespace MVC_Online_Bookshop.ViewComponents
             this.UnitOfWork = unitOfWork;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string? currentCategory, bool? displayBadges)
+        public async Task<IViewComponentResult> InvokeAsync(string? currentCategory, bool? displayBadges, string? search)
         {
             ViewData["DisplayBadges"] = displayBadges ?? true;
             ViewData["CategoryParam"] = currentCategory ?? "";
+            ViewData["SearchParam"] = search;
             var categories = await UnitOfWork.CategoryRepository
                 .GetAll()
+                .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)
                 .Select(x => new Category() 
                     { DisplayOrder = 
                         x.DisplayOrder,
                         Id = x.Id,
                         Name = x.Name,
-                        ProductCount = x.Products.Count
+                        ProductCount = string.IsNullOrEmpty(search) ? 
+                            x.Products.Count : 
+                            x.Products.Count(p => p.Title.Contains(search) || p.Author!.Contains(search) || p.ISBN!.Contains(search))
                     })
                 .ToListAsync();
 
