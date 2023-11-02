@@ -15,6 +15,7 @@ namespace Bookshop.Models
         [NotNull]
         public string? Description { get; set; }
         [Required(ErrorMessage = "ISBN required.")]
+        [Length(10,17)]
         public string? ISBN { get; set; }
         [Required(ErrorMessage = "Author is required.")]
         public string? Author { get; set; }
