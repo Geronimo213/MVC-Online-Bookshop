@@ -11,7 +11,7 @@
         <li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Register">Register Account</a></li>
         <li> <a class="dropdown-item @(Context.Request.Path == "/Admin/User" ? "active" : "")" asp-area="Admin" asp-controller="User" asp-action="Index">Manage Users</a></li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item @(Context.Request.Path == "/Admin/Carousel" ? "active" : "")" asp-area="Admin" asp-controller="Carousel" asp-action="Index">Front Page</a></li>
+        <li><a class="dropdown-item @(Context.Request.Path == "/Admin/Carousel" ? "active" : "")" asp-area="Admin" asp-controller="FrontPage" asp-action="Index">Front Page</a></li>
     </ul>
 
                             

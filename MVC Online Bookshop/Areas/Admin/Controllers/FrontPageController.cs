@@ -13,10 +13,10 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
     [Area(SD.RoleAdmin)]
     [Authorize(Roles = $"{SD.RoleAdmin}, {SD.RoleEmployee}")]
-    public class CarouselController : Controller
+    public class FrontPageController : Controller
     {
         private IUnitOfWork _unitOfWork;
-        public CarouselController(IUnitOfWork unitOfWork)
+        public FrontPageController(IUnitOfWork unitOfWork)
         {
             this._unitOfWork = unitOfWork;
         }

@@ -34,7 +34,7 @@ namespace MVC_Online_Bookshop.ViewComponents
 
             var vm = new CarouselVM()
             {
-                Products = await productsDb.ToListAsync(),
+                Products = await productsDb.Take(10).ToListAsync(),
                 Title = carousel.Title
             };
             return View(vm);
