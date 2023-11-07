@@ -60,6 +60,9 @@
             </div>
         </nav>
     </header>
+    <div class="container-fluid px-0 mx-0">
+        @await RenderSectionAsync("containerFluid", required: false)
+    </div>
     <div class="container">
         <main role="main" class="pb-3">
             <partial name="_Notification"/>

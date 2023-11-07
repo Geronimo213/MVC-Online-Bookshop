@@ -44,7 +44,7 @@
 
                     @*Image*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12">
-                        <label asp-for="ImagePath" class="pe-3 pt-2 bg-opacity-10 form-text text-muted">@(create ? "Slide Image" : $"Slide Image: {Model.ImagePath}")</label>
+                        <label asp-for="ImagePath" class="pe-3 pt-2 bg-opacity-10 form-text text-warning">Image must be 2048 x 600 or it will be resized</label>
                         <input name="file" type="file" accept="image/*" class="form-control" placeholder="Slide Image"/>
                     </div>
 

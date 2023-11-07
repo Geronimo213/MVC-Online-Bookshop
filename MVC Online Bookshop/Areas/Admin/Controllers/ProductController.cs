@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
@@ -116,9 +117,18 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
                     }
 
-                    await using (Stream fs = new FileStream(path, FileMode.Create))
+                    //await using (Stream fs = new FileStream(path, FileMode.Create))
+                    //{
+                    //    await file.CopyToAsync(fs);
+                    //}
+
+                    using (var image = await Image.LoadAsync(file.OpenReadStream()))
                     {
-                        await file.CopyToAsync(fs);
+                        if (image.Width != 450 || image.Height != 720)
+                        {
+                            image.Mutate(img => img.Resize(450, 720, KnownResamplers.Lanczos3));
+                        }
+                        await image.SaveAsync(path, new JpegEncoder());
                     }
 
                     vm.Product.ImageURL = filename;

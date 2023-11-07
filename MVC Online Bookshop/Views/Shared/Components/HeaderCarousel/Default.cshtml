@@ -1,0 +1,39 @@
+﻿@model List<Header>
+
+<div id="HeaderCarouselAutoPlay" class="header-carousel carousel slide" data-bs-ride="carousel">
+    
+    @* INDICATORS *@
+    <div class="carousel-indicators">
+        @* LOOP FOR CAROUSEL INDICATORS *@
+        @for (var i = 0; i < Model.Count; i++)
+        {
+            <button type="button" data-bs-target="#HeaderCarouselAutoPlay" data-bs-slide-to="@i" class="@(@i == 0 ? "active" : "")" aria-current="@(@i == 0 ? "active" : "")" aria-label="Slide @(i + 1)"></button>
+        }
+    </div>
+
+    @* SLIDES *@
+    <div class="carousel-inner">
+        @* LOOP FOR CAROUSEL SLIDES *@
+        @foreach (var slide in Model)
+        {
+            <div class="carousel-item @(slide == Model.First() ? "active" : "")">
+                <a href="@slide.LinkPath">
+                    <img src="~/@slide.ImagePath" class="d-block img-fluid w-100" alt="@slide.AltText"/>
+                </a>
+            </div>
+        }
+    </div>
+    
+    @* CONTROLS *@
+    <button class="carousel-control-prev" type="button" data-bs-target="#HeaderCarouselAutoPlay">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+
+    <button class="carousel-control-next" type="button" data-bs-target="#HeaderCarouselAutoPlay">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+
+
+</div>

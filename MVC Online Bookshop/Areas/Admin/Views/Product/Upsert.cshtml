@@ -44,7 +44,7 @@
                     </div>
                     @*COVER ART*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12">
-                        <label asp-for="Product.ImageURL" class="pe-3 pt-2 bg-opacity-10 form-text text-muted">@(create ? "Cover Art" : $"Cover Art: {Model.Product.ImageURL}")</label>
+                        <label asp-for="Product.ImageURL" class="pe-3 pt-2 bg-opacity-10 form-text text-warning">Image must be 450 x 720 or will be resized</label>
                         <input name="file" type="file" accept="image/*" class="form-control" placeholder="Cover Art"/>
                     </div>
                     @*DESCRIPTION*@

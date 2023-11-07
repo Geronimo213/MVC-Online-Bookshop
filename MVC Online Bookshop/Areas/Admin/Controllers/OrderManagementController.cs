@@ -42,7 +42,6 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             ViewData["CurrentPageSize"] = (int)pageSize;
 
 
-            List<OrderVM> orders = new List<OrderVM>();
             DateTime.TryParse(searchString, out DateTime searchDate);
             var orderQuery = _unitOfWork.OrderRepository.GetAll();
             orderQuery = String.IsNullOrEmpty(searchString) ? orderQuery : orderQuery.Where(s =>

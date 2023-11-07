@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.Language.Extensions;
 using Microsoft.EntityFrameworkCore;
 using MVC_Online_Bookshop.ViewComponents;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
@@ -35,6 +36,8 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             return View(vm);
         }
 
+
+        // HEADER OPERATIONS
         public async Task<IActionResult> HeaderUpsert(int? id, Uri? returnUri)
         {
             returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
@@ -52,45 +55,55 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> HeaderUpsert(Header header, IFormFile? file)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                if (file is not null)
+                TempData["error"] = "Model state is invalid.";
+                return View(header);
+            }
+            if (file is not null)
+            {
+                string filename = header.ImagePath ?? @"Images\Slides\" + Guid.NewGuid().ToString() + file.FileName;
+                string path = Path.Combine(appEnvironment.WebRootPath, filename);
+                if (System.IO.File.Exists(path))
                 {
-                    string filename = header.ImagePath ?? @"Images\Slides\" + Guid.NewGuid().ToString() + file.FileName;
-                    string path = Path.Combine(appEnvironment.WebRootPath, filename);
-                    if (System.IO.File.Exists(path))
+                    System.IO.File.Delete(path);
+                    filename = @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
+                    path = Path.Combine(appEnvironment.WebRootPath, filename);
+
+                }
+
+                //await using (Stream fs = new FileStream(path, FileMode.Create))
+                //{
+                //    await file.CopyToAsync(fs);
+                //}
+
+                using (var image = await Image.LoadAsync(file.OpenReadStream()))
+                {
+                    if (image.Width != 2048 || image.Height != 600)
                     {
-                        System.IO.File.Delete(path);
-                        filename = @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
-                        path = Path.Combine(appEnvironment.WebRootPath, filename);
-
+                        image.Mutate(img => img.Resize(2048, 600, KnownResamplers.Lanczos3));
                     }
-
-                    await using (Stream fs = new FileStream(path, FileMode.Create))
-                    {
-                        await file.CopyToAsync(fs);
-                    }
-
-                    header.ImagePath = filename;
+                    await image.SaveAsync(path, new JpegEncoder());
                 }
 
-                if (header.Id is 0)
-                {
-                    _unitOfWork.HeaderRepository.Add(header);
-                    TempData["success"] = "Created Slide";
-                }
-                else
-                {
-                    _unitOfWork.HeaderRepository.Update(header);
-                    TempData["success"] = "Updated Slide";
-                }
-
-                await _unitOfWork.SaveAsync();
-
-                return RedirectToAction(nameof(Index));
+                header.ImagePath = filename;
             }
 
-            return View(header);
+            if (header.Id is 0)
+            {
+                _unitOfWork.HeaderRepository.Add(header);
+                TempData["success"] = "Created Slide";
+            }
+            else
+            {
+                _unitOfWork.HeaderRepository.Update(header);
+                TempData["success"] = "Updated Slide";
+            }
+
+            await _unitOfWork.SaveAsync();
+
+            return RedirectToAction(nameof(Index));
+
         }
 
         public async Task<IActionResult> HeaderDelete(int? id, Uri? returnUri)
@@ -132,6 +145,8 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
+        //CAROUSEL OPERATIONS
         public async Task<IActionResult> CarouselUpsert(int? id, Uri? returnUri)
         {
             returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
@@ -159,7 +174,13 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> CarouselUpsert(Carousel carousel, Uri? returnUri)
         {
-            if (!ModelState.IsValid) return NotFound();
+            if (!ModelState.IsValid)
+            {
+                var errors = string.Join(Environment.NewLine,  ModelState.Keys.Where(i => ModelState[i]?.Errors.Count > 0).Select(k =>
+                    new KeyValuePair<string, string>(k, ModelState[k]!.Errors.First().ErrorMessage)));
+                TempData["error"] = "Model state is invalid. Error log: ";
+                return View(carousel);
+            }
 
             if (carousel.Id is 0)
             {
