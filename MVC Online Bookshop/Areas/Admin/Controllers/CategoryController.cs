@@ -107,6 +107,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
             else
             {
+                TempData["error"] = "Model state is invalid.";
                 return View(obj);
             }
         }
@@ -119,7 +120,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         ************************************/
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || id == 0) //Null check for id
+            if (id is null or 0) //Null check for id
             {
                 return NotFound();
             }
