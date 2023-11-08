@@ -82,7 +82,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         {
             var productVm = new ProductVM()
             {
-                CategoryList = await UnitOfWork.CategoryRepository.GetAll().Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }).ToListAsync(),
+                CategoryList = await UnitOfWork.CategoryRepository.GetAll().OrderBy(cat => cat.DisplayOrder).Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }).ToListAsync(),
                 Product = new Product()
             };
             if (id is null or 0)
@@ -124,9 +124,9 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
                     using (var image = await Image.LoadAsync(file.OpenReadStream()))
                     {
-                        if (image.Width != 450 || image.Height != 720)
+                        if (image.Width != 314 || image.Height != 500)
                         {
-                            image.Mutate(img => img.Resize(450, 720, KnownResamplers.Lanczos3));
+                            image.Mutate(img => img.Resize(314, 500, KnownResamplers.Lanczos3));
                         }
                         await image.SaveAsync(path, new JpegEncoder());
                     }
@@ -134,7 +134,10 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                     vm.Product.ImageURL = filename;
                 }
 
-
+                if (vm.Product.ISBN is not null)
+                {
+                    vm.Product.ISBN = vm.Product.ISBN.Replace("-", string.Empty);
+                }
 
                 if (vm.Product.Id == 0)
                 {
