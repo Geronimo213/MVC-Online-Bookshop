@@ -22,15 +22,30 @@
                 <input asp-for="Product.ImageURL" hidden />
                 <div class="p-3">
                     
+                    @*ISBN*@
+                    <div class="row">
+                        <div class="col-6 form-floating">
+                            <input asp-for="Product.ISBN" id="isbnInput" class="form-control" placeholder="ISBN" />
+                            <label asp-for="Product.ISBN" class="ms-3"></label>
+                            <span asp-validation-for="Product.ISBN" class="text-danger"></span>
+                        </div>
+                        <div class="col row my-auto">
+                            <button type="button" id="isbnLookup" class="col-4 btn btn-info">Lookup</button>
+                            <div class="collapse ms-2 my-auto spinner-border text-primary" role="status" id="loading-spinner">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <span id="isbnLookupWarning" class="collapse col text-warning">Error getting book. ISBN may be incorrect or book not found.</span>
+                        </div>
+                    </div>
                     @*TITLE*@
                     <div class="mt-2 ms-0 row col-sm-12 col-md-12 form-floating">
-                        <input asp-for="Product.Title" type="text" class="form-control" placeholder="Title"/>
+                        <input asp-for="Product.Title" type="text" class="form-control" id="inputTitle" placeholder="Title"/>
                         <label asp-for="Product.Title" class=""></label>
                         <span asp-validation-for="Product.Title" class="text-danger"></span>
                     </div>
                     @*AUTHOR*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12 form-floating">
-                        <input asp-for="Product.Author" class="form-control" placeholder="Author"/>
+                        <input asp-for="Product.Author" id="inputAuthor" class="form-control" placeholder="Author"/>
                         <label asp-for="Product.Author" class=""></label>
                         <span asp-validation-for="Product.Author" class="text-danger"></span>
                     </div>
@@ -39,25 +54,20 @@
                         <label asp-for="CategoryIds" class="text-muted">Category</label>
                         <select asp-for="CategoryIds" asp-items="@Model.CategoryList" class="form-select pb-2" multiple="multiple" data-placeholder="Choose a category" >
                         </select>
-
+                        <span class="collapse text-info fs-5" id="categorySuggestions"></span>
                         <span asp-validation-for="Product.Categories" class="text-danger"></span>
                     </div>
                     @*COVER ART*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12">
-                        <label asp-for="Product.ImageURL" class="pe-3 pt-2 bg-opacity-10 form-text text-warning">Image must be 450 x 720 or will be resized</label>
+                        <label asp-for="Product.ImageURL" class="pe-3 pt-2 bg-opacity-10 form-text text-warning">Image must be 314 x 500 or will be resized</label><a target="_blank" rel="noopener noreferrer" class="collapse" id="coverLink"></a>
                         <input name="file" type="file" accept="image/*" class="form-control" placeholder="Cover Art"/>
                     </div>
                     @*DESCRIPTION*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12">
-                        <label asp-for="Product.Description" class="me-3 text-muted form-text"></label>
+                        <label asp-for="Product.Description" class="me-3 text-muted form-text"><a target="_blank" rel="noopener noreferrer" class="collapse" id="descriptionLink"></a></label>
                         <textarea id="editor" asp-for="Product.Description" class="form-control" style="height: 10rem"></textarea>
                     </div>
-                    @*ISBN*@
-                    <div class="mt-2 mb-3 col-sm-12 col-md-12 form-floating">
-                        <input asp-for="Product.ISBN" class="form-control" placeholder="ISBN"/>
-                        <label asp-for="Product.ISBN" class=""></label>
-                        <span asp-validation-for="Product.ISBN" class="text-danger"></span>
-                    </div>
+                    
                     @*PRICE*@
                     <div class="mt-2 mb-3 col-sm-12 col-md-12 input-group" style="width: 67%">
                         <span class="input-group-text">$</span>
@@ -70,7 +80,7 @@
                     @*SUBMIT / BACK*@
                     <div class="row">
                         <div class="col-sm-6 col-md-6">
-                            <button type="submit" class="btn btn-primary form-control"> @(create ? "Create" : "Update")</button>
+                            <button type="submit" id="formSubmit" class="btn btn-primary form-control"> @(create ? "Create" : "Update")</button>
                         </div>
                         <div class="col-sm-6 col-md-6">
                             <a href="#!" onclick="history.go(-1)" class="btn btn-outline-primary form-control">Back</a>
@@ -112,5 +122,91 @@
                 allowClear: true,
             });
 
+    </script>
+    
+    <script type="text/javascript">
+        //Listeners for 
+        $(function () {
+            var isbnInput = $('#isbnInput');
+            $('#isbnLookup').on("click", function() {
+                $('#isbnLookup').attr("disabled", true);
+                var isbn = isbnInput.val().replace(/-/g, '');
+                isbnLookup(isbn);
+            });
+
+        });
+    </script>
+    
+    <script type="text/javascript">
+        //Perform ajax
+        function isbnLookup(isbn) {
+            
+            var isbnQuery = 'ISBN:' + isbn;
+            $.ajax({
+                type: 'get',
+                url: 'https://openlibrary.org/api/books?jscmd=data',
+                data: {bibkeys : isbnQuery},
+                dataType: 'jsonp',
+                beforeSend: function() {
+                    $('#isbnLookupWarning').hide();
+                    $('#categorySuggestions').hide();
+                    $('#loading-spinner').show();
+                    $('#descriptionLink').hide();
+                    $('#coverLink').hide();
+                    $('#formSubmit').attr("disabled", true);
+                },
+                complete : function() {
+                    $('#loading-spinner').hide();
+                    $('#formSubmit').attr("disabled", false);
+                },
+                success: function(response) {
+                    $('#isbnLookup').attr("disabled", false);
+                    $('#categorySuggestions').show();
+                    $('#descriptionLink').show();
+                    fillFields(response, isbnQuery);
+                },
+                error: function() {
+                    $('#isbnLookupWarning').show();
+                }
+            });
+        };
+
+        //Change input values
+        function fillFields(response, isbnQuery) {
+            var bibkeys = Object.keys(response);
+            if (bibkeys.length === 0) {
+                $('#isbnLookupWarning').show();
+                return;
+            } else {
+                var book = response[isbnQuery];
+
+                // console.log(book.title);
+                // console.log(book.authors[0].name);
+                // console.log(book.subjects.slice(0, @SD.NumberCategorySuggestions).map((x) => '"' + x.name + '"').join(', '));
+
+                if ('title' in book) {
+                    $('#inputTitle').val(book.title);
+                }
+
+                if ('authors' in book) {
+                    $('#inputAuthor').val(book.authors[0].name);
+                }
+
+                if ('subjects' in book) {
+                    console.log('here');
+                    var subjectList = book.subjects.slice(0, @SD.NumberCategorySuggestions).map((x) => '"' + x.name + '"').join(', ');
+                    $('#categorySuggestions').text('Suggested categories: ' + subjectList);
+                }
+
+                if ('url' in book) {
+                    $('#descriptionLink').text('See page for sample description').attr('href', book.url); 
+                }
+
+                if ('cover' in book) {
+                    $('#coverLink').text('Suggested image: ' + book.cover.large).attr('href', book.cover.large).show();
+                }
+            }
+            
+        };
     </script>
 }
