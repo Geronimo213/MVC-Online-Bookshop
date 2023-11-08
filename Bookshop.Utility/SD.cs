@@ -16,5 +16,8 @@
 
         public static readonly string[] stopWords = { "the", "of", "a" };
 
+        public const int NumberCategorySuggestions = 6;
+        public const int MaxBooksPerSlider = 12;
+
     }
 }
