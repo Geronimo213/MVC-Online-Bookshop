@@ -1,5 +1,6 @@
 ﻿using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
+using Bookshop.Utility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,7 +25,7 @@ namespace MVC_Online_Bookshop.ViewComponents
 
             var sortOrder = carousel.SortOrder;
 
-            productsDb= sortOrder switch
+            productsDb = sortOrder switch
             {
                 "Author" => productsDb.OrderBy(x => x.Author),
                 "Title" => productsDb.OrderBy(x => x.Title),
@@ -34,7 +35,7 @@ namespace MVC_Online_Bookshop.ViewComponents
 
             var vm = new CarouselVM()
             {
-                Products = await productsDb.Take(10).ToListAsync(),
+                Products = await productsDb.Take(SD.MaxBooksPerSlider).ToListAsync(),
                 Title = carousel.Title
             };
             return View(vm);
