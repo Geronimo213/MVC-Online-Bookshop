@@ -33,7 +33,7 @@
           }
 
           .tag-slider .carousel-inner .carousel-item-start.active,
-          ..tag-slider .carousel-inner .carousel-item-prev {
+          .tag-slider .carousel-inner .carousel-item-prev {
             transform: translateX(-16.6%);
           }
   
@@ -131,22 +131,22 @@
 {
     <script type="text/javascript">
 
-        for (let i = 0; i < @Model.Carousels.Count; i++) {
+        for (var i = 0; i < @Model.Carousels.Count; i++) {
 
-            let items = document.querySelectorAll('#caraousel' + i + ' .carousel .carousel-item')
+            var items = document.querySelectorAll('#carousel' + i + ' .carousel .carousel-item');
             items.forEach((el) => {
-                const minPerSlide = 6
-                let next = el.nextElementSibling
-                for (var i = 1; i < minPerSlide; i++) {
+                var minPerSlide = 6;
+                var next = el.nextElementSibling;
+                for (var j = 1; j < minPerSlide; j++) {
                     if (!next) {
                         // wrap carousel by using first child
-                        next = items[0]
+                        next = items[0];
                     }
-                    let cloneChild = next.cloneNode(true)
-                    el.appendChild(cloneChild.children[0])
-                    next = next.nextElementSibling
+                    var cloneChild = next.cloneNode(true);
+                    el.appendChild(cloneChild.children[0]);
+                    next = next.nextElementSibling;
                 }
-            })
+            });
         }
 	    
 		
