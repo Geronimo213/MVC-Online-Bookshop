@@ -14,13 +14,13 @@
 }
 
 <div class="container row mt-4">
-    <div class="container col-2">
-        <div class="text-primary" id="side-bar">
+    <div class="container col-3">
+        <div class="text-primary col-12 col-md-6 offset-md-3" id="side-bar">
             @await Component.InvokeAsync("Sidebar", new { currentCategory = @Model.CategoryName, search = @Model.CurrentFilter })
         </div>
        
     </div>
-    <div class="col-10 container vstack gap-3">
+    <div class="col-9 container vstack gap-3">
         <div class="text-center">
             <h1 class="display-3"><span class="text-primary">@(string.IsNullOrEmpty(Model.CurrentFilter) ? $"{@Model.CategoryName}" : $" {@Model.CategoryName} - \"{@Model.CurrentFilter}\"")</span> Books</h1>
         </div>
@@ -47,20 +47,20 @@
 
             </form>
         </div>
-        <div class="d-flex flex-row flex-wrap justify-content-evenly pt-4">
+        <div class="d-flex flex-row flex-wrap justify-content-evenly pt-4 gap-4">
             @foreach (var book in Model.Products)
             {
-                <div class="mb-auto d-flex justify-content-center flex-column">
+                <div class="mb-auto d-flex justify-content-center">
                     <a class="mx-auto" asp-area="Customer" asp-controller="Home" asp-action="BookDetails" asp-route-productId="@book.Id">
                         <img class="img-thumbnail shadow mx-auto" src="~/@book.ImageURL" width="150px" height="240px" style="width: 150px; height: 240px;" 
                              alt="Cover art for @book.Title by @book.Author" title="@book.Title by @book.Author"/>
                     </a>
-                    <div class="container-fluid pt-2 pe-0 ps-0 pb-2 mb-2 z-1 text-center text-wrap">
+                    @* <div class="container-fluid pt-2 pe-0 ps-0 pb-2 mb-2 z-1 text-center text-wrap">
                         <p class="p-0 m-0 text-primary">@book.Title</p>
                         <p class="text-dark p-0 m-0">@book.Author</p>
                         <p class="text-info mb-0">$@book.Price</p>
                         <a role="button" asp-area="Customer" asp-controller="Home" asp-action="BookDetails" asp-route-productId="@book.Id" class="btn btn-dark btn-sm my-0">More Details</a>
-                    </div>
+                    </div> *@
                 </div>
             }
         </div>
