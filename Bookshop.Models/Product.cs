@@ -15,7 +15,7 @@ namespace Bookshop.Models
         [NotNull]
         public string? Description { get; set; }
         [Required(ErrorMessage = "ISBN required.")]
-        [Length(10,17)]
+        [StringLength(17, MinimumLength = 10, ErrorMessage = "ISBN must be between 10 and 17 characters and may include hyphens (-).")]
         public string? ISBN { get; set; }
         [Required(ErrorMessage = "Author is required.")]
         public string? Author { get; set; }
