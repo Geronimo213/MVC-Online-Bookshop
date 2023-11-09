@@ -1,5 +1,37 @@
-﻿@{
+﻿@model OrderVM
+@{
     ViewData["Title"] = "Order Confirmed";
 }
 
-<h1 class="text-primary">Order Confirmed</h1>
+@section Styles
+{
+    <style>
+        img.img-thumbnail {
+            max-width: 200px;
+            height: auto;
+        }
+    </style>
+}
+
+
+<div class="container mt-4">
+    <h1 class="text-center">Order <span class="text-primary">#@Model.Header.OrderId</span> Confirmed!</h1>
+    
+    <div class="d-flex flex-row justify-content-center mt-5" id="orderBag">
+        @foreach (var line in Model.Lines)
+        {
+            <div class="">
+                <img class="img-thumbnail img-fluid" alt="@line.Product.Title by @line.Product.Author" src="~/@line.Product.ImageURL"/>
+            </div>
+        }
+    </div>
+    
+    <div class="container mt-2">
+        <h1 class="text-center">Thank you for your order, <span class="text-primary">@Model.Header.User?.Name</span>. We wish you the best on your literary voyage.</h1>
+    </div>
+    
+    <div class="mt-4 text-center">
+        <a class="btn btn-lg btn-primary" asp-area="Customer" asp-controller="Home" asp-action="Shop">Just one more book...</a>
+    </div>
+    
+</div>
