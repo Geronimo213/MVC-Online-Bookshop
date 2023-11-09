@@ -22,6 +22,8 @@ namespace Bookshop.Models
 
         public string? TrackingNumber { get; set; }
         public string OrderStatus { get; set; } = "Placed";
+        public string? SessionId { get; set; }
+        public string? PaymentIntentId { get; set; }
 
         [Required]
         public string Name { get; set; } = "Anonymous";
