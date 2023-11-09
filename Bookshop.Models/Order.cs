@@ -38,6 +38,7 @@ namespace Bookshop.Models
         [Required]
         public string? ShipState { get; set; }
         [Required]
+        [RegularExpression(@"^\d{5}(?:[-\s]\d{4})?$", ErrorMessage = "Not a valid zip code")]
         public string? ShipPostalCode { get; set; }
 
         /// <summary>
@@ -50,11 +51,13 @@ namespace Bookshop.Models
         [Required]
         public string? BillState { get; set; }
         [Required]
+        [RegularExpression(@"^\d{5}(?:[-\s]\d{4})?$", ErrorMessage = "Not a valid zip code")]
         public string? BillPostalCode { get; set; }
 
         [Required]
         [Phone]
-        public string PhoneNumber { get; set; } = "(XXX) XXX-XXXX";
+        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Not a valid phone number")]
+        public string PhoneNumber { get; set; }
 
         /// <summary>
         /// FK to User who placed order.
