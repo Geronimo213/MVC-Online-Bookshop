@@ -19,5 +19,12 @@
         public const int NumberCategorySuggestions = 6;
         public const int MaxBooksPerSlider = 12;
 
+        public const string OrderPlaced = "Placed";
+        public const string PaymentPending = "Payment Pending";
+        public const string PaymentProcessed = "Paid/Awaiting Shipment";
+
+        public const int CoverWidth = 500;
+        public const int CoverHeight = 314;
+
     }
 }
