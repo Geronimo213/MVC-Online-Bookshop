@@ -9,7 +9,7 @@
 
 
 
-<div class="vstack gap-3">
+<div class="vstack gap-2">
     <h4>
         Categories
     </h4>
@@ -18,13 +18,14 @@
         @foreach (var category in Model)
         {
             bool currentCategory = category.Name == ViewData["CategoryParam"]?.ToString();
+
             <a asp-area="Customer" asp-controller="Home" asp-action="Shop" asp-route-id="@category.Name" asp-route-currentFilter="@ViewData["SearchParam"]" role="button"
-               class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover list-group-item list-group-item-action @(currentCategory ? "active" : "")">
+               class="d-inline-flex flex-nowrap link-underline link-underline-opacity-0 link-underline-opacity-75-hover list-group-item list-group-item-action @(currentCategory ? "active" : "")">
                 @category.Name
 
                 @if (displayBadges)
                 {
-                    <div class="float-end">
+                    <div class="ms-auto my-auto">
                         <span class="badge rounded-pill @(currentCategory ? "bg-light" : "bg-primary")">@category.ProductCount</span>
                     </div>
                 }
