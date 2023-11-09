@@ -18,7 +18,7 @@
                 <h2 class="text-primary">Order Details</h2>
             </div>
             <div class="container pt-3 mb-2">
-                <form method="post" asp-controller="Checkout" asp-action="ConfirmOrder">
+                <form method="post" asp-controller="Checkout" asp-action="Index">
                     <h5 class="text-muted">Shipping Address</h5>
                     <input asp-for="Order.UserId" value="@Model.Order.UserId" hidden/>
                     <input asp-for="Items" value="@Model.Items" hidden/>
@@ -195,3 +195,7 @@
     <label for="submit-form" tabindex="0" class="btn btn-primary btn-lg my-auto w-50">Place Order</label>
 </div>
 
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial"/>
+}
