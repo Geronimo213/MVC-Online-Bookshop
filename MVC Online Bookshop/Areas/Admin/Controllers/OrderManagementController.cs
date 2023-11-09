@@ -132,11 +132,14 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             _unitOfWork.OrderRepository.Delete(order.Header);
             await _unitOfWork.SaveAsync();
 
+            TempData["success"] = $"Removed order {order.Header.OrderId}";
+
             if (returnUri is not null)
             {
                 return LocalRedirect(returnUri.LocalPath + returnUri.Query);
             }
 
+            
             return RedirectToAction(nameof(Index));
         }
     }
