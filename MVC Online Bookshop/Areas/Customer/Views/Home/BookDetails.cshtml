@@ -21,7 +21,7 @@
             <h3 class="text-info">$@Model.Product?.Price</h3>
         </div>
         <div id="module" class="container ps-0 pt-3">
-            @Html.Raw("<div class=\"collapse p-0\" id=\"collapseExample\" aria-expanded=\"false\"" + Model.Product?.Description + "</div>")
+            @Html.Raw("<div class=\"collapse p-0\" id=\"collapseExample\" aria-expanded=\"false\">" + Model.Product?.Description + "</div>")
             <a role="button" class="collapsed" data-bs-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample"></a>
         </div>
         <form method="post" class="row form-floating mt-4">
