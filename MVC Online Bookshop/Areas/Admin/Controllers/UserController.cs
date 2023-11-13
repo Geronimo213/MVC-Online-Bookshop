@@ -18,10 +18,10 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
     {
         private IUnitOfWork UnitOfWork { get; }
         private IWebHostEnvironment AppEnvironment { get; set; }
-        private UserManager<IdentityUser> AppUserManager { get; set; }
+        private UserManager<AppUser> AppUserManager { get; set; }
         private RoleManager<IdentityRole> RoleManager { get; set; }
 
-        public UserController(IUnitOfWork unitOfWork, IWebHostEnvironment appEnvironment, RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> appUserManager)
+        public UserController(IUnitOfWork unitOfWork, IWebHostEnvironment appEnvironment, RoleManager<IdentityRole> roleManager, UserManager<AppUser> appUserManager)
         {
             this.UnitOfWork = unitOfWork;
             this.AppEnvironment = appEnvironment;
@@ -110,7 +110,11 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
         public async Task<IActionResult> EditPermissions(string? userId, Uri? returnUri)
         {
-            if (userId == null) return NotFound();
+            if (userId == null || userId == User.FindFirst(ClaimTypes.NameIdentifier)!.Value)
+            {
+                TempData["warning"] = userId is null ? "Cannot find user with given ID." : "Cannot change permissions for the current user.";
+                return returnUri is not null ? LocalRedirect(returnUri.LocalPath + returnUri.Query) : RedirectToAction(nameof(Index));
+            }
 
             returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
             ViewData["ReturnUri"] = returnUri;
@@ -166,7 +170,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
             if (userId == null || userId == User.FindFirst(ClaimTypes.NameIdentifier)!.Value)
             {
-                TempData["warning"] = "Cannot find user with given ID. You cannot lock the current user.";
+                TempData["warning"] = userId is null ?  "Cannot find user with given ID." : "Cannot lock the current user.";
                 return returnUri is not null ? LocalRedirect(returnUri.LocalPath + returnUri.Query) : RedirectToAction(nameof(Index));
             }
 
@@ -194,7 +198,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
             if (userId == null || userId == User.FindFirst(ClaimTypes.NameIdentifier)!.Value)
             {
-                TempData["warning"] = "Cannot find user with given ID. You cannot remove the current user.";
+                TempData["warning"] = userId is null ? "Cannot find user with given ID." : "Cannot remove the current user.";
                 return returnUri is not null ? LocalRedirect(returnUri.LocalPath + returnUri.Query) : RedirectToAction(nameof(Index));
             }
 
@@ -216,9 +220,10 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
             var userFromDb = await UnitOfWork.AppUserRepository.Get(x => x.Id == userId, tracked: true);
             if (userFromDb == null) { return NotFound(); }
-
+            var userName = userFromDb.UserName;
             await AppUserManager.DeleteAsync(userFromDb);
             await UnitOfWork.SaveAsync();
+            TempData["success"] = $"Deleted user {userName}";
 
             if (returnUri is not null)
             {

@@ -4,6 +4,10 @@
     ViewData["Title"] = "User Management";
     var currentPageSize = (int?)ViewData["CurrentPageSize"];
 
+    var routeUrl = Url.RouteUrl(ViewContext.RouteData.Values);
+    var qsPath = ViewContext.HttpContext.Request.QueryString.Value;
+    var returnUrl = $"{routeUrl}{qsPath}";
+
 }
 
 <div class="card shadow mt-4 mb-4">
@@ -12,7 +16,7 @@
             <h2 class="text-primary">@ViewData["Title"]</h2>
         </div>
         <div class="col-6 text-end">
-            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> User</a>
+            <a asp-area="Identity" asp-page="/Account/Register" asp-route-returnUrl="@returnUrl" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> User</a>
         </div>
     </div>
     <div class="card-body table-responsive">

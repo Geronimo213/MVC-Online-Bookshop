@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Bookshop.DataAccess.Data
 {
-    public class AppDBContext : IdentityDbContext<IdentityUser>
+    public class AppDBContext : IdentityDbContext<AppUser>
     {
         public AppDBContext(DbContextOptions<AppDBContext> options) : base(options)
         {

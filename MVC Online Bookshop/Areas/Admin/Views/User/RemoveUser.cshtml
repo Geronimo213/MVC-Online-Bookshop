@@ -12,8 +12,7 @@
         <h2 class="text-danger">@ViewData["Title"] - This cannot be undone</h2>
     </div>
     <div class="container pt-3 mb-2 card-body">
-        <form asp-action="RemoveUser" asp-route-returnUri="@ViewData["ReturnUri"]" method="post">
-            <input asp-for="@Model.Id" hidden="hidden" />
+        <form asp-action="RemoveUser" asp-route-userId="@Model.Id" asp-route-returnUri="@ViewData["ReturnUri"]" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
             <div class="d-flex flex-sm-row flex-wrap">

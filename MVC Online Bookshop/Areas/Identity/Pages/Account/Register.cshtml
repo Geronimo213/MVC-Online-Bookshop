@@ -39,7 +39,15 @@
             {
                 <div class="form-floating mb-3">
                     <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select align-middle" id="floatingSelect">
-                        <option selected disabled>Choose Role</option>
+                        @if (!string.IsNullOrEmpty(Model.Input.Role))
+                        {
+                            <option selected>@Model.Input.Role</option>
+                        }
+                        else
+                        {
+                            <option selected disabled>Choose Role</option>
+                        }
+                        
                     </select>
                     <label for="floatingSelect">Role</label>
                 </div>

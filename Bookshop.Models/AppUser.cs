@@ -12,6 +12,7 @@ namespace Bookshop.Models
         public string? StreetAddress { get; set; }
         public string? City { get; set; }
         public string? State { get; set; }
+        [RegularExpression(@"^\d{5}(?:[-\s]\d{4})?$", ErrorMessage = "Not a valid zip code")]
         public string? PostalCode { get; set; }
 
         [NotMapped]
