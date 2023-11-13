@@ -37,6 +37,14 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+{
+#pragma warning disable CS8601 // Possible null reference assignment.
+    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+#pragma warning restore CS8601 // Possible null reference assignment.
+});
+
 builder.Services.AddRazorPages();
 
 
