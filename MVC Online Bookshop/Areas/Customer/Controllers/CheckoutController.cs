@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Bookshop.Utility;
+using Microsoft.AspNetCore.Identity;
 using Stripe.Checkout;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
@@ -15,15 +16,19 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
     public class CheckoutController : Controller
     {
         private IUnitOfWork UnitOfWork { get; set; }
-
-        public CheckoutController(IUnitOfWork unitOfWork)
+        private readonly UserManager<AppUser> _userManager;
+        public CheckoutController(IUnitOfWork unitOfWork, UserManager<AppUser> userManager)
         {
             this.UnitOfWork = unitOfWork;
+            this._userManager = userManager;
         }
         public async Task<IActionResult> Index()
         {
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null) return NotFound();
+
+            var user = await _userManager.FindByIdAsync(userId);
             List<ShoppingCart> items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == userId).ToListAsync();
 
             if (items.Count < 1)
@@ -34,12 +39,12 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
             var order = new Order()
             {
-                Name = claimsIdentity?.FindFirst(ClaimTypes.GivenName)?.Value ?? "",
-                PhoneNumber = claimsIdentity?.FindFirst(ClaimTypes.HomePhone)?.Value ?? "",
-                ShipStreetAddress = claimsIdentity?.FindFirst(ClaimTypes.StreetAddress)?.Value ?? "",
-                ShipCity = claimsIdentity?.FindFirst(ClaimTypes.Locality)?.Value ?? "",
-                ShipState = claimsIdentity?.FindFirst(ClaimTypes.StateOrProvince)?.Value ?? "",
-                ShipPostalCode = claimsIdentity?.FindFirst(ClaimTypes.PostalCode)?.Value ?? "",
+                Name = user?.Name ?? "",
+                PhoneNumber = user?.PhoneNumber ?? "",
+                ShipStreetAddress = user?.StreetAddress ?? "",
+                ShipCity = user?.City ?? "",
+                ShipState = user?.State ?? "",
+                ShipPostalCode = user?.PostalCode ?? "",
                 UserId = userId ?? ""
             };
 
