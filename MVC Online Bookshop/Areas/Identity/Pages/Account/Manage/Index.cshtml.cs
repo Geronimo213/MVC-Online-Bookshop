@@ -2,11 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using System.ComponentModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using Bookshop.DataAccess.Repository;
 using Bookshop.Models;
+using Bookshop.Utility;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account.Manage
 {
@@ -55,11 +58,14 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account.Manage
             /// </summary>
             [Phone]
             [Display(Name = "Phone number")]
+            [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Not a valid phone number")]
             public string PhoneNumber { get; set; }
 
             public string StreetAddress { get; set; }
             public string City { get; set; }
             public string State { get; set; }
+            [RegularExpression(@"^\d{5}(?:[-\s]\d{4})?$", ErrorMessage = "Not a valid zip code")]
+            [Display(Name = "Zip Code")]
             public string PostalCode { get; set; }
         }
 
@@ -73,7 +79,11 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                City = user.City,
+                PostalCode = user.PostalCode,
+                State = user.State,
+                StreetAddress = user.StreetAddress
             };
         }
 
@@ -113,6 +123,28 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account.Manage
                     return RedirectToPage();
                 }
             }
+
+            if (Input.City != user.City)
+            {
+                user.City = Input.City;
+            }
+
+            if (Input.StreetAddress != user.StreetAddress)
+            {
+                user.StreetAddress = Input.StreetAddress;
+            }
+
+            if (Input.State != user.PostalCode)
+            {
+                user.State = Input.State;
+            }
+
+            if (Input.PostalCode != user.PostalCode)
+            {
+                user.PostalCode = Input.PostalCode;
+            }
+
+            await _userManager.UpdateAsync(user);
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
