@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Stripe.Checkout;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
@@ -17,10 +18,12 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
     {
         private IUnitOfWork UnitOfWork { get; set; }
         private readonly UserManager<AppUser> _userManager;
-        public CheckoutController(IUnitOfWork unitOfWork, UserManager<AppUser> userManager)
+        private readonly IEmailSender _emailSender;
+        public CheckoutController(IUnitOfWork unitOfWork, UserManager<AppUser> userManager, IEmailSender emailSender)
         {
             this.UnitOfWork = unitOfWork;
             this._userManager = userManager;
+            this._emailSender = emailSender;
         }
         public async Task<IActionResult> Index()
         {
@@ -160,7 +163,10 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 await UnitOfWork.SaveAsync();
                 HttpContext.Session.Clear();
             }
-            
+
+            var emailSubject = $"New Order #{orderDb.OrderId}";
+            var emailBody = "";
+                await _emailSender.SendEmailAsync(orderDb.User.Email, emailSubject,emailBody);
 
             var orderVm = new OrderVM()
             {

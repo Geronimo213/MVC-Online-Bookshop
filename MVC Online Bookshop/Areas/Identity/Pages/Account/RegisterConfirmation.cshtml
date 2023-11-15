@@ -9,14 +9,15 @@
     if (@Model.DisplayConfirmAccountLink)
     {
 <p>
-    This app does not currently have a real email sender registered, see <a href="https://aka.ms/aspaccountconf">these docs</a> for how to configure a real email sender.
-    Normally this would be emailed: <a id="confirm-link" href="@Model.EmailConfirmationUrl">Click here to confirm your account</a>
+    We have sent an email to <span class="text-primary">@Model.Email</span> with a link to confirm your account. If you do not see the email from
+    <span class="text-info">NOREPLY@geronimo.design</span>, please be sure to check the spam folder. After you confirm your account, you may log in.
 </p>
     }
     else
     {
 <p>
-        Please check your email to confirm your account.
+    We have sent an email to <span class="text-primary">@Model.Email</span> with a link to confirm your account. If you do not see the email from
+    <span class="text-info">NOREPLY@geronimo.design</span>, please be sure to check the spam folder. After you confirm your account, you may log in.
 </p>
     }
 }

@@ -154,6 +154,7 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                user.Name = Input.Name;
 
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)

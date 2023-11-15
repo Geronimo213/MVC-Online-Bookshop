@@ -1,4 +1,5 @@
 using Bookshop.DataAccess.Data;
+using Bookshop.DataAccess.DbInitializer;
 using Bookshop.DataAccess.Repository;
 using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
@@ -17,7 +18,7 @@ builder.Services.AddDbContext<AppDBContext>(options =>
 
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
-builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppDBContext>().AddDefaultTokenProviders();
+builder.Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AppDBContext>().AddDefaultTokenProviders();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 
@@ -36,15 +37,18 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-
+#pragma warning disable CS8601 // Possible null reference assignment.
 builder.Services.AddAuthentication().AddGoogle(googleOptions =>
 {
-#pragma warning disable CS8601 // Possible null reference assignment.
     googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
     googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-#pragma warning restore CS8601 // Possible null reference assignment.
+}).AddMicrosoftAccount(microsoftOptions =>
+{
+    microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
+    microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
 });
 
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddRazorPages();
 
 
@@ -64,9 +68,18 @@ StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey"
 app.UseRouting();
 app.UseAuthorization();
 app.UseSession();
+await SeedDatabase();
 app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+return;
+async Task SeedDatabase()
+{
+    using var scope = app.Services.CreateScope();
+    var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+    await dbInitializer.Initialize();
+}
