@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Bookshop.Utility;
+using LinqKit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Stripe.Checkout;
@@ -18,13 +19,17 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
     {
         private IUnitOfWork UnitOfWork { get; set; }
         private readonly UserManager<AppUser> _userManager;
-        private readonly IEmailSender _emailSender;
-        public CheckoutController(IUnitOfWork unitOfWork, UserManager<AppUser> userManager, IEmailSender emailSender)
+        private readonly IAppEmailSender _emailSender;
+        public CheckoutController(IUnitOfWork unitOfWork, UserManager<AppUser> userManager, IAppEmailSender emailSender)
         {
             this.UnitOfWork = unitOfWork;
             this._userManager = userManager;
             this._emailSender = emailSender;
         }
+        /// <summary>
+        /// Checkout Index used to confirm order details and collect user shipping and billing information.
+        /// </summary>
+        /// <returns>Checkout Index View with CheckoutVM viewmodel.</returns>
         public async Task<IActionResult> Index()
         {
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
@@ -32,7 +37,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             if (userId == null) return NotFound();
 
             var user = await _userManager.FindByIdAsync(userId);
-            List<ShoppingCart> items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == userId).ToListAsync();
+            List<ShoppingCart> items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == userId).AsNoTracking().ToListAsync();
 
             if (items.Count < 1)
             {
@@ -61,12 +66,45 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Accepts post from checkout View, taking all shipping and billing details from the user and
+        /// confirming model validity. Then creates order header and uses passed shopping cart line ids to get information.
+        /// Then creates Stripe session with order details and redirects user.
+        /// </summary>
+        /// <param name="checkoutVm">Model from the checkout view</param>
+        /// <returns>Redirect to Stripe payment or redirect to Checkout Index on error.</returns>
         [HttpPost]
         public async Task<IActionResult> Index(CheckoutVM checkoutVm)
         {
-            if (!ModelState.IsValid) return RedirectToAction(nameof(Index));
+            if (!ModelState.IsValid || checkoutVm.ItemIds is null) return RedirectToAction(nameof(Index));
 
-            var items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == checkoutVm.Order.UserId).ToListAsync();
+            var claimsIdentity = (ClaimsIdentity?)User.Identity;
+            var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var itemPredicate = PredicateBuilder.New<ShoppingCart>();
+
+            foreach (var itemId in checkoutVm.ItemIds)
+            {
+                var currentId = itemId;
+                itemPredicate.Or(item => item.Id == currentId);
+            }
+
+            var itemsQuery = UnitOfWork.ShoppingCartRepository.GetAll(x => x.UserId == userId);
+
+            if (itemsQuery is null)
+            {
+                TempData["error"] = "User has no items in cart";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var items = await itemsQuery.Where(itemPredicate).Include(sc => sc.Product).AsNoTracking().ToListAsync();
+
+            if (items.Count < 1)
+            {
+                TempData["error"] = "Checkout cart line ids user mismatch.";
+                return RedirectToAction(nameof(Index));
+            }
+
             checkoutVm.Items = items;
             checkoutVm.Order.PlaceDate = DateTime.Now;
             checkoutVm.Order.OrderStatus = SD.OrderPlaced;
@@ -146,6 +184,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
             var orderDb = await UnitOfWork.OrderRepository.Get(x => x.OrderId == id, includeOperators:"User");
             if (orderDb == null || orderDb.UserId != userId) return NotFound();
+
             if (string.IsNullOrEmpty(orderDb.PaymentIntentId) && !string.IsNullOrEmpty(orderDb.SessionId))
             {
                 var service = new SessionService();
@@ -162,11 +201,26 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 UnitOfWork.ShoppingCartRepository.DeleteRange(cartDb);
                 await UnitOfWork.SaveAsync();
                 HttpContext.Session.Clear();
+
+               
+                
+                if (orderDb.User is null || string.IsNullOrEmpty(orderDb.User.Email))
+                {
+                    TempData["error"] = "Email missing.";
+                }
+                else
+                {
+                    var templateData = new
+                    {
+                        RecipientName = orderDb.User.Name
+
+                    };
+                    await _emailSender.SendEmailTemplateAsync(orderDb.User.Email, SD.ConfirmOrderTemplate, templateData);
+                }
+                
             }
 
-            var emailSubject = $"New Order #{orderDb.OrderId}";
-            var emailBody = "";
-                await _emailSender.SendEmailAsync(orderDb.User.Email, emailSubject,emailBody);
+           
 
             var orderVm = new OrderVM()
             {
@@ -179,7 +233,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         /// Endpoint for handling user cancellation of Stripe checkout. Expires Stripe session and deletes order from DB. Then redirects to cart.
         /// </summary>
         /// <param name="id">Order Id</param>
-        /// <returns>RedirectToAction Action: Index, Controller: Cart</returns>
+        /// <returns>RedirectToAction Action: Index, Controller: Cart or NotFound on failed order lookup</returns>
         public async Task<IActionResult> CancelOrder(int id)
         {
             var orderDb = await UnitOfWork.OrderRepository.Get(x => x.OrderId == id);

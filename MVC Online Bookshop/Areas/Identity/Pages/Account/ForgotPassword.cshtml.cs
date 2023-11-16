@@ -11,15 +11,16 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
 using Bookshop.Models;
+using Bookshop.Utility;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
 {
     public class ForgotPasswordModel : PageModel
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IAppEmailSender _emailSender;
 
-        public ForgotPasswordModel(UserManager<AppUser> userManager, IEmailSender emailSender)
+        public ForgotPasswordModel(UserManager<AppUser> userManager, IAppEmailSender emailSender)
         {
             _userManager = userManager;
             _emailSender = emailSender;

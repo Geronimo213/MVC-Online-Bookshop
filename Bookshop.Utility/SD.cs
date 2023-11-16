@@ -26,5 +26,13 @@
         public const int CoverWidth = 500;
         public const int CoverHeight = 314;
 
+        //Email address from
+        public const string NoReplyEmail = "noreply@geronimo.design";
+        public const string EmailName = "Ye Olde Bookshop";
+
+        //Email template ids
+        public const string ConfirmEmailTemplate = "d-68f001d3399a4bfab1fa4194a9148871";
+        public const string ConfirmOrderTemplate = "";
+
     }
 }

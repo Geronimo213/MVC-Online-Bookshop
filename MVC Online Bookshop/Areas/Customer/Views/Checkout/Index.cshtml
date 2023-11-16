@@ -10,9 +10,9 @@
     @* Back Button *@
     <a class="btn btn-outline-danger btn-lg" asp-area="Customer" asp-controller="Cart" asp-action="Index">Back to Cart</a>
 </div>
-<div class="container d-flex flex-wrap gap-3 justify-content-around">
+<div class="container d-flex flex-wrap gap-2 justify-content-around">
     
-    <div class="row d-flex justify-content-center m-0 p-0">
+    <div class="container col-lg m-0 p-0">
         <div class="card shadow px-0 mx-0 mt-4 mb-auto">
             <div class="row card-header py-2 m-0">
                 <h2 class="text-primary">Order Details</h2>
@@ -21,8 +21,12 @@
                 <form method="post" asp-controller="Checkout" asp-action="Index">
                     <h5 class="text-muted">Shipping Address</h5>
                     <input asp-for="Order.UserId" value="@Model.Order.UserId" hidden/>
-                    <input asp-for="Items" value="@Model.Items" hidden/>
                     <input id="submit-form" type="submit" hidden/>
+                    
+                    @foreach (var item in Model.Items)
+                    {
+                        <input asp-for="ItemIds" value="@item.Id" hidden=""/>
+                    }
 
                     @*Name*@
                     <div class="mt-2 form-floating">
@@ -100,7 +104,7 @@
     </div>
 
 
-    <div class="row d-flex justify-content-center m-0 p-0">
+    <div class="container col-lg m-0 p-0">
         <div class="card shadow px-0 mx-0 mt-4 mb-4 mb-auto">
             <div class="row card-header py-2 m-0">
                 <div class="">

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable enable
 using Bookshop.Models;
+using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
+using SendGrid.Helpers.Mail;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
 {
@@ -25,7 +27,7 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
         private readonly IUserStore<AppUser> _userStore;
         private readonly IUserEmailStore<AppUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
+        private readonly IAppEmailSender _emailSender;
 
 
         public RegisterModel(
@@ -34,7 +36,7 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
             IUserStore<AppUser> userStore,
             SignInManager<AppUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IAppEmailSender emailSender)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -172,8 +174,13 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
                     values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                     protocol: Request.Scheme);
 
-                await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                var templateData = new
+                {
+                    RecipientName = user.Name,
+                    ConfirmationLink = callbackUrl
+
+                };
+                await _emailSender.SendEmailTemplateAsync(Input.Email, SD.ConfirmEmailTemplate, templateData);
 
                 if (_userManager.Options.SignIn.RequireConfirmedAccount)
                 {

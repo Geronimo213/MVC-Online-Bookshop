@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using Bookshop.Models;
+using Bookshop.Utility;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
 {
@@ -17,9 +18,9 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
     public class RegisterConfirmationModel : PageModel
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IEmailSender _sender;
+        private readonly IAppEmailSender _sender;
 
-        public RegisterConfirmationModel(UserManager<AppUser> userManager, IEmailSender sender)
+        public RegisterConfirmationModel(UserManager<AppUser> userManager, IAppEmailSender sender)
         {
             _userManager = userManager;
             _sender = sender;

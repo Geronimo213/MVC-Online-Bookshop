@@ -13,6 +13,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using Bookshop.Models;
+using Bookshop.Utility;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
 {
@@ -23,7 +24,7 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
         private readonly UserManager<AppUser> _userManager;
         private readonly IUserStore<AppUser> _userStore;
         private readonly IUserEmailStore<AppUser> _emailStore;
-        private readonly IEmailSender _emailSender;
+        private readonly IAppEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
@@ -31,7 +32,7 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
             UserManager<AppUser> userManager,
             IUserStore<AppUser> userStore,
             ILogger<ExternalLoginModel> logger,
-            IEmailSender emailSender)
+            IAppEmailSender emailSender)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -162,6 +163,7 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
+                        await _userManager.AddToRoleAsync(user, SD.RoleCustomer);
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
                         var userId = await _userManager.GetUserIdAsync(user);
@@ -173,8 +175,13 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
                             values: new { area = "Identity", userId = userId, code = code },
                             protocol: Request.Scheme);
 
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        var templateData = new
+                        {
+                            RecipientName = user.Name,
+                            ConfirmationLink = callbackUrl
+
+                        };
+                        await _emailSender.SendEmailTemplateAsync(Input.Email, SD.ConfirmEmailTemplate, templateData); ;
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)

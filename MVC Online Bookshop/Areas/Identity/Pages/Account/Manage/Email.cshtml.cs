@@ -11,6 +11,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
 using Bookshop.Models;
+using Bookshop.Utility;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account.Manage
 {
@@ -18,12 +19,12 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IAppEmailSender _emailSender;
 
         public EmailModel(
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
-            IEmailSender emailSender)
+            IAppEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
