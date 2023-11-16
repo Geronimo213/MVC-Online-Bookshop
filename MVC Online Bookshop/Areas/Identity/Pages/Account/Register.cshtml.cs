@@ -2,20 +2,17 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable enable
 using Bookshop.Models;
-using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
+using SendGrid.Helpers.Mail;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using System.Text.Encodings.Web;
-using SendGrid.Helpers.Mail;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
 {

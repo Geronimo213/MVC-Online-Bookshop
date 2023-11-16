@@ -4,11 +4,8 @@ using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Razor.Language.Extensions;
 using Microsoft.EntityFrameworkCore;
-using MVC_Online_Bookshop.ViewComponents;
 using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
@@ -176,7 +173,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var errors = string.Join(Environment.NewLine,  ModelState.Keys.Where(i => ModelState[i]?.Errors.Count > 0).Select(k =>
+                var errors = string.Join(Environment.NewLine, ModelState.Keys.Where(i => ModelState[i]?.Errors.Count > 0).Select(k =>
                     new KeyValuePair<string, string>(k, ModelState[k]!.Errors.First().ErrorMessage)));
                 TempData["error"] = "Model state is invalid. Error log: ";
                 return View(carousel);
@@ -196,7 +193,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
             await _unitOfWork.SaveAsync();
 
-            
+
             return RedirectToAction(nameof(Index));
         }
 

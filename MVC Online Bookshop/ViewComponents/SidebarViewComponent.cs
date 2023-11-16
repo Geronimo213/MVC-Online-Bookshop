@@ -23,15 +23,16 @@ namespace MVC_Online_Bookshop.ViewComponents
                 .GetAll()
                 .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)
-                .Select(x => new Category() 
-                    { DisplayOrder = 
+                .Select(x => new Category()
+                {
+                    DisplayOrder =
                         x.DisplayOrder,
-                        Id = x.Id,
-                        Name = x.Name,
-                        ProductCount = string.IsNullOrEmpty(search) ? 
-                            x.Products.Count : 
+                    Id = x.Id,
+                    Name = x.Name,
+                    ProductCount = string.IsNullOrEmpty(search) ?
+                            x.Products.Count :
                             x.Products.Count(p => p.Title.Contains(search) || p.Author!.Contains(search) || p.ISBN!.Contains(search))
-                    })
+                })
                 .ToListAsync();
 
             return View(categories);

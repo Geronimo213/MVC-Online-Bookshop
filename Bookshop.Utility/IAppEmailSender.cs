@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace Bookshop.Utility
 {
@@ -26,6 +21,6 @@ namespace Bookshop.Utility
         /// <param name="templateId">Id for the template to use.</param>
         /// <param name="dynamicTemplateData">data</param>
         /// <returns></returns>
-        Task SendEmailTemplateAsync(string email, string templateId,object dynamicTemplateData);
+        Task SendEmailTemplateAsync(string email, string templateId, object dynamicTemplateData);
     }
 }

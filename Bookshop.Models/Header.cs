@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Bookshop.Models
 {
@@ -20,7 +15,7 @@ namespace Bookshop.Models
         public string? LinkPath { get; set; }
 
         [Required]
-        [Range(1,25)]
+        [Range(1, 25)]
         public int DisplayOrder { get; set; }
 
     }

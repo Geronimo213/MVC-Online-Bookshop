@@ -139,7 +139,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 return LocalRedirect(returnUri.LocalPath + returnUri.Query);
             }
 
-            
+
             return RedirectToAction(nameof(Index));
         }
     }

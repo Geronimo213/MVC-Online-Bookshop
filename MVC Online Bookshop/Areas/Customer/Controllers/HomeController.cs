@@ -1,13 +1,13 @@
 using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
+using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
+using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Security.Claims;
-using Bookshop.Models.ViewModels;
-using LinqKit;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
@@ -114,7 +114,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 productQuery = productQuery.Where(productSearchPredicate);
             }
 
-           
+
 
             productQuery = sortOrder switch
             {

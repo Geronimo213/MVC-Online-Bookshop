@@ -2,13 +2,13 @@
 using Bookshop.Models;
 using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
+using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using LinqKit;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
@@ -170,7 +170,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             returnUri ??= HttpContext.Request.GetTypedHeaders().Referer;
             if (userId == null || userId == User.FindFirst(ClaimTypes.NameIdentifier)!.Value)
             {
-                TempData["warning"] = userId is null ?  "Cannot find user with given ID." : "Cannot lock the current user.";
+                TempData["warning"] = userId is null ? "Cannot find user with given ID." : "Cannot lock the current user.";
                 return returnUri is not null ? LocalRedirect(returnUri.LocalPath + returnUri.Query) : RedirectToAction(nameof(Index));
             }
 

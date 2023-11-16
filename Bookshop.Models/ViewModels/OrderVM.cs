@@ -15,7 +15,7 @@ namespace Bookshop.Models.ViewModels
     {
         public PaginatedOrders(int count, int pageIndex, int pageSize) : base(count, pageIndex, pageSize)
         {
-            
+
         }
         public static async Task<PaginatedList<OrderVM>> CreateAsync(IQueryable<Order> source, IQueryable<OrderLines> joinSource, int pageIndex, int pageSize, string? includeOperators)
         {

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -39,7 +38,7 @@ namespace Bookshop.Utility
         /// <param name="plainText">Plaintext string.</param>
         /// <param name="htmlMessage">HTML encoded string. Do not double encode.</param>
         /// <returns>Task (void)</returns>
-        public async Task SendEmailAsync(string email, string subject,string plainText, string htmlMessage)
+        public async Task SendEmailAsync(string email, string subject, string plainText, string htmlMessage)
         {
             var to = new EmailAddress(email);
             var message = MailHelper.CreateSingleEmail(_noReplyEmail, to, subject, plainText, htmlMessage);

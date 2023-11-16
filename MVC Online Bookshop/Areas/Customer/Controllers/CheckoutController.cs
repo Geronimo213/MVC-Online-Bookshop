@@ -1,16 +1,14 @@
 ﻿using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
 using Bookshop.Models.ViewModels;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using Bookshop.Utility;
 using LinqKit;
-using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Stripe.Checkout;
+using System.Security.Claims;
 
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
@@ -125,14 +123,14 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 UnitOfWork.OrderLinesRepository.Add(orderLines);
                 await UnitOfWork.SaveAsync();
             }
-            
+
             //Setup stripe options
             const string domain = "https://localhost:7212/";
 
             var options = new SessionCreateOptions
             {
-                SuccessUrl = Url.Action(action:"ConfirmOrder", controller: "Checkout", values: new { id = checkoutVm.Order.OrderId}, protocol:"https"),
-                CancelUrl = Url.Action(action:"CancelOrder", controller:"Checkout", values: new {id = checkoutVm.Order.OrderId}, protocol:"https"),
+                SuccessUrl = Url.Action(action: "ConfirmOrder", controller: "Checkout", values: new { id = checkoutVm.Order.OrderId }, protocol: "https"),
+                CancelUrl = Url.Action(action: "CancelOrder", controller: "Checkout", values: new { id = checkoutVm.Order.OrderId }, protocol: "https"),
                 LineItems = new List<SessionLineItemOptions>(),
                 Mode = "payment",
             };
@@ -185,7 +183,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var orderDb = await UnitOfWork.OrderRepository.Get(x => x.OrderId == id, includeOperators:"User");
+            var orderDb = await UnitOfWork.OrderRepository.Get(x => x.OrderId == id, includeOperators: "User");
             if (orderDb == null || orderDb.UserId != userId) return NotFound();
 
             if (string.IsNullOrEmpty(orderDb.PaymentIntentId) && !string.IsNullOrEmpty(orderDb.SessionId))
@@ -205,8 +203,8 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 await UnitOfWork.SaveAsync();
                 HttpContext.Session.Clear();
 
-               
-                
+
+
                 if (orderDb.User is null || string.IsNullOrEmpty(orderDb.User.Email))
                 {
                     TempData["error"] = "Email missing.";
@@ -245,10 +243,10 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                     };
                     await _emailSender.SendEmailTemplateAsync(orderDb.User.Email, SD.ConfirmOrderTemplate, templateData);
                 }
-                
+
             }
 
-           
+
 
             var orderVm = new OrderVM()
             {

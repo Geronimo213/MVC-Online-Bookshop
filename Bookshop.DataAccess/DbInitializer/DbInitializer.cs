@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Bookshop.DataAccess.Data;
+﻿using Bookshop.DataAccess.Data;
 using Bookshop.Models;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Identity;
@@ -72,7 +67,7 @@ namespace Bookshop.DataAccess.DbInitializer
                 return false;
             }
 
-           
+
 
             return true;
         }
