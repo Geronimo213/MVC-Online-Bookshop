@@ -32,7 +32,9 @@
 
         //Email template ids
         public const string ConfirmEmailTemplate = "d-68f001d3399a4bfab1fa4194a9148871";
-        public const string ConfirmOrderTemplate = "";
+        public const string ConfirmOrderTemplate = "d-a95ce7a96a934e03bf5803b8da1ab996";
+        public const string ResetPasswordTemplate = "d-e83ab55a12aa4c789f2c3138df654503";
+        public const string PasswordChangeNotificationTemplate = "d-c8941906e86c4c3e8290b5fbdce56d37";
 
     }
 }
