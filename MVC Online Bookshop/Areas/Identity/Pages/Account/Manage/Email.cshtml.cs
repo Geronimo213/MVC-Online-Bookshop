@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using Bookshop.Models;
 using Bookshop.Utility;
+using Bookshop.Models.ViewModels;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account.Manage
 {
@@ -123,10 +124,18 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account.Manage
                     pageHandler: null,
                     values: new { area = "Identity", userId = userId, email = Input.NewEmail, code = code },
                     protocol: Request.Scheme);
-                await _emailSender.SendEmailAsync(
-                    Input.NewEmail,
-                    "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                var templateData = new
+                {
+                    RecipientName = user.Name,
+                    ConfirmationLink = callbackUrl
+
+                };
+                await _emailSender.SendEmailTemplateAsync(Input.NewEmail, SD.ConfirmEmailTemplate, templateData);
+                //await _emailSender.SendEmailAsync(
+                //    Input.NewEmail,
+                //    "Confirm your email",
+                //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                 StatusMessage = "Confirmation link to change email sent. Please check your email.";
                 return RedirectToPage();
@@ -159,10 +168,17 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account.Manage
                 pageHandler: null,
                 values: new { area = "Identity", userId = userId, code = code },
                 protocol: Request.Scheme);
-            await _emailSender.SendEmailAsync(
-                email,
-                "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+            var templateData = new
+            {
+                RecipientName = user.Name,
+                ConfirmationLink = callbackUrl
+
+            };
+            await _emailSender.SendEmailTemplateAsync(email, SD.ConfirmEmailTemplate, templateData);
+            //await _emailSender.SendEmailAsync(
+            //    email,
+            //    "Confirm your email",
+            //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
             StatusMessage = "Verification email sent. Please check your email.";
             return RedirectToPage();
