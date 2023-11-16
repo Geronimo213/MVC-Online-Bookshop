@@ -17,7 +17,7 @@
 <div class="container mt-4">
     <h1 class="text-center">Order <span class="text-primary">#@Model.Header.OrderId</span> Confirmed!</h1>
     
-    <div class="d-flex flex-row justify-content-center mt-5" id="orderBag">
+    <div class="d-flex flex-row justify-content-center mt-5 gap-2" id="orderBag">
         @foreach (var line in Model.Lines)
         {
             <div class="">
