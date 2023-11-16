@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Bookshop.Utility;
 using LinqKit;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Stripe.Checkout;
@@ -20,11 +21,13 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         private IUnitOfWork UnitOfWork { get; set; }
         private readonly UserManager<AppUser> _userManager;
         private readonly IAppEmailSender _emailSender;
-        public CheckoutController(IUnitOfWork unitOfWork, UserManager<AppUser> userManager, IAppEmailSender emailSender)
+        private IHttpContextAccessor _contextAccessor;
+        public CheckoutController(IUnitOfWork unitOfWork, UserManager<AppUser> userManager, IAppEmailSender emailSender, IHttpContextAccessor contextAccessor)
         {
             this.UnitOfWork = unitOfWork;
             this._userManager = userManager;
             this._emailSender = emailSender;
+            this._contextAccessor = contextAccessor;
         }
         /// <summary>
         /// Checkout Index used to confirm order details and collect user shipping and billing information.
@@ -210,9 +213,34 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 }
                 else
                 {
+                    var orderLinesDb = await UnitOfWork.OrderLinesRepository.GetAll()
+                        .Where(ol => ol.OrderId == orderDb.OrderId)
+                        .Include(ol => ol.Product)
+                        .AsNoTracking().ToListAsync();
+                    var orderLinesData = new object[orderLinesDb.Count];
+                    var domainRoot = await Request.GetBaseUrl();
+
+                    for (int i = 0; i < orderLinesDb.Count; i++)
+                    {
+                        orderLinesData[i] = new
+                        {
+                            ImageSource = domainRoot + orderLinesDb[i].Product.ImageURL,
+                            Title = orderLinesDb[i].Product.Title,
+                            Quantity = orderLinesDb[i].Quantity,
+                            Total = (orderLinesDb[i].Quantity * orderLinesDb[i].Product.Price)?.ToString("C")
+                        };
+                    }
+
                     var templateData = new
                     {
-                        RecipientName = orderDb.User.Name
+                        RecipientName = orderDb.User.Name,
+                        OrderNumber = orderDb.OrderId,
+                        OrderTotal = orderLinesDb.Sum(ol => ol.Quantity * ol.Product.Price)?.ToString("C"),
+                        ShipStreet = orderDb.ShipStreetAddress,
+                        ShipCity = orderDb.ShipCity,
+                        ShipState = orderDb.ShipState,
+                        ShipZip = orderDb.ShipPostalCode,
+                        OrderLines = orderLinesData
 
                     };
                     await _emailSender.SendEmailTemplateAsync(orderDb.User.Email, SD.ConfirmOrderTemplate, templateData);
