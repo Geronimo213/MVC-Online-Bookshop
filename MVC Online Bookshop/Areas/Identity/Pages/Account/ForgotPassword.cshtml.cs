@@ -69,10 +69,18 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
                     values: new { area = "Identity", code },
                     protocol: Request.Scheme);
 
-                await _emailSender.SendEmailAsync(
-                    Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                var templateData = new
+                {
+                    RecipientEmail = Input.Email,
+                    PassResetLink = callbackUrl
+
+                };
+                await _emailSender.SendEmailTemplateAsync(Input.Email, SD.ResetPasswordTemplate, templateData);
+
+                //await _emailSender.SendEmailAsync(
+                //    Input.Email,
+                //    "Reset Password",
+                //    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }
