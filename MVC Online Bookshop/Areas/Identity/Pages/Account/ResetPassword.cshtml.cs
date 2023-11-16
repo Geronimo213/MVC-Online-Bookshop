@@ -9,16 +9,19 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using Bookshop.Models;
+using Bookshop.Utility;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
 {
     public class ResetPasswordModel : PageModel
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly IAppEmailSender _emailSender;
 
-        public ResetPasswordModel(UserManager<AppUser> userManager)
+        public ResetPasswordModel(UserManager<AppUser> userManager, IAppEmailSender emailSender)
         {
             _userManager = userManager;
+            _emailSender = emailSender;
         }
 
         /// <summary>
@@ -102,6 +105,13 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
             var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
             if (result.Succeeded)
             {
+                var templateData = new
+                {
+                    RecipientEmail = Input.Email,
+
+                };
+                await _emailSender.SendEmailTemplateAsync(Input.Email, SD.PasswordChangeNotificationTemplate, templateData);
+
                 return RedirectToPage("./ResetPasswordConfirmation");
             }
 
