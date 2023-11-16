@@ -151,8 +151,10 @@ body #toast-container > div{
     background: #FFFFFF;
     height: 41px;
     width: auto;
+    max-width: 400px;
     border: 1px solid #8C8C8C;
-    
+    transition: background-color .218s, border-color .218s, box-shadow .218s;
+    position: relative;
 }
 
 .ms-signin-text {
@@ -168,6 +170,15 @@ body #toast-container > div{
     width: 1em;
     margin-inline: 12px;
     position: relative;
+}
+.ms-signin-button .ms-signin-wrapper {
+    -webkit-flex-grow: 1;
+    flex-grow: 1;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top;
 }
 .ms-signin-button .ms-signin-button-state{
     -webkit-transition: opacity .218s;
@@ -190,10 +201,10 @@ body #toast-container > div{
     box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
 }
 
-    .ms-signin-button:not(:disabled):hover .ms-signin-button-state{
-        background-color: #303030;
-        opacity: 8%;
-    }
+.ms-signin-button:not(:disabled):hover .ms-signin-button-state{
+    background-color: #303030;
+    opacity: 8%;
+}
 
 
 .separator {

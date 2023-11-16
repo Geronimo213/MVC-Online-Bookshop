@@ -1,0 +1,10 @@
+﻿@model Microsoft.AspNetCore.Authentication.AuthenticationScheme?
+<button type="submit" name="provider" value="@Model?.Name" class="ms-signin-button">
+    <div class="ms-signin-button-state"></div>
+    <div class="d-inline-flex align-items-center ms-signin-wrapper">
+        <object type="image/svg+xml"
+                data="https://s3-eu-west-1.amazonaws.com/cdn-testing.web.bas.ac.uk/scratch/bas-style-kit/ms-pictogram/ms-pictogram.svg"
+                class="x-icon"></object>
+        <span class="ms-signin-text">Sign in with Microsoft</span>
+    </div>
+</button>
