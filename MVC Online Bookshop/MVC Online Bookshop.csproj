@@ -28,7 +28,6 @@
 
   <ItemGroup>
     <Folder Include="Areas\Identity\Data\" />
-    <Folder Include="wwwroot\Images\Branding\" />
     <Folder Include="wwwroot\Images\Slides\" />
     <Folder Include="wwwroot\Images\Product\" />
   </ItemGroup>

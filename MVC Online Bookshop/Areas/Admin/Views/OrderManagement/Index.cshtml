@@ -18,157 +18,175 @@
 
     @* Table Search and Page Size Selection *@
     <div class="card-body">
-        <form method="get" asp-area="Admin" asp-controller="OrderManagement" asp-action="Index">
-            <div class="form-control">
-                <h6 class="text-info pt-3 my-auto">
-                    Search: <input class="ms-1 my-auto align-middle" type="text" name="searchString" value="@ViewData["CurrentFilter"]"/>
-                    <input type="submit" value="Search" class="btn btn-info" />&nbsp; |
-                    <a asp-area="Admin" asp-controller="OrderManagement" asp-action="Index" class="ps-1 text-info">Reset Filters</a> &nbsp; |
-                    Rows per page:&nbsp;
-                    <a asp-area="Admin"
-                       asp-controller="OrderManagement"
-                       asp-action="Index"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       asp-route-pageSize="5"
-                       asp-route-sortOrder="@ViewData["CurrentSort"]"
-                       class="link-underline-primary link-opacity-50-hover @(currentPageSize == 5 ? "text-muted link-underline-opacity-0" : "")">5</a>&nbsp;
-                    <a asp-area="Admin"
-                       asp-controller="OrderManagement"
-                       asp-action="Index"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       asp-route-pageSize="10"
-                       asp-route-sortOrder="@ViewData["CurrentSort"]" 
-                       class="link-underline-primary link-opacity-50-hover @(currentPageSize == 10 ? "text-muted link-underline-opacity-0" : "")">10</a>&nbsp;
-                    <a asp-area="Admin"
-                       asp-controller="OrderManagement"
-                       asp-action="Index"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       asp-route-pageSize="25"
-                       asp-route-sortOrder="@ViewData["CurrentSort"]"
-                       class="link-underline-primary link-opacity-50-hover @(currentPageSize == 25 ? "text-muted link-underline-opacity-0" : "")">25</a>
-                </h6>
-            </div>
-        </form>
-
-        @* Table headers, sortable headers are anchors *@
-        <table class="table table-bordered table-striped align-middle">
-            <thead>
-            <tr>
-                <th>
-                    <a class="text-info"asp-area="Admin"
-                       asp-action="Index"
-                       asp-route-sortOrder="@ViewData["IdSortParam"]"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       asp-route-pageSize="@ViewData["CurrentPageSize"]">Order #</a>
-                </th>
-                <th>
-                    <a class="text-info" asp-area="Admin"
-                       asp-action="Index"
-                       asp-route-sortOrder="@ViewData["NameSortParam"]"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       asp-route-pageSize="@ViewData["CurrentPageSize"]">Name</a>
-                </th>
-                <th>
-                    <a class="text-info" asp-area="Admin"
-                       asp-action="Index"
-                       asp-route-sortOrder="@ViewData["StatusSortParam"]"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       asp-route-pageSize="@ViewData["CurrentPageSize"]">Status</a>
-                </th>
-                <th>
-                    <a class="text-info" asp-area="Admin"
-                       asp-action="Index"
-                       asp-route-sortOrder="@ViewData["PlaceDateSortParam"]"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       asp-route-pageSize="@ViewData["CurrentPageSize"]">Placed On</a>
-                </th>
-                <th>
-                    <a class="text-info" asp-area="Admin"
-                       asp-action="Index"
-                       asp-route-sortOrder="@ViewData["ShipDateSortParam"]"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       asp-route-pageSize="@ViewData["CurrentPageSize"]">Shipped On</a>
-                </th>
-
-                <th>
-                    Post Code
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            @* Main Table Render Loop *@
-            @foreach (var order in Model)
-            {
-                double totalPrice = 0.00;
-                <tr class="">
-                    <td class="text-primary fw-bold">@order.Header.OrderId</td>
-                    <td class="text-primary fw-bold">@order.Header.Name</td>
-                    <td class="text-primary fw-bold">@order.Header.OrderStatus</td>
-                    <td class="text-primary fw-bold">@order.Header.PlaceDate.ToString("MM/dd/yyyy")</td>
-                    <td class="text-primary fw-bold">@(order.Header.ShipDate is null ? "N/A" : order.Header.ShipDate?.ToString("MM/dd/yyyy"))</td>
-                    <td class="text-primary fw-bold">@order.Header.ShipPostalCode</td>
+        <form id="orderManageForm" method="get" asp-area="Admin" asp-controller="OrderManagement" asp-action="Index">
+            <div class="form-control d-flex justify-content-around flex-wrap">
+                
+                <div class="d-inline-flex my-auto gap-2 p-1">
+                    <h6 class="text-info my-auto">Search:</h6>
+                    <input class="ms-1 my-auto align-middle form-control" type="text" name="searchString" value="@ViewData["CurrentFilter"]" />
+                    <input type="submit" value="Search" class="btn btn-info" />
+                    <h6 class="text-info my-auto w-100">|&nbsp;<a asp-area="Admin" asp-controller="OrderManagement" asp-action="Index" class="text-info">Reset Filters</a></h6>
                     
-                    @* MANAGEMENT BUTTONS *@
-                    @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
+                </div>
+
+                <div class="d-inline-flex flex-nowrap gap-1 my-auto align-items-middle p-1">
+                    <h6 class="">Rows per page :
+                        <a asp-area="Admin"
+                           asp-controller="OrderManagement"
+                           asp-action="Index"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-pageSize="5"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           class="link-underline-primary link-opacity-50-hover @(currentPageSize == 5 ? "text-muted link-underline-opacity-0" : "")">5</a>&nbsp;
+                        <a asp-area="Admin"
+                           asp-controller="OrderManagement"
+                           asp-action="Index"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-pageSize="10"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           class="link-underline-primary link-opacity-50-hover @(currentPageSize == 10 ? "text-muted link-underline-opacity-0" : "")">10</a>&nbsp;
+                        <a asp-area="Admin"
+                           asp-controller="OrderManagement"
+                           asp-action="Index"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-pageSize="25"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           class="link-underline-primary link-opacity-50-hover @(currentPageSize == 25 ? "text-muted link-underline-opacity-0" : "")">25</a>
+                    </h6>
+                </div>
+
+                <div class="d-inline-flex flex-nowrap form-floating p-1">
+                    <select id="statusSelect" class="form-control" name="statusFilter" onchange="$('form#orderManageForm').submit();" asp-items="(IEnumerable<SelectListItem>)@ViewData["OrderStatuses"]">
+                    </select>
+                    <label for="statusSelect">Order Status</label>
+                </div>
+            </div>
+            
+            
+        </form>
+        
+    <div class="table-responsive">
+            @* Table headers, sortable headers are anchors *@
+            <table class="table table-bordered table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>
+                            <a class="text-info" asp-area="Admin"
+                               asp-action="Index"
+                               asp-route-sortOrder="@ViewData["IdSortParam"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]">Order #</a>
+                        </th>
+                        <th>
+                            <a class="text-info" asp-area="Admin"
+                               asp-action="Index"
+                               asp-route-sortOrder="@ViewData["NameSortParam"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]">Name</a>
+                        </th>
+                        <th>
+                            <a class="text-info" asp-area="Admin"
+                               asp-action="Index"
+                               asp-route-sortOrder="@ViewData["StatusSortParam"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]">Status</a>
+                        </th>
+                        <th>
+                            <a class="text-info" asp-area="Admin"
+                               asp-action="Index"
+                               asp-route-sortOrder="@ViewData["PlaceDateSortParam"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]">Placed On</a>
+                        </th>
+                        <th>
+                            <a class="text-info" asp-area="Admin"
+                               asp-action="Index"
+                               asp-route-sortOrder="@ViewData["ShipDateSortParam"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]">Shipped On</a>
+                        </th>
+
+                        <th>
+                            Post Code
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @* Main Table Render Loop *@
+                    @foreach (var order in Model)
                     {
-                        <td class="text-sm-center align-middle">
-                            <div class=" btn-group gap-2" role="group">
-                                <a asp-area="Admin" asp-controller="OrderManagement" 
-                                   asp-action="OrderDetails" 
-                                   asp-route-orderId="@order.Header.OrderId"
-                                   class="btn btn-primary"><i class="bi bi-card-list"></i> Details</a>
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <a asp-area="Admin" asp-controller="OrderManagement" 
-                                       asp-action="RemoveOrder" 
-                                       asp-route-orderId="@order.Header.OrderId" 
-                                       class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Delete</a>
-                                }
-                            </div>
-                        </td>
-                    }
-                            
-                </tr>
-                <tr>
-                    <td colspan="7">
-                                
-                        <table class="table table-sm table-borderless">
+                        double totalPrice = 0.00;
+                        <tr class="">
+                            <td class="text-primary fw-bold">@order.Header.OrderId</td>
+                            <td class="text-primary fw-bold">@order.Header.Name</td>
+                            <td class="text-primary fw-bold">@order.Header.OrderStatus</td>
+                            <td class="text-primary fw-bold">@order.Header.PlaceDate.ToString("MM/dd/yyyy")</td>
+                            <td class="text-primary fw-bold">@(order.Header.ShipDate is null ? "N/A" : order.Header.ShipDate?.ToString("MM/dd/yyyy"))</td>
+                            <td class="text-primary fw-bold">@order.Header.ShipPostalCode</td>
 
-                            <thead>
-                            <tr class="">
-                                <th class="fw-semibold text-secondary-emphasis">Title</th>
-                                <th class="fw-semibold text-secondary-emphasis">Author</th>
-                                <th class="fw-semibold text-secondary-emphasis">ISBN</th>
-                                <th class="fw-semibold text-secondary-emphasis">Quantity</th>
-                                <th class="text-end fw-semibold text-secondary-emphasis">Total</th>
-                            </tr>
-                            </thead>
-
-                            <tbody>
-                            @foreach (var line in order.Lines)
+                            @* MANAGEMENT BUTTONS *@
+                            @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
                             {
-                                totalPrice += Math.Round((line.Product.Price ?? 1.00) * line.Quantity, 2);
-                                <tr class="text-body-secondary">
-                                    <td>@line.Product.Title</td>
-                                    <td>@line.Product.Author</td>
-                                    <td>@line.Product.ISBN</td>
-                                    <td>@line.Quantity @@@(line.Product.Price ?? 0.00) each</td>
-                                    <td class="text-end">@((line.Product.Price * line.Quantity)?.ToString("C"))</td>
-                                </tr>
+                                <td class="text-sm-center align-middle">
+                                    <div class=" btn-group gap-2" role="group">
+                                        <a asp-area="Admin" asp-controller="OrderManagement"
+                                           asp-action="OrderDetails"
+                                           asp-route-orderId="@order.Header.OrderId"
+                                           class="btn btn-primary"><i class="bi bi-card-list"></i> Details</a>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a asp-area="Admin" asp-controller="OrderManagement"
+                                               asp-action="RemoveOrder"
+                                               asp-route-orderId="@order.Header.OrderId"
+                                               class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Delete</a>
+                                        }
+                                    </div>
+                                </td>
                             }
-                            <tr>
-                                <td colspan="4" class="text-start fw-bold text-info">@(order.Header.TrackingNumber is null ? "" : "Tracking: " + order.Header.TrackingNumber)</td>
-                                <td class="text-end">@totalPrice.ToString("C")</td>
-                            </tr>
 
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
+                        </tr>
+                        <tr>
+                            <td colspan="7">
 
-            }
-            </tbody>
-        </table>
+                                <table class="table table-sm table-borderless">
+
+                                    <thead>
+                                        <tr class="">
+                                            <th class="fw-semibold text-secondary-emphasis">Title</th>
+                                            <th class="fw-semibold text-secondary-emphasis">Author</th>
+                                            <th class="fw-semibold text-secondary-emphasis">ISBN</th>
+                                            <th class="fw-semibold text-secondary-emphasis">Quantity</th>
+                                            <th class="text-end fw-semibold text-secondary-emphasis">Total</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @foreach (var line in order.Lines)
+                                        {
+                                            totalPrice += Math.Round((line.Product.Price ?? 1.00) * line.Quantity, 2);
+                                            <tr class="text-body-secondary">
+                                                <td style="width: 25%;">@line.Product.Title</td>
+                                                <td style="width: 25%;">@line.Product.Author</td>
+                                                <td>@line.Product.ISBN</td>
+                                                <td>@line.Quantity @@@(line.Product.Price ?? 0.00) each</td>
+                                                <td class="text-end">@((line.Product.Price * line.Quantity)?.ToString("C"))</td>
+                                            </tr>
+                                        }
+                                        <tr>
+                                            <td colspan="4" class="text-start fw-bold text-info">@(order.Header.TrackingNumber is null ? "" : "Tracking: " + order.Header.TrackingNumber)</td>
+                                            <td class="text-end">@totalPrice.ToString("C")</td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+    </div>
+       
             
         @{
             var prevDisabled = Model.HasPreviousPage ? "" : "disabled";
@@ -186,6 +204,7 @@
                        asp-route-pageNumber="@(Model.PageIndex - 1)"
                        asp-route-currentFilter="@ViewData["CurrentFilter"]"
                        asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                       asp-route-statusFilter="@ViewData["CurrentStatus"]"
                        class="page-link @prevDisabled">
                         &laquo;
                     </a>
@@ -199,6 +218,7 @@
                        asp-route-pageNumber="1"
                        asp-route-currentFilter="@ViewData["CurrentFilter"]"
                        asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                       asp-route-statusFilter="@ViewData["CurrentStatus"]"
                        class="page-link @(Model.PageIndex == 1 ? "active" : "")">
                         1
                     </a>
@@ -216,7 +236,8 @@
                            asp-route-sortOrder="@ViewData["CurrentSort"]"
                            asp-route-pageNumber="@currentPage"
                            asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                           asp-route-pageSize="@ViewData["CurrentPageSize"]">
+                           asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                           asp-route-statusFilter="@ViewData["CurrentStatus"]">
                             @currentPage
                         </a>
                     </li>
@@ -232,6 +253,7 @@
                            asp-route-pageNumber="@(Model.TotalPages)"
                            asp-route-currentFilter="@ViewData["CurrentFilter"]"
                            asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                           asp-route-statusFilter="@ViewData["CurrentStatus"]"
                            class="page-link @(Model.PageIndex == @Model.TotalPages ? "active" : "")">
                             @Model.TotalPages
                         </a>
@@ -246,6 +268,7 @@
                        asp-route-pageNumber="@(Model.PageIndex + 1)"
                        asp-route-currentFilter="@ViewData["CurrentFilter"]"
                        asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                       asp-route-statusFilter="@ViewData["CurrentStatus"]"
                        class="page-link @nextDisabled">
                         &raquo;
                     </a>

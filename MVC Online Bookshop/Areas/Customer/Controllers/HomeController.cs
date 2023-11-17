@@ -95,7 +95,6 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             }
             if (!string.IsNullOrEmpty(searchParam))
             {
-
                 pageIndex = 1;
             }
             else

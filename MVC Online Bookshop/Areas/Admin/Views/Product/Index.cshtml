@@ -20,93 +20,104 @@
     </div>
     <div class="card-body">
         <form method="get" asp-area="Admin" asp-controller="Product" asp-action="Index">
-            <div class="form-control">
-                <h6 class="text-info pt-3 my-auto">
-                    Find by Title/Author: <input class="ms-1 my-auto align-middle" type="text" name="searchString" value="@ViewData["CurrentFilter"]" />
-                    <input type="submit" value="Search" class="btn btn-info" />&nbsp; |
-                    <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="ps-1 text-info">Reset Filters</a> &nbsp; |
-                    Rows per page:
-                    <a asp-area="Admin"
-                       asp-controller="Product"
-                       asp-action="Index"
-                       asp-route-pageSize="5"
-                       asp-route-sortOrder="@ViewData["CurrentSort"]"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       class="link-underline-primary link-opacity-50-hover @(currentPageSize == 5 ? "text-muted link-underline-opacity-0" : "")">5</a>&nbsp;
-                    <a asp-area="Admin"
-                       asp-controller="Product"
-                       asp-action="Index"
-                       asp-route-pageSize="10"
-                       asp-route-sortOrder="@ViewData["CurrentSort"]"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       class="link-underline-primary link-opacity-50-hover @(currentPageSize == 10 ? "text-muted link-underline-opacity-0" : "")">10</a>&nbsp;
-                    <a asp-area="Admin"
-                       asp-controller="Product"
-                       asp-action="Index"
-                       asp-route-pageSize="25"
-                       asp-route-sortOrder="@ViewData["CurrentSort"]"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       class="link-underline-primary link-opacity-50-hover @(currentPageSize == 25 ? "text-muted link-underline-opacity-0" : "")">25</a>
-                </h6>
+            <div class="form-control d-flex justify-content-around flex-wrap">
+
+                <div class="d-inline-flex my-auto gap-2 p-1">
+                    <h6 class="text-info my-auto">Search:</h6>
+                    <input class="ms-1 my-auto align-middle form-control" type="text" name="searchString" value="@ViewData["CurrentFilter"]" />
+                    <input type="submit" value="Search" class="btn btn-info" />
+                    <h6 class="text-info my-auto w-100">|&nbsp;<a asp-area="Admin" asp-controller="Product" asp-action="Index" class="text-info">Reset Filters</a></h6>
+
+                </div>
+
+                <div class="d-inline-flex flex-nowrap gap-1 my-auto align-items-middle p-1">
+                    <h6 class="">
+                        Rows per page :
+                        <a asp-area="Admin"
+                           asp-controller="Product"
+                           asp-action="Index"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-pageSize="5"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           class="link-underline-primary link-opacity-50-hover @(currentPageSize == 5 ? "text-muted link-underline-opacity-0" : "")">5</a>&nbsp;
+                        <a asp-area="Admin"
+                           asp-controller="Product"
+                           asp-action="Index"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-pageSize="10"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           class="link-underline-primary link-opacity-50-hover @(currentPageSize == 10 ? "text-muted link-underline-opacity-0" : "")">10</a>&nbsp;
+                        <a asp-area="Admin"
+                           asp-controller="Product"
+                           asp-action="Index"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-pageSize="25"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           class="link-underline-primary link-opacity-50-hover @(currentPageSize == 25 ? "text-muted link-underline-opacity-0" : "")">25</a>
+                    </h6>
+                </div>
             </div>
         </form>
-        <table class="table table-bordered table-striped w-100 ">
-            <thead>
-            <tr>
-                <th>
-                    <a class="text-info"asp-area="Admin"
-                       asp-action="Index"
-                       asp-route-sortOrder="@ViewData["TitleSortParam"]"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       asp-route-pageSize="@ViewData["CurrentPageSize"]">Title</a>
-                </th>
-                <th>
-                    <a class="text-info" asp-area="Admin"
-                       asp-action="Index"
-                       asp-route-sortOrder="@ViewData["AuthorSortParam"]"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       asp-route-pageSize="@ViewData["CurrentPageSize"]">Author</a>
-                </th>
-                <th>
-                    <a class="text-info" asp-area="Admin"
-                       asp-action="Index"
-                       asp-route-sortOrder="@ViewData["CategorySortParam"]"
-                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                       asp-route-pageSize="@ViewData["CurrentPageSize"]">Category</a>
-                </th>
-                <th>
-                    ISBN
-                </th>
-                <th>
-                    Description
-                </th>
-                <th>
-                    <a class="text-info" asp-area="Admin" asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParam"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Price ($)</a>
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            @* Edit and Delete buttons *@
-            @foreach (var product in Model)
-            {
-                <tr>
-                    <td>@product.Title</td>
-                    <td>@product.Author</td>
-                    <td>@(product.Categories.Count is 0 ? "N/A" : string.Join(", ", product.Categories.OrderBy(x => x.DisplayOrder).Select(x => x.Name)))</td>
-                    <td>@product.ISBN</td>
-                    <td>@Html.Raw(string.Join(string.Empty, product.Description.Take(250)) + " . . .")</td>
-                    <td>@product.Price</td>
-                    <td class="text-sm-center align-middle">
-                        <div class=" btn-group" role="group">
-                            <a asp-area="Admin" asp-controller="Product" asp-action="Upsert" asp-route-id="@product.Id" class="btn btn-primary mx-2"><i class="bi bi-pencil-fill"></i> Edit</a>
-                            <a asp-area="Admin" asp-controller="Product" asp-action="Delete" asp-route-id="@product.Id" class="btn btn-danger mx-2"><i class="bi bi-trash3-fill"></i> Delete</a>
-                        </div>
-                    </td>
-                </tr>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped w-100 ">
+                <thead>
+                    <tr>
+                        <th>
+                            <a class="text-info" asp-area="Admin"
+                               asp-action="Index"
+                               asp-route-sortOrder="@ViewData["TitleSortParam"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]">Title</a>
+                        </th>
+                        <th>
+                            <a class="text-info" asp-area="Admin"
+                               asp-action="Index"
+                               asp-route-sortOrder="@ViewData["AuthorSortParam"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]">Author</a>
+                        </th>
+                        <th>
+                            <a class="text-info" asp-area="Admin"
+                               asp-action="Index"
+                               asp-route-sortOrder="@ViewData["CategorySortParam"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]">Category</a>
+                        </th>
+                        <th>
+                            ISBN
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                        <th>
+                            <a class="text-info" asp-area="Admin" asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParam"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Price ($)</a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @* Edit and Delete buttons *@
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td>@product.Title</td>
+                            <td>@product.Author</td>
+                            <td>@(product.Categories.Count is 0 ? "N/A" : string.Join(", ", product.Categories.OrderBy(x => x.DisplayOrder).Select(x => x.Name)))</td>
+                            <td>@product.ISBN</td>
+                            <td>@Html.Raw(string.Join(string.Empty, product.Description.Take(250)) + " . . .")</td>
+                            <td>@product.Price</td>
+                            <td class="text-sm-center align-middle">
+                                <div class=" btn-group" role="group">
+                                    <a asp-area="Admin" asp-controller="Product" asp-action="Upsert" asp-route-id="@product.Id" class="btn btn-primary mx-2"><i class="bi bi-pencil-fill"></i> Edit</a>
+                                    <a asp-area="Admin" asp-controller="Product" asp-action="Delete" asp-route-id="@product.Id" class="btn btn-danger mx-2"><i class="bi bi-trash3-fill"></i> Delete</a>
+                                </div>
+                            </td>
+                        </tr>
 
-            }
-            </tbody>
-        </table>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
         
         @{
             var prevDisabled = Model.HasPreviousPage ? "" : "disabled";

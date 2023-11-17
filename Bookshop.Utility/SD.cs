@@ -22,6 +22,7 @@
         public const string OrderPlaced = "Placed";
         public const string PaymentPending = "Payment Pending";
         public const string PaymentProcessed = "Paid/Awaiting Shipment";
+        public const string OrderShipped = "Shipped";
 
         public const int CoverWidth = 500;
         public const int CoverHeight = 314;

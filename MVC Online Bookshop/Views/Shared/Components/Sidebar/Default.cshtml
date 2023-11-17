@@ -14,7 +14,7 @@
         Categories
     </h4>
     <div class="list-group">
-        <a class="link-underline link-underline-opacity-0 link-underline-opacity-50-hover p-1" asp-controller="Home" asp-action="Shop" asp-route-id="" asp-route-currentFilter="@ViewData["SearchParam"]">Show All</a>
+        <a class="link-underline link-underline-opacity-0 link-underline-opacity-50-hover p-1" asp-area="Customer" asp-controller="Home" asp-action="Shop" asp-route-id="" asp-route-currentFilter="@ViewData["SearchParam"]">Show All</a>
         @foreach (var category in Model)
         {
             bool currentCategory = category.Name == ViewData["CategoryParam"]?.ToString();

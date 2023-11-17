@@ -106,8 +106,10 @@
     <script type="text/javascript">
         tinymce.init({
             selector: '#editor',
-            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+            plugins: 'anchor autolink charmap emoticons link lists searchreplace table visualblocks wordcount paste',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+            paste_as_text: true,
+            paste_block_drop: true
         });
     </script>
 
