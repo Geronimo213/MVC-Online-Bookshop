@@ -108,6 +108,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 var productSearchPredicate = PredicateBuilder.New<Product>();
                 productSearchPredicate = productSearchPredicate
                     .Or(x => x.Title.Contains(term))
+                    .Or(x => x.Categories.Any(c => c.Name.Contains(term)))
                     .Or(x => x.Author!.Contains(term))
                     .Or(x => x.ISBN!.Contains(term));
                 productQuery = productQuery.Where(productSearchPredicate);
