@@ -2,6 +2,7 @@
 using Bookshop.Models;
 using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
+using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -43,19 +44,26 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
             else
             {
-                searchString = currentFilter;
+                searchString = currentFilter ?? string.Empty;
             }
             ViewData["CurrentFilter"] = searchString;
 
             pageSize ??= SD.PageSizeProduct;
             ViewData["CurrentPageSize"] = (int)pageSize;
 
-            var books = UnitOfWork.ProductRepository.GetAll(includeOperators: "Categories");
-            books = string.IsNullOrEmpty(searchString) ? books : books.Where(s =>
-                s.Title.Contains(searchString)
-                || s.Author!.Contains(searchString)
-                || s.ISBN!.Contains(searchString)
-                || s.Categories.Any(category => category.Name.Contains(searchString)));
+            var books = UnitOfWork.ProductRepository.GetAll(includeOperators: "Categories").AsNoTracking();
+            var searchTerms = searchString.ToLower().Split(' ', ',', '.', ';', ':').Except(SD.stopWords);
+            foreach (var term in searchTerms)
+            {
+                var productSearchPredicate = PredicateBuilder.New<Product>();
+                productSearchPredicate = productSearchPredicate
+                    .Or(x => x.Title.ToString().Contains(term))
+                    .Or(x => x.Author!.Contains(term))
+                    .Or(x => x.ISBN!.Contains(term))
+                    .Or(x => x.Categories.Any(category => category.Name.Contains(term)));
+                books = books.Where(productSearchPredicate);
+            }
+
 
             books = sortOrder switch
             {
