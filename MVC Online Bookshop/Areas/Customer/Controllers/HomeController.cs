@@ -28,7 +28,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         {
             var vm = new FrontPageVM
             {
-                Carousels = await UnitOfWork.CarouselRepository.GetAll().ToListAsync()
+                Carousels = await UnitOfWork.CarouselRepository.GetAll().AsNoTracking().ToListAsync()
             };
 
             return View(vm);
@@ -43,7 +43,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             }
             ShoppingCart cart = new()
             {
-                Product = await UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Categories") ?? new Product(),
+                Product = await UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Categories", tracked:false) ?? new Product(),
                 ProductId = (int)productId!,
                 Count = 1
             };
@@ -58,9 +58,9 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             cart.UserId = userId ?? "";
-            var book = await UnitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId) ?? new Product() { Title = "BOOK_NOT_FOUND" };
+            var book = await UnitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId, tracked:false) ?? new Product() { Title = "BOOK_NOT_FOUND" };
 
-            ShoppingCart? cartFromDb = await UnitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId);
+            ShoppingCart? cartFromDb = await UnitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId, tracked:false);
 
             if (cartFromDb != null)
             {

@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Delete Order";
-    double total = 0;
+    decimal total = 0m;
 }
 <div class="float-start mt-2">
     @* Back Button *@
@@ -131,7 +131,7 @@
                 @foreach (var line in Model.Lines)
                 {
                     var book = line.Product;
-                    double price = Math.Round(line.Quantity * (book.Price ?? 0), 2);
+                    var price = Math.Round(line.Quantity * (book.Price ?? 0), 2);
                     total += price;
                     <div class="card-body row justify-content-center">
                         <div class="col d-flex justify-content-center">

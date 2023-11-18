@@ -2,7 +2,7 @@
 @model List<ShoppingCart>
 @{
     ViewData["Title"] = "Cart";
-    double total = 0;
+    decimal total = 0m;
 }
 <div class="row justify-content-center m-0 p-0">
     <div class="card shadow px-0 mx-0 mt-4 mb-4 col-lg-10 col-12">
@@ -18,7 +18,7 @@
             @foreach (var item in Model)
             {
                 var book = item.Product;
-                double price = Math.Round(item.Count * book.Price ?? 0, 2);
+                var price = Math.Round(item.Count * book.Price ?? 0, 2);
                 total += price;
                 <div class="card-body row justify-content-center d-flex flex-nowrap" >
                     <div class="col d-flex justify-content-center">
@@ -60,7 +60,7 @@
                     </div>
 
                     <div class="d-flex col justify-content-center">
-                        <h4 class="text-center my-auto"> x @book.Price = <span class="text-info">@(price.ToString("C"))</span></h4>
+                        <h4 class="text-center my-auto"> x @book.Price?.ToString("C") = <span class="text-info">@(price.ToString("C"))</span></h4>
                     </div>
 
                     <div class="d-flex col-1 justify-content-center my-auto">

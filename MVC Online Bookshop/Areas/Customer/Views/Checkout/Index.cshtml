@@ -4,7 +4,7 @@
 
 @{
     ViewData["Title"] = "Checkout";
-    double total = 0;
+    decimal total = 0m;
 }
 <div class="float-start mt-2">
     @* Back Button *@
@@ -115,7 +115,7 @@
                 @foreach (var item in Model.Items)
                 {
                     var book = item.Product;
-                    double price = Math.Round(item.Count * (book.Price ?? 0), 2);
+                    decimal price = Math.Round(item.Count * (book.Price ?? 0m), 2);
                     total += price;
                     <div class="card-body row justify-content-center">
                         <div class="col d-flex justify-content-center">
@@ -131,47 +131,9 @@
                             </ul>
                         </div>
 
-                        @*                         <div class="d-flex col row justify-content-center my-auto">
-                            <form method="post">
-                                <div class="container row gap-1 my-auto">
-                                    <button class="btn btn-outline-primary col"
-                                            asp-area="Customer"
-                                            asp-controller="Cart"
-                                            asp-action="ChangeItemCount"
-                                            asp-route-cartId="@item.Id"
-                                            asp-route-changeAction="@SD.CartIncrement">
-                                        <i class="bi bi-plus-square"></i>
-                                    </button>
-                                    <h4 class="col my-0 text-center">@item.Count</h4>
-                                    <button class="btn btn-outline-danger col"
-                                            asp-area="Customer"
-                                            asp-controller="Cart"
-                                            asp-action="ChangeItemCount"
-                                            asp-route-cartId="@item.Id"
-                                            asp-route-changeAction="@SD.CartDecrement">
-                                        <i class="bi bi-dash-square"></i>
-                                    </button>
-                                </div>
-                            </form>
-
-                        </div> *@
-
                         <div class="d-flex col justify-content-center">
-                            <h4 class="text-center my-auto">@item.Count@@@book.Price = <span class="text-info">@(price.ToString("C"))</span></h4>
+                            <h4 class="text-center my-auto">@item.Count@@@book.Price?.ToString("C") = <span class="text-info">@(price.ToString("C"))</span></h4>
                         </div>
-
-                        @* <div class="d-flex col-1 justify-content-center my-auto">
-                            <form method="post">
-                                <button class="btn btn-danger"
-                                        asp-area="Customer"
-                                        asp-controller="Cart"
-                                        asp-action="RemoveItem"
-                                        asp-route-cartId="@item.Id">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </button>
-                            </form>
-                        </div> *@
-
                     </div>
 
 
@@ -184,12 +146,6 @@
                         <h4 class="text-center my-auto">Total = <span class="text-info">@(total.ToString("C"))</span></h4>
                     </div>
                 </div>
-                @* <div class="row">
-                    <div class="d-flex col justify-content-end my-auto mt-0 pt-0 pb-3">
-                        <a class="btn btn-success" asp-area="Customer" asp-controller="Checkout" asp-action="Index">Checkout</a>
-                    </div>
-                </div> *@
-
             </div>
 
         </div>
