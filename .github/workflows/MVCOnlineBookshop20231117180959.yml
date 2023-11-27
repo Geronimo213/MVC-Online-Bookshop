@@ -45,7 +45,7 @@ jobs:
         # The connection string, including authentication information, for the Azure SQL Server database.
         connection-string: ${{ secrets.CONNECTION_STRING }}
         # Path to SQL script file to deploy
-        sql-file: "${{env.DOTNET_ROOT}}/sql/sql-script.sql"
+        path: "${{env.DOTNET_ROOT}}/sql/sql-script.sql"
             
   deploy:
     runs-on: windows-latest
