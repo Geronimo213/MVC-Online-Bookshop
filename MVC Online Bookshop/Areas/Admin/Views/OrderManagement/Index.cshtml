@@ -115,7 +115,7 @@
                     @* Main Table Render Loop *@
                     @foreach (var order in Model)
                     {
-                        double totalPrice = 0.00;
+                        decimal totalPrice = 0.00m;
                         <tr class="">
                             <td class="text-primary fw-bold">@order.Header.OrderId</td>
                             <td class="text-primary fw-bold">@order.Header.Name</td>
@@ -163,12 +163,12 @@
                                     <tbody>
                                         @foreach (var line in order.Lines)
                                         {
-                                            totalPrice += Math.Round((line.Product.Price ?? 1.00) * line.Quantity, 2);
+                                            totalPrice += Math.Round((line.Product.Price ?? 1.00m) * line.Quantity, 2);
                                             <tr class="text-body-secondary">
                                                 <td style="width: 25%;">@line.Product.Title</td>
                                                 <td style="width: 25%;">@line.Product.Author</td>
                                                 <td>@line.Product.ISBN</td>
-                                                <td>@line.Quantity @@@(line.Product.Price ?? 0.00) each</td>
+                                                <td>@line.Quantity @@ @((line.Product.Price ?? 0.00m).ToString("C")) each</td>
                                                 <td class="text-end">@((line.Product.Price * line.Quantity)?.ToString("C"))</td>
                                             </tr>
                                         }

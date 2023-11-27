@@ -63,13 +63,13 @@
           }
 
           .tag-slider.carousel-control-prev {
-            left: 5%;
-            top: -25%;
+            left: 0;
+            z-index:5;
           }
 
           .tag-slider.carousel-control-next {
-            right: 5%;
-            top: -25%;
+            right: 0;
+            z-index: 5;
           }
          }
 
@@ -99,6 +99,19 @@
             padding-top: 5rem;
         }
 
+
+        img.book-cover {
+            transition: transform .2s ease-in-out;
+        }
+        img.book-cover:hover {
+            z-index: 9;
+            transform: scale(1.2);
+        }
+        #book-cover-col {
+            margin-top: 5%;
+            margin-bottom: 5%;
+        }
+ 
       
     </style>
 }
@@ -111,7 +124,7 @@
 
 
 
-<div id="FrontPageBody" class="vstack gap-4">
+<div id="FrontPageBody" class="vstack gap-2">
 
     @* CAROUSELS *@
     @for (var i = 0; i < @Model.Carousels.Count; i++)

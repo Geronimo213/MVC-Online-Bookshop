@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Bookshop.Models
@@ -21,7 +22,8 @@ namespace Bookshop.Models
         public string? Author { get; set; }
         [Range(1, 1000)]
         [RegularExpression(@"(([1-9]\d{0,2}(,\d{3})*)|(([1-9]\d*)?\d))(\.\d\d)?$", ErrorMessage = "Invalid price. Price must be between $1.00 and $1000.00 and rounded to two (2) decimal places.")]
-        public double? Price { get; set; }
+        [Column(TypeName = "decimal(18,4)")]
+        public decimal? Price { get; set; }
         public virtual ICollection<Category> Categories { get; set; } = new HashSet<Category>();
         [AllowNull]
         public string? ImageURL { get; set; }

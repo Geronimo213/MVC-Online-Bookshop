@@ -17,25 +17,24 @@ namespace MVC_Online_Bookshop.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(Carousel carousel)
         {
-            var categoryDb = await UnitOfWork.CategoryRepository.Get(x => x.Id == carousel.CategoryId);
+            var categoryDb = await UnitOfWork.CategoryRepository.Get(x => x.Id == carousel.CategoryId, includeOperators:"Products", tracked:false);
             if (categoryDb is null) return View();
-
-            var productsDb = UnitOfWork.ProductRepository.GetAll(x => x.Categories.Contains(categoryDb));
-            if (productsDb is null) return View();
 
             var sortOrder = carousel.SortOrder;
 
+            var productsDb = categoryDb.Products.ToList();
+
             productsDb = sortOrder switch
             {
-                "Author" => productsDb.OrderBy(x => x.Author),
-                "Title" => productsDb.OrderBy(x => x.Title),
-                _ => productsDb.OrderBy(x => x.Id)
+                "Author" => productsDb.OrderBy(x => x.Author).ToList(),
+                "Title" => productsDb.OrderBy(x => x.Title).ToList(),
+                _ => productsDb.OrderBy(x => x.Id).ToList()
             };
 
 
             var vm = new CarouselVM()
             {
-                Products = await productsDb.Take(SD.MaxBooksPerSlider).ToListAsync(),
+                Products = productsDb.Take(SD.MaxBooksPerSlider).ToList(),
                 Title = carousel.Title
             };
             return View(vm);

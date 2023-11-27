@@ -7,13 +7,13 @@
 <div class="row">
     <div class="container text-center my-3">
         <div class="row mx-auto my-auto justify-content-center">
-            <div id="@id" class="tag-slider carousel slide" data-bs-interval="false">
+            <div id="@id" class="tag-slider carousel slide d-flex" data-bs-interval="false">
                 <div class="carousel-inner" role="listbox">
 
                     @foreach (var book in Model.Products)
                     {
                         <div class="carousel-item @(Model.Products.First() == book ? "active" : "")">
-                            <div class="col">
+                            <div class="col d-md-flex align-items-center justify-content-center" id="book-cover-col">
                                 <a asp-area="Customer" asp-controller="Home" asp-action="BookDetails" asp-route-productId="@book.Id">
                                     <img class="img-thumbnail shadow book-cover img-fluid" src="~/@book.ImageURL" alt="@book.Title by @book.Author" title="@book.Title by @book.Author"/>
                                 </a>
