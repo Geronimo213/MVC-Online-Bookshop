@@ -106,6 +106,11 @@ namespace Bookshop.DataAccess.Data
     public class AppDBContextFactory : IDesignTimeDbContextFactory<AppDBContext>
     {
         private readonly IConfiguration _cfg;
+
+        public AppDBContextFactory()
+        {
+            
+        }
         public AppDBContextFactory(IConfiguration cfg)
         {
             this._cfg = cfg;
