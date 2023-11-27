@@ -3,6 +3,7 @@ using Bookshop.Models;
 using Bookshop.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Bookshop.DataAccess.DbInitializer
 {
@@ -11,12 +12,14 @@ namespace Bookshop.DataAccess.DbInitializer
         private readonly AppDBContext _DbContext;
         private readonly UserManager<AppUser> _UserManager;
         private readonly RoleManager<IdentityRole> _RoleManager;
+        private readonly IConfiguration _Configuration;
 
-        public DbInitializer(AppDBContext db, UserManager<AppUser> um, RoleManager<IdentityRole> rm)
+        public DbInitializer(AppDBContext db, UserManager<AppUser> um, RoleManager<IdentityRole> rm, IConfiguration cfg)
         {
             this._DbContext = db;
             this._UserManager = um;
             this._RoleManager = rm;
+            this._Configuration = cfg;
         }
         public async Task<bool> Initialize()
         {
@@ -52,14 +55,29 @@ namespace Bookshop.DataAccess.DbInitializer
             try
             {
                 //create admin user if roles needed creating
-                await _UserManager.CreateAsync(new AppUser()
+                var pwd = _Configuration.GetValue<string>("AdminPassword");
+                if (pwd is not null)
                 {
-                    UserName = "admin@admin.com",
-                    Email = "admin@admin.com",
-                    Name = "Admin",
-                }, "Admin*123");
-                var userDb = await _DbContext.AppUsers.FirstOrDefaultAsync(u => u.Email == "admin@admin.com") ?? throw new Exception("Could not retrieve newly created user from DB.");
-                await _UserManager.AddToRoleAsync(userDb, SD.RoleAdmin);
+                    await _UserManager.CreateAsync(new AppUser()
+                    {
+                        UserName = "admin@admin.com",
+                        Email = "admin@admin.com",
+                        Name = "Admin",
+                    }, pwd);
+                    var userDb = await _DbContext.AppUsers.FirstOrDefaultAsync(u => u.Email == "admin@admin.com") ??
+                                 throw new Exception("Could not retrieve newly created user from DB.");
+                    await _UserManager.AddToRoleAsync(userDb, SD.RoleAdmin);
+                    var token = await _UserManager.GenerateEmailConfirmationTokenAsync(userDb);
+                    var result = await _UserManager.ConfirmEmailAsync(userDb, token);
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception("Could not confirm default Admin account.");
+                    }
+                }
+                else
+                {
+                    throw new Exception("Default admin password not found.");
+                }
             }
             catch (Exception e)
             {
