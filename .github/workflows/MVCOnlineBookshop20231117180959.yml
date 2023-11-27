@@ -36,7 +36,7 @@ jobs:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
     - name: Generate scripts
-      run: dotnet ef migrations script --nobuild --output "${{env.WORKING_DIRECTORY}}/sql/sql-script.sql" --idempotent --context AppDBContext
+      run: dotnet ef migrations script --nobuild --project Bookshop.DataAccess --output "${{env.DOTNET_ROOT}}/sql/sql-script.sql" --idempotent --context AppDBContext
     - name: Azure SQL Deploy
       uses: Azure/sql-action@v2.2
       with:
@@ -45,7 +45,7 @@ jobs:
         # The connection string, including authentication information, for the Azure SQL Server database.
         connection-string: ${{ secrets.CONNECTION_STRING }}
         # Path to SQL script file to deploy
-        sql-file: "${{env.WORKING_DIRECTORY}}/sql/sql-script.sql"
+        sql-file: "${{env.DOTNET_ROOT}}/sql/sql-script.sql"
             
   deploy:
     runs-on: windows-latest
