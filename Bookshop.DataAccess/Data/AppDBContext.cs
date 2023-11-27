@@ -1,6 +1,8 @@
 ﻿using Bookshop.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 
 namespace Bookshop.DataAccess.Data
 {
@@ -99,5 +101,20 @@ namespace Bookshop.DataAccess.Data
             );
         }
 
+    }
+
+    public class AppDBContextFactory : IDesignTimeDbContextFactory<AppDBContext>
+    {
+        private readonly IConfiguration _cfg;
+        public AppDBContextFactory(IConfiguration cfg)
+        {
+            this._cfg = cfg;
+        }
+        public AppDBContext CreateDbContext(string[] args)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<AppDBContext>();
+            optionsBuilder.UseSqlServer(_cfg.GetConnectionString("DefaultConnection"));
+            return new AppDBContext(optionsBuilder.Options);
+        }
     }
 }
