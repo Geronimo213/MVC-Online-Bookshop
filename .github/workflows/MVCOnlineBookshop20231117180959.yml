@@ -22,6 +22,10 @@ jobs:
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
+    - name: Install EF Tool
+      run: |
+        dotnet new tool-manifest
+        dotnet tool install dotnet-ef
     - name: Test
       run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
     - name: Publish
@@ -31,6 +35,8 @@ jobs:
       with:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    - name: Generate scripts
+      run: dotnet ef migrations script --nobuild --output ${{env.DOTNET_ROOT}}/sql/sql-script.sql --idempotent --context AppDBContext
   deploy:
     runs-on: windows-latest
     needs: build
