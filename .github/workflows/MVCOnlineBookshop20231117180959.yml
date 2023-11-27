@@ -36,7 +36,7 @@ jobs:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
     - name: Generate scripts
-      run: dotnet ef migrations script -p Bookshop.DataAccess -s "MVC Online Bookshop" -o "${{env.DOTNET_ROOT}}/sql/sql-script.sql" --idempotent -c AppDBContext
+      run: dotnet ef migrations script -p Bookshop.DataAccess -s "MVC Online Bookshop" -o "${{env.DOTNET_ROOT}}/sql/sql-script.sql" --idempotent -c AppDBContext -v
     - name: Azure SQL Deploy
       uses: Azure/sql-action@v2.2
       with:
