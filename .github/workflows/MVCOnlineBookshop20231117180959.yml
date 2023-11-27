@@ -29,14 +29,14 @@ jobs:
     - name: Test
       run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
     - name: Publish
-      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
       with:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
     - name: Generate scripts
-      run: dotnet ef migrations script -p Bookshop.DataAccess -s "MVC Online Bookshop" -o "${{env.DOTNET_ROOT}}/sql/sql-script.sql" --idempotent
+      run: dotnet ef migrations script -p Bookshop.DataAccess -s "MVC Online Bookshop" -o "${{env.DOTNET_ROOT}}/sql/sql-script.sql" --idempotent -c AppDBContext
     - name: Azure SQL Deploy
       uses: Azure/sql-action@v2.2
       with:
