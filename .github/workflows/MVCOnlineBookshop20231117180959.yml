@@ -36,12 +36,10 @@ jobs:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
     - name: Generate scripts
-      run: dotnet ef migrations script -p Bookshop.DataAccess -s "MVC Online Bookshop" -o "${{env.DOTNET_ROOT}}/sql/sql-script.sql" --idempotent -c AppDBContext -v
+      run: dotnet ef migrations script -p Bookshop.DataAccess -s "MVC Online Bookshop" --no-build -o "${{env.DOTNET_ROOT}}/sql/sql-script.sql" --idempotent -c AppDBContext -v
     - name: Azure SQL Deploy
       uses: Azure/sql-action@v2.2
       with:
-        # Name of the Azure SQL Server name, like dotnetthoughts.database.windows.net.
-        server-name: ye-olde-bookshop.database.windows.net
         # The connection string, including authentication information, for the Azure SQL Server database.
         connection-string: ${{ secrets.CONNECTION_STRING }}
         # Path to SQL script file to deploy
