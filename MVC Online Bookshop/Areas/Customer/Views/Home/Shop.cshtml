@@ -59,7 +59,7 @@
             {
                 <div class="mb-auto d-flex justify-content-center">
                     <a class="mx-auto" asp-area="Customer" asp-controller="Home" asp-action="BookDetails" asp-route-productId="@book.Id">
-                        <img class="img-thumbnail shadow mx-auto" src="~/@book.ImageURL" width="150px" height="240px" style="width: 150px; height: 240px;"
+                        <img class="img-thumbnail shadow mx-auto book-cover" src="~/@book.ImageURL" width="150px" height="240px" style="width: 150px; height: 240px;"
                              alt="Cover art for @book.Title by @book.Author" title="@book.Title by @book.Author"/>
                     </a>
                 </div>
