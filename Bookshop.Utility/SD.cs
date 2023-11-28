@@ -10,11 +10,12 @@
 
         public const int PagesAroundIndex = 4;
         public const int PageSizeProduct = 5;
+        public const int PageSizeOrder = 5;
 
         public const string CartIncrement = "Increment";
         public const string CartDecrement = "Decrement";
 
-        public static readonly string[] stopWords = { "the", "of", "a" };
+        public static readonly string[] StopWords = { "the", "of", "a" };
 
         public const int NumberCategorySuggestions = 6;
         public const int MaxBooksPerSlider = 12;
@@ -24,8 +25,8 @@
         public const string PaymentProcessed = "Paid/Awaiting Shipment";
         public const string OrderShipped = "Shipped";
 
-        public const int CoverWidth = 500;
-        public const int CoverHeight = 314;
+        public const int CoverHeight = 500;
+        public const int CoverWidth = 314;
 
         //Email address from
         public const string NoReplyEmail = "noreply@geronimo.design";
