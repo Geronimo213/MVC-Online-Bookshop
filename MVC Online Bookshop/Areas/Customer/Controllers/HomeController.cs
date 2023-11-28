@@ -102,7 +102,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 searchParam = currentFilter ?? "";
             }
 
-            var searchTerms = searchParam.ToLower().Split(' ', ',', '.', ';', ':').Except(SD.stopWords);
+            var searchTerms = searchParam.ToLower().Split(' ', ',', '.', ';', ':').Except(SD.StopWords);
             foreach (var term in searchTerms)
             {
                 var productSearchPredicate = PredicateBuilder.New<Product>();
