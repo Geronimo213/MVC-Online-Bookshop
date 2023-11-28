@@ -55,7 +55,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
             var orderQuery = _unitOfWork.OrderRepository.GetAll().AsNoTracking();
 
-            var searchTerms = searchString.ToLower().Split(' ', ',', '.', ';', ':').Except(SD.stopWords);
+            var searchTerms = searchString.ToLower().Split(' ', ',', '.', ';', ':').Except(SD.StopWords);
             foreach (var term in searchTerms)
             {
                 DateTime.TryParse(term, out DateTime searchDate);
