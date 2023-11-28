@@ -228,3 +228,17 @@ body #toast-container > div{
     margin-left: .25em;
 }
 
+/*BOOK COVER HOVER ZOOM*/
+img.book-cover {
+    transition: transform .2s ease-in-out;
+}
+
+img.book-cover:hover {
+    z-index: 9;
+    transform: scale(1.2);
+}
+
+#book-cover-col {
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
