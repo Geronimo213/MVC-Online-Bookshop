@@ -40,8 +40,6 @@ jobs:
     - name: Azure SQL Deploy
       uses: Azure/sql-action@v2.2
       with:
-        # Name of the Azure SQL Server name, like dotnetthoughts.database.windows.net.
-        server-name: ye-olde-bookshop.database.windows.net
         # The connection string, including authentication information, for the Azure SQL Server database.
         connection-string: ${{ secrets.CONNECTION_STRING }}
         # Path to SQL script file to deploy
