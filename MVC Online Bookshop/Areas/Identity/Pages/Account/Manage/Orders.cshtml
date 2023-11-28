@@ -1,0 +1,122 @@
+﻿@page
+@model OrdersModel
+@{
+}
+
+<h1 class="text-primary">Recent Orders</h1>
+
+
+    @if (!Model.Orders.Any())
+    {
+        <div class="d-flex justify-content-center align-items-center">
+            <h1 class="m-auto">No orders found</h1>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th class="text-primary">
+                        Order #
+                    </th>
+                    @* <th class="text-primary">
+                        Name
+                    </th> *@
+                    <th class="text-primary">
+                        Status
+                    </th>
+                    <th class="text-primary">
+                        Placed On
+                    </th>
+                    @* <th class="text-primary">
+                        Shipped On
+                    </th> *@
+
+                    @* <th class="text-primary">
+                        Post Code
+                    </th> *@
+                </tr>
+                </thead>
+                <tbody>
+                @* Main Table Render Loop *@
+                @foreach (var order in Model.Orders)
+                {
+                    decimal totalPrice = 0.00m;
+                    <tr class="">
+                        <td class="">@order.Header.OrderId</td>
+                        @* <td class="">@order.Header.Name</td> *@
+                        <td class="text-info">@order.Header.OrderStatus</td>
+                        <td class="">@order.Header.PlaceDate.ToString("MM/dd/yyyy")</td>
+                        @* <td class="">@(order.Header.ShipDate is null ? "N/A" : order.Header.ShipDate?.ToString("MM/dd/yyyy"))</td> *@
+                        @* <td class="">@order.Header.ShipPostalCode</td> *@
+
+
+                    </tr>
+                    <tr>
+                        <td colspan="7">
+
+                            <table class="table table-sm table-borderless">
+
+                                <thead>
+                                <tr class="">
+                                    <th class="fw-semibold text-secondary-emphasis">Title</th>
+                                    <th class="fw-semibold text-secondary-emphasis">Author</th>
+                                    <th class="fw-semibold text-secondary-emphasis">ISBN</th>
+                                    <th class="fw-semibold text-secondary-emphasis">Quantity</th>
+                                    <th class="text-end fw-semibold text-secondary-emphasis">Total</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                @foreach (var line in order.Lines)
+                                {
+                                    totalPrice += Math.Round((line.Product.Price ?? 1.00m) * line.Quantity, 2);
+                                    <tr class="text-body-secondary">
+                                        <td style="width: 25%;">@line.Product.Title</td>
+                                        <td style="width: 25%;">@line.Product.Author</td>
+                                        <td>@line.Product.ISBN</td>
+                                        <td>@line.Quantity @@ @((line.Product.Price ?? 0.00m).ToString("C")) each</td>
+                                        <td class="text-end">@((line.Product.Price * line.Quantity)?.ToString("C"))</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td colspan="4" class="text-start fw-bold text-info">@(order.Header.TrackingNumber is null ? "" : "Tracking: " + order.Header.TrackingNumber)</td>
+                                    <td class="text-end text-success">@totalPrice.ToString("C")</td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+
+                }
+                </tbody>
+            </table>
+        </div>
+        var prevDisabled = Model.Orders.HasPreviousPage ? "" : "disabled";
+        var nextDisabled = Model.Orders.HasNextPage ? "" : "disabled";
+
+        <div class="">
+            <ul class="pagination pagination-lg">
+                <li class="page-item">
+                    <a asp-page="./Orders"
+                       asp-route-pageNumber="@(Model.Orders.PageIndex - 1)"
+                       class="page-link @prevDisabled">
+                        &laquo;
+                    </a>
+                </li>
+
+
+                <li class="page-item">
+                    <a asp-page="./Orders"
+                       asp-route-pageNumber="@(Model.Orders.PageIndex + 1)"
+                       class="page-link @nextDisabled">
+                        &raquo;
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    }
