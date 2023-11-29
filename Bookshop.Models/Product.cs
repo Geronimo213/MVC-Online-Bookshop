@@ -27,5 +27,7 @@ namespace Bookshop.Models
         public virtual ICollection<Category> Categories { get; set; } = new HashSet<Category>();
         [AllowNull]
         public string? ImageURL { get; set; }
+
+        public virtual ICollection<BookList> BookLists { get; set; }
     }
 }

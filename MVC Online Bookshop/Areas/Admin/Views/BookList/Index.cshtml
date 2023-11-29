@@ -1,0 +1,30 @@
+﻿@model List<BookList>
+
+@{
+    ViewData["Title"] = "Book Lists";
+}
+<div class="card shadow mt-4 mb-4">
+    <div class="row py-2 m-0 card-header border-0 shadow-none">
+        <div class="col-6">
+            <h2 class="text-primary">Book Lists</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="BookList" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> New List</a>
+        </div>
+    </div>
+    <div class="card-body">
+        
+        @foreach (var list in Model)
+        {
+            <div class="container">
+                <div class="d-inline-flex flex-row vstack gap-2">
+                    <h5 class="text-primary-emphasis">@list.Name</h5>
+                    <h5 class="text-primary-emphasis"><span class="text-info">@list.Books.Count</span>&nbsp;Books</h5>
+                    <a class="btn btn-primary" asp-controller="BookList" asp-action="Edit" asp-route-id="@list.Id">Edit</a>
+                </div>
+            </div>
+        }
+
+    </div>
+
+</div>
