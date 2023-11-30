@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using Bookshop.DataAccess.Repository.IRepository;
+﻿using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
 using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
@@ -11,7 +10,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 {
-    [Authorize(Roles = SD.RoleAdmin)]
+    [Authorize(Roles = $"{SD.RoleAdmin}, {SD.RoleEmployee}")]
     [Area("Admin")]
     public class BookListController : Controller
     {
@@ -20,11 +19,12 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pageNumber)
         {
-            var lists = await _unitOfWork.BookListRepository.GetAll().Include(bl => bl.Books).AsNoTracking().ToListAsync();
+            var lists = _unitOfWork.BookListRepository.GetAll().Include(bl => bl.Books).AsNoTracking();
 
-            return View(lists);
+            var paginatedLists = await PaginatedList<BookList>.CreateAsync(lists, pageNumber ?? 1, 25);
+            return View(paginatedLists);
         }
 
         public async Task<IActionResult> Create(int? id)
@@ -62,6 +62,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
+            ViewData["returnUri"] = Request.GetTypedHeaders().Referer;
             var list = await _unitOfWork.BookListRepository.Get(bl => bl.Id == id, includeOperators:"Books");
             if (list is null) return NotFound();
             var vm = new BookListVM()
@@ -91,6 +92,34 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             TempData["error"] = "List already contains book.";
             return View(vm);
         }
+
+        public async Task<IActionResult> RemoveBook(int listId, int bookId)
+        {
+            var bookDb = await _unitOfWork.ProductRepository.Get(b => b.Id == bookId);
+            var listDb = await _unitOfWork.BookListRepository.Get(bl => bl.Id == listId, includeOperators:"Books");
+            if (bookDb is null || listDb is null) return NotFound("Could not find book and/or list.");
+
+            listDb.Books.Remove(bookDb);
+            await _unitOfWork.SaveAsync();
+
+            TempData["success"] = "Removed book from list";
+
+            return RedirectToAction(nameof(Edit), new {id = listId });
+        }
+
+
+        public async Task<IActionResult> RemoveList(int id)
+        {
+            var listDb = await _unitOfWork.BookListRepository.Get(bl => bl.Id == id);
+            if (listDb is null) return NotFound("List to delete not found.");
+
+            _unitOfWork.BookListRepository.Delete(listDb);
+            await _unitOfWork.SaveAsync();
+
+            TempData["success"] = $"removed list {listDb.Name}.";
+            return RedirectToAction(nameof(Index));
+        }
+
 
         [Route("/book-list")]
         public async Task<IActionResult> GetBooks(string q)
