@@ -15,19 +15,21 @@
 
 
 
+<div class="container-fluid">
+    <div id="FrontPageBody" class="vstack gap-2">
 
-<div id="FrontPageBody" class="vstack gap-2">
-
-    @* CAROUSELS *@
-    @for (var i = 0; i < @Model.Carousels.Count; i++)
-    {
-        <div id="@($"carousel{@i}")" class="p-2">
-            @await Component.InvokeAsync(name: "Carousel", new { carousel = Model.Carousels[i] })
-        </div>
-    }
+        @* CAROUSELS *@
+        @for (var i = 0; i < @Model.Carousels.Count; i++)
+        {
+            <div id="@($"carousel{@i}")" class="p-2">
+                @await Component.InvokeAsync(name: "Carousel", new { carousel = Model.Carousels[i] })
+            </div>
+        }
 
 
+    </div>
 </div>
+
 
 
 

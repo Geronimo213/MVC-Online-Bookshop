@@ -1,0 +1,13 @@
+﻿@model List<BookList>
+@{
+    var queryParse = int.TryParse(Context.Request.Query["listId"], out int result);
+    
+}
+@foreach (var list in Model)
+{
+    <li class="nav-item">
+        <a class="nav-link 
+        @(Context.Request.Path.StartsWithSegments($"/Customer/List") && queryParse && result == @list.Id ? "active" : "")"
+        asp-area="Customer" asp-controller="List" asp-action="Index" asp-route-listId="@list.Id">@list.Name</a>
+    </li>
+}
