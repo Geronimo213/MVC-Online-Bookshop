@@ -1,0 +1,58 @@
+﻿<nav class="navbar navbar-expand-lg navbar-toggleable-sm bg-primary" data-bs-theme="dark">
+    <div class="container-fluid d-flex">
+        <a class="navbar-brand" asp-area="Customer" asp-controller="Home" asp-action="Index">Ye Olde Bookshop <i class="bi bi-book"></i></a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01, #navbarColor02" aria-controls="navbarColor01, navbarColor02"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between" id="navbarColor01">
+            <div class="d-inline-flex d-lg-none flex-nowrap w-75">
+                <partial name="_SearchPartial" />
+            </div>
+            <ul class="navbar-nav ">
+                <li class="nav-item">
+                    <a class="nav-link @(Context.Request.Path == "/" ? "active" : "")" asp-area="Customer" asp-controller="Home" asp-action="Index">Home</a>
+                </li>
+
+                <li class="nav-item dropdown ">
+                    <a class="nav-link dropdown-toggle @(Context.Request.Path.StartsWithSegments("/Customer/Home/Shop") ? "active" : "")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Browse
+                    </a>
+                    <ul class="dropdown-menu p-1">
+                        @await Component.InvokeAsync("Sidebar", new { displayBadges = false })
+                    </ul>
+                </li>
+
+                @if (User.IsInRole(SD.RoleAdmin) || User.IsInRole(SD.RoleEmployee))
+                {
+                    <partial name="_ManageContentPartial" />
+                }
+
+                @* <li class="nav-item">
+                <a class="nav-link @(Context.Request.Path == "/Customer/Home/Privacy"? "active":"")" asp-area="Customer" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </li> *@
+            </ul>
+            <div class="d-none d-lg-inline-flex flex-nowrap w-50">
+                <partial name="_SearchPartial" />
+            </div>
+            <div class="d-block d-lg-inline-flex">
+                <partial name="_LoginPartial" />
+                @await Component.InvokeAsync("ShoppingCart")
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+                
+<nav class="navbar navbar-expand-lg navbar-toggleable-sm bg-primary border-bottom shadow-sm py-1" data-bs-theme="dark">
+    <div class="container-fluid d-flex">
+        <div class="navbar-collapse collapse justify-content-center gap-4" id="navbarColor02">
+            <ul class="navbar-nav nav-underline">
+                @await Component.InvokeAsync("NavbarLists")
+            </ul>
+
+        </div>
+    </div>
+</nav>

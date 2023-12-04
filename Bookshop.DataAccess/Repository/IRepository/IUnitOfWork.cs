@@ -13,6 +13,7 @@ namespace Bookshop.DataAccess.Repository.IRepository
         public IOrderLinesRepository OrderLinesRepository { get; }
         public ICarouselRepository CarouselRepository { get; }
         public IHeaderRepository HeaderRepository { get; }
+        public IBookListRepository BookListRepository { get; }
 
         Task SaveAsync();
     }

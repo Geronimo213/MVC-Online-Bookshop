@@ -1,0 +1,99 @@
+﻿@model BookListVM
+@{
+    ViewData["Title"] = "Editing " + @Model.List.Name;
+}
+
+
+<div class="container-fluid">
+    <div class="card shadow m-4">
+        <div class="row py-2 m-0 card-header border-0 shadow-none">
+            <div class="col-1 my-auto">
+                @* Back Button *@
+                <a class="btn btn-outline-danger btn-lg px-3" asp-controller="BookList" asp-action="Index">Back</a>
+            </div>
+            <div class="col text-center">
+                <h2 class="text-primary">@Model.List.Name</h2>
+            </div>
+
+            <div class="col-1 text-end my-auto">
+                <a asp-controller="BookList" asp-action="Create" asp-route-id="@Model.List.Id" class="btn btn-primary"><i class="bi bi-gear-fill"></i></a>
+            </div>
+        </div>
+        <div class="card-body">
+            @foreach (var book in Model.List.Books)
+            {
+                <div class="d-flex justify-content-evenly mb-4">
+                    <div class="">
+                        <img src="~/@book.ImageURL" class="img-thumbnail img-fluid" style="max-width: @(SD.CoverWidth / 2)px;" alt="@($"{book.Title} by {book.Author}")" />
+                    </div>
+
+                    <div class="my-auto d-none d-sm-flex w-50">
+                        <h5 class="text-primary">
+                            @book.Title<br class="m-2" />
+                            <span class="text-secondary-emphasis">@book.Author</span><br />
+                            <span class="text-secondary">@book.ISBN</span><br />
+                        </h5>
+                    </div>
+
+                    <div class="my-auto">
+                        <a class="btn btn-danger" asp-controller="BookList"
+                           asp-area="Admin"
+                           asp-action="RemoveBook"
+                           asp-route-bookId="@book.Id"
+                           asp-route-listId="@Model.List.Id"><i class="bi bi-trash-fill"></i></a>
+                    </div>
+                </div>
+            }
+            <div class="text-primary separator my-4 px-4"><h5 class="text-center">Add a new book</h5></div>
+            <form method="post" asp-area="Admin" asp-controller="BookList" asp-action="Edit">
+                <input asp-for="List.Id" hidden />
+                <div class="d-flex flex-row flex-nowrap gap-2 justify-content-center mb-3">
+                    <select class="form-select w-75" asp-for="NewBookId" data-placeholder="Search Title, Author, ISBN"></select>
+                    <input type="submit" class="btn btn-success" value="Add book" />
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        $(document).on('select2:open', function (e) {
+            document.querySelector(`[aria-controls="select2-${e.target.id}-results"]`).focus();
+        });
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            $(".form-select").select2({
+                theme: 'bootstrap-5',
+                placeholder: $(this).data('placeholder'),
+                closeOnSelect: true,
+                allowClear: false,
+                minimumInputLength: 2,
+                ajax: {
+                    delay: 250,
+                    url: '/book-list',
+                    data: function (params) {
+                        return {
+                            q: params.term// search term
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.items
+                        }
+                    },
+                }
+            });
+        });
+    </script>
+
+}

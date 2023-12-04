@@ -12,10 +12,16 @@
                 top: 11rem;
             }
         }
-        #side-button {
-            position: relative;
-            top: 11rem;
+        /* #side-button {
+            position: fixed;
+            top: 5.5rem;
+            left: 1%;
         }
+        @@media (min-width: 768px) {
+            #side-button {
+                left: 5%;
+            }
+        } */
     </style>
 }
 
@@ -23,6 +29,7 @@
     <div class="container col-1 col-md-3 col-xl-2">
         <button class="btn btn-lg btn-primary d-block d-md-none" id="side-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#side-bar" aria-controls="side-bar"><i class="bi bi-three-dots"></i></button>
         <div class="text-primary d-block offcanvas-md offcanvas-start p-2" id="side-bar">
+            <button type="button" class="btn-close float-end me-2 d-md-none my-auto" data-bs-dismiss="offcanvas" data-bs-target="#side-bar" aria-label="Close"></button>
             @await Component.InvokeAsync("Sidebar", new { currentCategory = @Model.CategoryName, search = @Model.CurrentFilter })
         </div>
 
@@ -54,7 +61,7 @@
 
             </form>
         </div>
-        <div class="d-flex flex-row flex-wrap justify-content-evenly pt-4 gap-4">
+        <div class="d-flex flex-row flex-wrap justify-content-evenly pt-4 gap-4 mb-3">
             @foreach (var book in Model.Products)
             {
                 <div class="mb-auto d-flex justify-content-center">

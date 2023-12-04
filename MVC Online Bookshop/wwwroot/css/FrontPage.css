@@ -10,6 +10,7 @@
         .tag-slider .carousel-inner .carousel-item > div:first-child {
             display: block;
         }
+
 }
 
 .tag-slider .carousel-inner .carousel-item.active,

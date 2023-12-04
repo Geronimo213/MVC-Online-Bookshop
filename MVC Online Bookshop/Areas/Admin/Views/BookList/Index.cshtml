@@ -1,0 +1,95 @@
+﻿@model PaginatedList<BookList>
+
+@{
+    ViewData["Title"] = "Book Lists";
+}
+<div class="card shadow mt-4 mb-4">
+    <div class="row py-2 m-0 card-header border-0 shadow-none">
+        <div class="col-6">
+            <h2 class="text-primary">Book Lists</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="BookList" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> New List</a>
+        </div>
+    </div>
+    <div class="card-body">
+        
+        @foreach (var list in Model)
+        {
+            <div class="container my-4">
+                <div class="d-flex flex-row flex-wrap gap-2 justify-content-around">
+                    <h5 class="text-primary my-auto w-25">@list.Name</h5>
+                    <h5 class="my-auto"><span class="text-info">@list.Books.Count</span>&nbsp;Books</h5>
+                    <div>
+                        <a class="btn btn-primary my-auto" asp-controller="BookList" asp-action="Edit" asp-route-id="@list.Id">Edit</a>
+                        <div class="d-inline-flex">
+                            <div id="confirmDeleteSpan@(list.Id)" style="display:none" class="">
+                                <div class="d-flex flex-row gap-2">
+                                    <p class="text-center mt-1 text-danger my-auto">Are you sure?</p>
+                                    <a class="btn btn-danger my-auto" asp-controller="BookList" asp-action="RemoveList" asp-route-id="@list.Id">Yes</a>
+                                    <a href="#!" class="btn btn-primary my-auto"
+                                       onclick="confirmDelete(false, @(list.Id))">No</a>
+                                </div>
+
+
+                            </div>
+                            <div id="deleteSpan@(list.Id)">
+                                <a type="button" href="#!" class="btn btn-danger"
+                                   onclick="confirmDelete(true, @(list.Id))">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+        }
+
+    </div>
+
+</div>
+@{
+    var prevDisabled = Model.HasPreviousPage ? "" : "disabled";
+    var nextDisabled = Model.HasNextPage ? "" : "disabled";
+}
+
+
+<div class="">
+    <ul class="pagination pagination-lg">
+        <li class="page-item">
+            <a asp-controller="BookList" asp-area="Admin" asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex - 1)"
+               class="page-link @prevDisabled">
+                &laquo;
+            </a>
+        </li>
+
+
+        <li class="page-item">
+            <a asp-area="Admin" asp-controller="BookList" asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex + 1)"
+               class="page-link @nextDisabled">
+                &raquo;
+            </a>
+        </li>
+    </ul>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        function confirmDelete(isDeleteClicked, id) {
+            var deleteSpan = 'deleteSpan';
+            var confirmDeleteSpan = 'confirmDeleteSpan';
+
+            if (isDeleteClicked) {
+                $('#' + deleteSpan + id).hide();
+                $('#' + confirmDeleteSpan + id).show();
+            } else {
+                $('#' + deleteSpan + id).show();
+                $('#' + confirmDeleteSpan + id).hide();
+            }
+        }
+
+    </script>
+}

@@ -13,10 +13,6 @@ namespace Bookshop.DataAccess.Data
 
         }
 
-        public AppDBContext()
-        {
-            
-        }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<AppUser> AppUsers { get; set; }
@@ -25,6 +21,7 @@ namespace Bookshop.DataAccess.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<Carousel> Carousels { get; set; }
         public DbSet<Header> Headers { get; set; }
+        public DbSet<BookList> BookLists { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -105,20 +102,19 @@ namespace Bookshop.DataAccess.Data
 
     public class AppDBContextFactory : IDesignTimeDbContextFactory<AppDBContext>
     {
-        private readonly IConfiguration _cfg;
-
         public AppDBContextFactory()
         {
-            
-        }
-        public AppDBContextFactory(IConfiguration cfg)
-        {
-            this._cfg = cfg;
+
         }
         public AppDBContext CreateDbContext(string[] args)
         {
+            IConfiguration config = new ConfigurationBuilder()
+                .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../MVC Online Bookshop"))
+                .AddJsonFile("appsettings.json")
+                .Build();
+
             var optionsBuilder = new DbContextOptionsBuilder<AppDBContext>();
-            optionsBuilder.UseSqlServer(_cfg.GetConnectionString("DefaultConnection"));
+            optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));
             return new AppDBContext(optionsBuilder.Options);
         }
     }

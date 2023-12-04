@@ -24,18 +24,18 @@ namespace Bookshop.DataAccess.DbInitializer
         public async Task<bool> Initialize()
         {
             //apply migrations if necessary
-            try
-            {
-                if ((await _DbContext.Database.GetPendingMigrationsAsync()).Any())
-                {
-                    await _DbContext.Database.MigrateAsync();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return false;
-            }
+            //try
+            //{
+            //    if ((await _DbContext.Database.GetPendingMigrationsAsync()).Any())
+            //    {
+            //        await _DbContext.Database.MigrateAsync();
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e);
+            //    return false;
+            //}
 
             //create roles if necessary
             if (await _RoleManager.RoleExistsAsync(SD.RoleAdmin)) return true;

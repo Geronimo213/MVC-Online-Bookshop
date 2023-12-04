@@ -15,6 +15,7 @@
         }
         
         <li><a class="dropdown-item @(Context.Request.Path == "/Admin/Carousel" ? "active" : "")" asp-area="Admin" asp-controller="FrontPage" asp-action="Index">Front Page</a></li>
+        <li><a class="dropdown-item @(Context.Request.Path == "/Admin/BookList" ? "active" : "")" asp-area="Admin" asp-controller="BookList" asp-action="Index">Book Lists</a></li>
     </ul>
 
                             
