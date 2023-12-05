@@ -38,52 +38,58 @@ namespace Bookshop.DataAccess.DbInitializer
             //}
 
             //create roles if necessary
-            if (await _RoleManager.RoleExistsAsync(SD.RoleAdmin)) return true;
-
-            try
-            {
-                await _RoleManager.CreateAsync(new IdentityRole(SD.RoleAdmin));
-                await _RoleManager.CreateAsync(new IdentityRole(SD.RoleCustomer));
-                await _RoleManager.CreateAsync(new IdentityRole(SD.RoleEmployee));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return false;
-            }
-
-            try
-            {
-                //create admin user if roles needed creating
-                var pwd = _Configuration.GetValue<string>("AdminPassword");
-                if (pwd is not null)
+            if (!(await _RoleManager.RoleExistsAsync(SD.RoleAdmin)))
+            { 
+                try
                 {
-                    await _UserManager.CreateAsync(new AppUser()
+                    await _RoleManager.CreateAsync(new IdentityRole(SD.RoleAdmin));
+                    await _RoleManager.CreateAsync(new IdentityRole(SD.RoleCustomer));
+                    await _RoleManager.CreateAsync(new IdentityRole(SD.RoleEmployee));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    return false;
+                }
+
+                try
+                {
+                    //create admin user if roles needed creating
+                    var pwd = _Configuration.GetValue<string>("AdminPassword");
+                    if (pwd is not null)
                     {
-                        UserName = "admin@admin.com",
-                        Email = "admin@admin.com",
-                        Name = "Admin",
-                    }, pwd);
-                    var userDb = await _DbContext.AppUsers.FirstOrDefaultAsync(u => u.Email == "admin@admin.com") ??
-                                 throw new Exception("Could not retrieve newly created user from DB.");
-                    await _UserManager.AddToRoleAsync(userDb, SD.RoleAdmin);
-                    var token = await _UserManager.GenerateEmailConfirmationTokenAsync(userDb);
-                    var result = await _UserManager.ConfirmEmailAsync(userDb, token);
-                    if (!result.Succeeded)
+                        await _UserManager.CreateAsync(new AppUser()
+                        {
+                            UserName = "admin@admin.com",
+                            Email = "admin@admin.com",
+                            Name = "Admin",
+                        }, pwd);
+                        var userDb = await _DbContext.AppUsers.FirstOrDefaultAsync(u => u.Email == "admin@admin.com") ??
+                                     throw new Exception("Could not retrieve newly created user from DB.");
+                        await _UserManager.AddToRoleAsync(userDb, SD.RoleAdmin);
+                        var token = await _UserManager.GenerateEmailConfirmationTokenAsync(userDb);
+                        var result = await _UserManager.ConfirmEmailAsync(userDb, token);
+                        if (!result.Succeeded)
+                        {
+                            throw new Exception("Could not confirm default Admin account.");
+                        }
+                    }
+                    else
                     {
-                        throw new Exception("Could not confirm default Admin account.");
+                        throw new Exception("Default admin password not found.");
                     }
                 }
-                else
+                catch (Exception e)
                 {
-                    throw new Exception("Default admin password not found.");
+                    Console.WriteLine(e);
+                    return false;
                 }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return false;
-            }
+
+            //if (await _UserManager.FindByNameAsync("Guest@Guest.com") is null)
+            //{
+
+            //}
 
 
 
