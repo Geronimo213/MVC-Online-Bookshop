@@ -125,7 +125,6 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             }
 
             //Setup stripe options
-            const string domain = "https://localhost:7212/";
 
             var options = new SessionCreateOptions
             {
