@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Bookshop.Models
 {
@@ -28,6 +29,7 @@ namespace Bookshop.Models
         [AllowNull]
         public string? ImageURL { get; set; }
 
+        [ValidateNever]
         public virtual ICollection<BookList> BookLists { get; set; }
     }
 }

@@ -115,31 +115,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             {
                 if (file is not null)
                 {
-                    string filename = vm.Product.ImageURL ?? @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
-                    string path = Path.Combine(appEnvironment.WebRootPath, filename);
-                    if (System.IO.File.Exists(path))
-                    {
-                        System.IO.File.Delete(path);
-                        filename = @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
-                        path = Path.Combine(appEnvironment.WebRootPath, filename);
-
-                    }
-
-                    //await using (Stream fs = new FileStream(path, FileMode.Create))
-                    //{
-                    //    await file.CopyToAsync(fs);
-                    //}
-
-                    using (var image = await Image.LoadAsync(file.OpenReadStream()))
-                    {
-                        if (image.Width != 314 || image.Height != 500)
-                        {
-                            image.Mutate(img => img.Resize(314, 500, KnownResamplers.Lanczos3));
-                        }
-                        await image.SaveAsync(path, new JpegEncoder());
-                    }
-
-                    vm.Product.ImageURL = filename;
+                    await SaveImageAsync(vm, file);
                 }
 
                 if (vm.Product.ISBN is not null)
@@ -175,9 +151,34 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
         }
 
+        private async Task SaveImageAsync(ProductVM vm, IFormFile file)
+        {
+            string filename = vm.Product.ImageURL ?? @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
+            string path = Path.Combine(appEnvironment.WebRootPath, filename);
+            if (System.IO.File.Exists(path))
+            {
+                System.IO.File.Delete(path);
+                filename = @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
+                path = Path.Combine(appEnvironment.WebRootPath, filename);
 
+            }
 
+            //await using (Stream fs = new FileStream(path, FileMode.Create))
+            //{
+            //    await file.CopyToAsync(fs);
+            //}
 
+            using (var image = await Image.LoadAsync(file.OpenReadStream()))
+            {
+                if (image.Width != 314 || image.Height != 500)
+                {
+                    image.Mutate(img => img.Resize(314, 500, KnownResamplers.Lanczos3));
+                }
+                await image.SaveAsync(path, new JpegEncoder());
+            }
+
+            vm.Product.ImageURL = filename;
+        }
 
         /************************************
         DELETE PRODUCT

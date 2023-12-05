@@ -48,13 +48,39 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
             ViewData["CurrentFilter"] = searchString;
             ViewData["CurrentStatus"] = statusFilter ?? string.Empty;
-
             pageSize ??= SD.PageSizeProduct;
             ViewData["CurrentPageSize"] = (int)pageSize;
 
 
             var orderQuery = _unitOfWork.OrderRepository.GetAll().AsNoTracking();
+            orderQuery = await SearchAndFilterOrders(orderQuery, searchString, statusFilter ?? string.Empty);
 
+            if (await orderQuery.AnyAsync())
+            {
+                orderQuery = sortOrder switch
+                {
+                    "id_asc" => orderQuery.OrderBy(s => s.OrderId),
+                    "Name" => orderQuery.OrderBy(s => s.Name),
+                    "name_desc" => orderQuery.OrderByDescending(s => s.Name),
+                    "PlaceDate" => orderQuery.OrderBy(s => s.PlaceDate),
+                    "place_date_desc" => orderQuery.OrderByDescending(s => s.PlaceDate),
+                    "ShipDate" => orderQuery.OrderBy(s => s.ShipDate),
+                    "ship_date_desc" => orderQuery.OrderByDescending(s => s.ShipDate),
+                    "Status" => orderQuery.OrderBy(s => s.OrderStatus),
+                    "status_desc" => orderQuery.OrderByDescending(s => s.OrderStatus),
+                    _ => orderQuery.OrderByDescending(s => s.OrderId)
+                };
+            }
+            
+            var orderLinesQuery = _unitOfWork.OrderLinesRepository.GetAll().AsNoTracking();
+            var orderReports = await
+                PaginatedOrders.CreateAsync(orderQuery, orderLinesQuery, pageNumber ?? 1, (int)pageSize, includeOperators: "Product");
+
+            return View(orderReports);
+        }
+
+        private async Task<IQueryable<Order>> SearchAndFilterOrders(IQueryable<Order> orderQuery, string searchString, string statusFilter)
+        {
             var searchTerms = searchString.ToLower().Split(' ', ',', '.', ';', ':').Except(SD.StopWords);
             foreach (var term in searchTerms)
             {
@@ -81,31 +107,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 };
 
             }
-
-            if (await orderQuery.AnyAsync())
-            {
-                orderQuery = sortOrder switch
-                {
-                    "id_asc" => orderQuery.OrderBy(s => s.OrderId),
-                    "Name" => orderQuery.OrderBy(s => s.Name),
-                    "name_desc" => orderQuery.OrderByDescending(s => s.Name),
-                    "PlaceDate" => orderQuery.OrderBy(s => s.PlaceDate),
-                    "place_date_desc" => orderQuery.OrderByDescending(s => s.PlaceDate),
-                    "ShipDate" => orderQuery.OrderBy(s => s.ShipDate),
-                    "ship_date_desc" => orderQuery.OrderByDescending(s => s.ShipDate),
-                    "Status" => orderQuery.OrderBy(s => s.OrderStatus),
-                    "status_desc" => orderQuery.OrderByDescending(s => s.OrderStatus),
-                    _ => orderQuery.OrderByDescending(s => s.OrderId)
-                };
-            }
-           
-
-            var orderLinesQuery = _unitOfWork.OrderLinesRepository.GetAll().AsNoTracking();
-
-            var orderReports = await
-                PaginatedOrders.CreateAsync(orderQuery, orderLinesQuery, pageNumber ?? 1, (int)pageSize, includeOperators: "Product");
-
-            return View(orderReports);
+            return orderQuery;
         }
 
         public async Task<IActionResult> OrderDetails(int? orderId, Uri? returnUri)

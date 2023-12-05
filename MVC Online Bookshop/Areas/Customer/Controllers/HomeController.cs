@@ -57,10 +57,19 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         {
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            cart.UserId = userId ?? "";
+
+            cart.UserId = userId ?? "Guest";
             var book = await UnitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId, tracked:false) ?? new Product() { Title = "BOOK_NOT_FOUND" };
 
-            ShoppingCart? cartFromDb = await UnitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId, tracked:false);
+            await AddToCartAsync(cart.UserId, cart);
+            TempData["success"] = $"Added {book.Title} to the cart!";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task AddToCartAsync(string userId, ShoppingCart cart)
+        {
+            ShoppingCart? cartFromDb = await UnitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId, tracked: false);
 
             if (cartFromDb != null)
             {
@@ -77,9 +86,6 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                     await UnitOfWork.ShoppingCartRepository.GetAll().CountAsync(x => x.UserId == userId));
             }
 
-            TempData["success"] = $"Added {book.Title} to the cart!";
-
-            return RedirectToAction(nameof(Index));
         }
 
 
@@ -102,20 +108,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 searchParam = currentFilter ?? "";
             }
 
-            var searchTerms = searchParam.ToLower().Split(' ', ',', '.', ';', ':').Except(SD.StopWords);
-            foreach (var term in searchTerms)
-            {
-                var productSearchPredicate = PredicateBuilder.New<Product>();
-                productSearchPredicate = productSearchPredicate
-                    .Or(x => x.Title.Contains(term))
-                    .Or(x => x.Categories.Any(c => c.Name.Contains(term)))
-                    .Or(x => x.Author!.Contains(term))
-                    .Or(x => x.ISBN!.Contains(term));
-                productQuery = productQuery.Where(productSearchPredicate);
-            }
-
-
-
+            productQuery = await Task.Run(() => SearchFilter(searchParam, productQuery));
             productQuery = sortOrder switch
             {
                 "Title" => productQuery.OrderBy(x => x.Title),
@@ -128,9 +121,25 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 Products = await PaginatedList<Product>.CreateAsync(productQuery, pageIndex ?? 1, pageSize ?? 25),
                 CurrentFilter = searchParam,
                 SortOrder = sortOrder
-
             };
             return View(products);
+        }
+
+        private static IQueryable<Product> SearchFilter(string searchParam, IQueryable<Product> productQuery)
+        {
+            var searchTerms = searchParam.ToLower().Split(' ', ',', '.', ';', ':').Except(SD.StopWords);
+            foreach (var term in searchTerms)
+            {
+                var productSearchPredicate = PredicateBuilder.New<Product>();
+                productSearchPredicate = productSearchPredicate
+                    .Or(x => x.Title.Contains(term))
+                    .Or(x => x.Categories.Any(c => c.Name.Contains(term)))
+                    .Or(x => x.Author!.Contains(term))
+                    .Or(x => x.ISBN!.Contains(term));
+                productQuery = productQuery.Where(productSearchPredicate);
+            }
+
+            return productQuery;
         }
 
         public IActionResult Privacy()

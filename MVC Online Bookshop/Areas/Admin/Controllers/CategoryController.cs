@@ -27,10 +27,10 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? pageSize, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
-            ViewData["DisplayOrderParam"] = String.IsNullOrEmpty(sortOrder) ? "display_order_desc" : "";
+            ViewData["DisplayOrderParam"] = string.IsNullOrEmpty(sortOrder) ? "display_order_desc" : "";
             ViewData["NameSortParam"] = sortOrder == "Name" ? "name_desc" : "Name";
 
-            if (!String.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString))
             {
                 pageNumber = 1;
             }
@@ -44,25 +44,16 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             ViewData["CurrentPageSize"] = (int)pageSize;
 
             var categories = UnitOfWork.CategoryRepository.GetAll();
-            categories = String.IsNullOrEmpty(searchString) ? categories : UnitOfWork.CategoryRepository.GetAll().Where(x =>
+            categories = string.IsNullOrEmpty(searchString) ? categories : UnitOfWork.CategoryRepository.GetAll().Where(x =>
                 x.Name.Contains(searchString)
                 || x.Id.ToString().Contains(searchString));
-            switch (sortOrder)
+            categories = sortOrder switch
             {
-                case "display_order_desc":
-                    categories = categories.OrderByDescending(s => s.DisplayOrder);
-                    break;
-                case "Name":
-                    categories = categories.OrderBy(s => s.Name);
-                    break;
-                case "name_desc":
-                    categories = categories.OrderByDescending(s => s.Name);
-                    break;
-                default:
-                    categories = categories.OrderBy(s => s.DisplayOrder);
-                    break;
-            }
-
+                "display_order_desc" => categories.OrderByDescending(s => s.DisplayOrder),
+                "Name" => categories.OrderBy(s => s.Name),
+                "name_desc" => categories.OrderByDescending(s => s.Name),
+                _ => categories.OrderBy(s => s.DisplayOrder),
+            };
             var categoryList = await PaginatedList<Category>.CreateAsync(categories, pageNumber ?? 1, (int)pageSize);
             return View(categoryList);
         }

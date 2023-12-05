@@ -14,7 +14,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
     [Authorize(Roles = $"{SD.RoleAdmin}, {SD.RoleEmployee}")]
     public class FrontPageController : Controller
     {
-        private IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private IWebHostEnvironment appEnvironment { get; }
         public FrontPageController(IUnitOfWork unitOfWork, IWebHostEnvironment appEnvironment)
         {
@@ -59,31 +59,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
             if (file is not null)
             {
-                string filename = header.ImagePath ?? @"Images\Slides\" + Guid.NewGuid().ToString() + file.FileName;
-                string path = Path.Combine(appEnvironment.WebRootPath, filename);
-                if (System.IO.File.Exists(path))
-                {
-                    System.IO.File.Delete(path);
-                    filename = @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
-                    path = Path.Combine(appEnvironment.WebRootPath, filename);
-
-                }
-
-                //await using (Stream fs = new FileStream(path, FileMode.Create))
-                //{
-                //    await file.CopyToAsync(fs);
-                //}
-
-                using (var image = await Image.LoadAsync(file.OpenReadStream()))
-                {
-                    if (image.Width != 2048 || image.Height != 600)
-                    {
-                        image.Mutate(img => img.Resize(2048, 600, KnownResamplers.Lanczos3));
-                    }
-                    await image.SaveAsync(path, new JpegEncoder());
-                }
-
-                header.ImagePath = filename;
+                await SaveBookImage(header, file);
             }
 
             if (header.Id is 0)
@@ -98,9 +74,31 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
 
             await _unitOfWork.SaveAsync();
-
             return RedirectToAction(nameof(Index));
 
+        }
+
+        private async Task SaveBookImage(Header header, IFormFile file)
+        {
+            string filename = header.ImagePath ?? @"Images\Slides\" + Guid.NewGuid().ToString() + file.FileName;
+            string path = Path.Combine(appEnvironment.WebRootPath, filename);
+            if (System.IO.File.Exists(path))
+            {
+                System.IO.File.Delete(path);
+                filename = @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
+                path = Path.Combine(appEnvironment.WebRootPath, filename);
+            }
+
+            using (var image = await Image.LoadAsync(file.OpenReadStream()))
+            {
+                if (image.Width != 2048 || image.Height != 600)
+                {
+                    image.Mutate(img => img.Resize(2048, 600, KnownResamplers.Lanczos3));
+                }
+                await image.SaveAsync(path, new JpegEncoder());
+            }
+
+            header.ImagePath = filename;
         }
 
         public async Task<IActionResult> HeaderDelete(int? id, Uri? returnUri)

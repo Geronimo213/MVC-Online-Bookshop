@@ -83,7 +83,6 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var itemPredicate = PredicateBuilder.New<ShoppingCart>();
-
             foreach (var itemId in checkoutVm.ItemIds)
             {
                 var currentId = itemId;
@@ -91,7 +90,6 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             }
 
             var itemsQuery = UnitOfWork.ShoppingCartRepository.GetAll(x => x.UserId == userId);
-
             if (itemsQuery is null)
             {
                 TempData["error"] = "User has no items in cart";
@@ -99,7 +97,6 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             }
 
             var items = await itemsQuery.Where(itemPredicate).Include(sc => sc.Product).AsNoTracking().ToListAsync();
-
             if (items.Count < 1)
             {
                 TempData["error"] = "Checkout cart line ids user mismatch.";
@@ -124,8 +121,26 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 await UnitOfWork.SaveAsync();
             }
 
-            //Setup stripe options
+            //Set strip options
+            var stripeOptions = await Task.Run(() => SetStripeOptions(checkoutVm));
+            //Create stripe service
+            var service = new SessionService();
+            Session session = await service.CreateAsync(stripeOptions);
 
+            if (!string.IsNullOrEmpty(session.Id))
+            {
+                UnitOfWork.OrderRepository.UpdateStripe(checkoutVm.Order.OrderId, session.Id, session.PaymentIntentId);
+                UnitOfWork.OrderRepository.UpdateStatus(checkoutVm.Order.OrderId, SD.PaymentPending);
+                await UnitOfWork.SaveAsync();
+            }
+            //Redirect to stripe checkout page
+            Response.Headers.Append("Location", session.Url);
+            return new StatusCodeResult(303);
+        }
+
+        private SessionCreateOptions SetStripeOptions(CheckoutVM checkoutVm)
+        {
+            //Setup stripe options
             var options = new SessionCreateOptions
             {
                 SuccessUrl = Url.Action(action: "ConfirmOrder", controller: "Checkout", values: new { id = checkoutVm.Order.OrderId }, protocol: "https"),
@@ -154,21 +169,8 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 };
                 options.LineItems.Add(sessionLineItem);
             }
-            //Create stripe service
-            var service = new SessionService();
-            Session session = await service.CreateAsync(options);
 
-            if (!string.IsNullOrEmpty(session.Id))
-            {
-                UnitOfWork.OrderRepository.UpdateStripe(checkoutVm.Order.OrderId, session.Id, session.PaymentIntentId);
-                UnitOfWork.OrderRepository.UpdateStatus(checkoutVm.Order.OrderId, SD.PaymentPending);
-                await UnitOfWork.SaveAsync();
-            }
-            //Redirect to stripe checkout page
-            Response.Headers.Append("Location", session.Url);
-            return new StatusCodeResult(303);
-
-
+            return options;
         }
 
         /// <summary>
@@ -178,7 +180,6 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         /// <returns>ConfirmOrder Index View</returns>
         public async Task<IActionResult> ConfirmOrder(int id)
         {
-
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -187,22 +188,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
             if (string.IsNullOrEmpty(orderDb.PaymentIntentId) && !string.IsNullOrEmpty(orderDb.SessionId))
             {
-                var service = new SessionService();
-                var session = await service.GetAsync(orderDb.SessionId);
-
-                if (session.PaymentStatus.Equals("paid", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    orderDb.PaymentIntentId = session.PaymentIntentId;
-                    orderDb.OrderStatus = SD.PaymentProcessed;
-                    await UnitOfWork.SaveAsync();
-                }
-
-                var cartDb = await UnitOfWork.ShoppingCartRepository.GetAll(x => x.UserId == orderDb.UserId)!.ToListAsync();
-                UnitOfWork.ShoppingCartRepository.DeleteRange(cartDb);
-                await UnitOfWork.SaveAsync();
-                HttpContext.Session.Clear();
-
-
+                await SetPayment(orderDb);
 
                 if (orderDb.User is null || string.IsNullOrEmpty(orderDb.User.Email))
                 {
@@ -210,43 +196,10 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 }
                 else
                 {
-                    var orderLinesDb = await UnitOfWork.OrderLinesRepository.GetAll()
-                        .Where(ol => ol.OrderId == orderDb.OrderId)
-                        .Include(ol => ol.Product)
-                        .AsNoTracking().ToListAsync();
-                    var orderLinesData = new object[orderLinesDb.Count];
-                    var domainRoot = await Request.GetBaseUrl();
-
-                    for (int i = 0; i < orderLinesDb.Count; i++)
-                    {
-                        orderLinesData[i] = new
-                        {
-                            ImageSource = domainRoot + orderLinesDb[i].Product.ImageURL,
-                            Title = orderLinesDb[i].Product.Title,
-                            Quantity = orderLinesDb[i].Quantity,
-                            Total = (orderLinesDb[i].Quantity * orderLinesDb[i].Product.Price)?.ToString("C")
-                        };
-                    }
-
-                    var templateData = new
-                    {
-                        RecipientName = orderDb.User.Name,
-                        OrderNumber = orderDb.OrderId,
-                        OrderTotal = orderLinesDb.Sum(ol => ol.Quantity * ol.Product.Price)?.ToString("C"),
-                        ShipStreet = orderDb.ShipStreetAddress,
-                        ShipCity = orderDb.ShipCity,
-                        ShipState = orderDb.ShipState,
-                        ShipZip = orderDb.ShipPostalCode,
-                        OrderLines = orderLinesData
-
-                    };
-                    await _emailSender.SendEmailTemplateAsync(orderDb.User.Email, SD.ConfirmOrderTemplate, templateData);
+                    await SendEmailAsync(orderDb);
                 }
 
             }
-
-
-
             var orderVm = new OrderVM()
             {
                 Header = orderDb,
@@ -254,6 +207,60 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             };
             return View(orderVm);
         }
+
+        private async Task SetPayment(Order orderDb)
+        {
+            var service = new SessionService();
+            var session = await service.GetAsync(orderDb.SessionId);
+
+            if (session.PaymentStatus.Equals("paid", StringComparison.CurrentCultureIgnoreCase))
+            {
+                orderDb.PaymentIntentId = session.PaymentIntentId;
+                orderDb.OrderStatus = SD.PaymentProcessed;
+                await UnitOfWork.SaveAsync();
+            }
+
+            var cartDb = await UnitOfWork.ShoppingCartRepository.GetAll(x => x.UserId == orderDb.UserId)!.ToListAsync();
+            UnitOfWork.ShoppingCartRepository.DeleteRange(cartDb);
+            await UnitOfWork.SaveAsync();
+            HttpContext.Session.Clear();
+        }
+
+        private async Task SendEmailAsync(Order orderDb)
+        {
+            var orderLinesDb = await UnitOfWork.OrderLinesRepository.GetAll()
+                .Where(ol => ol.OrderId == orderDb.OrderId)
+                .Include(ol => ol.Product)
+                .AsNoTracking().ToListAsync();
+            var orderLinesData = new object[orderLinesDb.Count];
+            var domainRoot = await Request.GetBaseUrl();
+
+            for (int i = 0; i < orderLinesDb.Count; i++)
+            {
+                orderLinesData[i] = new
+                {
+                    ImageSource = domainRoot + orderLinesDb[i].Product.ImageURL,
+                    Title = orderLinesDb[i].Product.Title,
+                    Quantity = orderLinesDb[i].Quantity,
+                    Total = (orderLinesDb[i].Quantity * orderLinesDb[i].Product.Price)?.ToString("C")
+                };
+            }
+
+            var templateData = new
+            {
+                RecipientName = orderDb.User!.Name,
+                OrderNumber = orderDb.OrderId,
+                OrderTotal = orderLinesDb.Sum(ol => ol.Quantity * ol.Product.Price)?.ToString("C"),
+                ShipStreet = orderDb.ShipStreetAddress,
+                ShipCity = orderDb.ShipCity,
+                ShipState = orderDb.ShipState,
+                ShipZip = orderDb.ShipPostalCode,
+                OrderLines = orderLinesData
+
+            };
+            await _emailSender.SendEmailTemplateAsync(orderDb.User.Email!, SD.ConfirmOrderTemplate, templateData);
+        }
+
         /// <summary>
         /// Endpoint for handling user cancellation of Stripe checkout. Expires Stripe session and deletes order from DB. Then redirects to cart.
         /// </summary>

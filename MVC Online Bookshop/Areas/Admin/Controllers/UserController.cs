@@ -68,6 +68,17 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 }
             }
 
+            users = await Task.Run(() => SearchAndFilter(users, vm, searchString, sortOrder));
+            var paginatedUsers = await PaginatedList<AppUser>.CreateAsync(users, pageNumber ?? 1, (int)pageSize);
+
+            vm.Users = paginatedUsers;
+            vm.RoleList = rolesFromDb;
+            //int pageSize = SD.PageSizeProduct;
+            return View(vm);
+        }
+
+        private static IQueryable<AppUser> SearchAndFilter(IQueryable<AppUser> users, PaginatedUserVM vm, string searchString, string sortOrder)
+        {
             var rolePredicate = PredicateBuilder.New<AppUser>();
             foreach (var selectedRole in vm.SelectedRoles)
             {
@@ -75,14 +86,13 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             }
 
             users = users.Where(rolePredicate);
-
             users = string.IsNullOrEmpty(searchString) ? users : users.Where(s =>
                 s.Name.Contains(searchString)
                 || (s.NormalizedEmail != null && s.NormalizedEmail.Contains(searchString))
                 || (s.State != null && s.State.Contains(searchString))
                 || (s.City != null && s.City.Contains(searchString))
                 || (s.Role != null && s.Role.Contains(searchString))
-                );
+            );
 
             users = sortOrder switch
             {
@@ -94,14 +104,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 _ => users.OrderBy(s => s.Id),
             };
 
-
-
-            var paginatedUsers = await PaginatedList<AppUser>.CreateAsync(users, pageNumber ?? 1, (int)pageSize);
-
-            vm.Users = paginatedUsers;
-            vm.RoleList = rolesFromDb;
-            //int pageSize = SD.PageSizeProduct;
-            return View(vm);
+            return users;
         }
 
         /************************************
