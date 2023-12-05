@@ -100,44 +100,45 @@
 
 
 @section Scripts {
-    @{
-        <partial name="_ValidationScriptsPartial"/>
-    }
-    <script type="text/javascript">
-        tinymce.init({
-            selector: '#editor',
-            plugins: 'anchor autolink charmap emoticons link lists searchreplace table visualblocks wordcount paste',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-            paste_as_text: true,
-            paste_block_drop: true
-        });
-    </script>
-
-    <script type="text/javascript">
-
-        $('.form-select').select2(
-            {
-                theme: 'bootstrap-5',
-                width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
-                placeholder: $(this).data('placeholder'),
-                closeOnSelect: false,
-                allowClear: true,
-            });
-
-    </script>
     
+    <partial name="_ValidationScriptsPartial"/>
+
+
     <script type="text/javascript">
-        //Listeners for 
         $(function () {
-            var isbnInput = $('#isbnInput');
-            $('#isbnLookup').on("click", function() {
-                $('#isbnLookup').attr("disabled", true);
-                var isbn = isbnInput.val().replace(/-/g, '');
-                isbnLookup(isbn);
+
+            tinymce.init({
+                selector: '#editor',
+                plugins: 'anchor autolink charmap emoticons link lists searchreplace table visualblocks wordcount',
+                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+                paste_as_text: true,
+                paste_block_drop: true
+            });
+
+            $('.form-select').select2(
+                {
+                    theme: 'bootstrap-5',
+                    width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                    placeholder: $(this).data('placeholder'),
+                    closeOnSelect: false,
+                    allowClear: true,
+                });
+
+
+            //Listeners for
+            $(function () {
+                var isbnInput = $('#isbnInput');
+                $('#isbnLookup').on("click", function () {
+                    $('#isbnLookup').attr("disabled", true);
+                    var isbn = isbnInput.val().replace(/-/g, '');
+                    isbnLookup(isbn);
+                });
+
             });
 
         });
     </script>
+
     
     <script type="text/javascript">
         //Perform ajax
