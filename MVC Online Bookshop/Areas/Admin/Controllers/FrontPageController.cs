@@ -80,12 +80,12 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
         private async Task SaveBookImage(Header header, IFormFile file)
         {
-            string filename = header.ImagePath ?? @"Images\Slides\" + Guid.NewGuid().ToString() + file.FileName;
+            string filename = header.ImagePath ?? @"Images\Slides\" + Guid.NewGuid().ToString() + ".jpg";
             string path = Path.Combine(appEnvironment.WebRootPath, filename);
             if (System.IO.File.Exists(path))
             {
                 System.IO.File.Delete(path);
-                filename = @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
+                filename = @"Images\Product\" + Guid.NewGuid().ToString() + ".jpg";
                 path = Path.Combine(appEnvironment.WebRootPath, filename);
             }
 
@@ -95,7 +95,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
                 {
                     image.Mutate(img => img.Resize(2048, 600, KnownResamplers.Lanczos3));
                 }
-                await image.SaveAsync(path, new JpegEncoder());
+                await image.SaveAsync(path, new JpegEncoder{Quality = 75});
             }
 
             header.ImagePath = filename;

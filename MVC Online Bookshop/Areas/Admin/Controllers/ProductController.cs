@@ -154,12 +154,12 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
         private async Task SaveImageAsync(ProductVM vm, IFormFile file)
         {
-            string filename = vm.Product.ImageURL ?? @"Images\Product\" + Guid.NewGuid().ToString();
+            string filename = vm.Product.ImageURL ?? @"Images\Product\" + Guid.NewGuid().ToString() + ".jpg";
             string path = Path.Combine(appEnvironment.WebRootPath, filename);
             if (System.IO.File.Exists(path))
             {
                 System.IO.File.Delete(path);
-                filename = @"Images\Product\" + Guid.NewGuid().ToString();
+                filename = @"Images\Product\" + Guid.NewGuid().ToString() + ".jpg";
                 path = Path.Combine(appEnvironment.WebRootPath, filename);
 
             }
