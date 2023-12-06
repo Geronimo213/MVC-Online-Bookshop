@@ -6,6 +6,7 @@ using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.EntityFrameworkCore;
 using Stripe.Checkout;
 using System.Security.Claims;
@@ -73,7 +74,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         /// Then creates Stripe session with order details and redirects user.
         /// </summary>
         /// <param name="checkoutVm">Model from the checkout view</param>
-        /// <returns>Redirect to Stripe payment or redirect to Checkout Index on error.</returns>
+        /// <returns>Redirect to Stripe payment or redirect to "Checkout Index" on error.</returns>
         [HttpPost]
         public async Task<IActionResult> Index(CheckoutVM checkoutVm)
         {
@@ -82,27 +83,22 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var itemPredicate = PredicateBuilder.New<ShoppingCart>();
-            foreach (var itemId in checkoutVm.ItemIds)
-            {
-                var currentId = itemId;
-                itemPredicate.Or(item => item.Id == currentId);
-            }
+            var items = await GetCheckoutItems(checkoutVm, userId ?? string.Empty);
+            if (items is null) return RedirectToAction(nameof(Index));
 
-            var itemsQuery = UnitOfWork.ShoppingCartRepository.GetAll(x => x.UserId == userId);
-            if (itemsQuery is null)
-            {
-                TempData["error"] = "User has no items in cart";
-                return RedirectToAction(nameof(Index));
-            }
+            await SetOrderLines(items, checkoutVm);
 
-            var items = await itemsQuery.Where(itemPredicate).Include(sc => sc.Product).AsNoTracking().ToListAsync();
-            if (items.Count < 1)
-            {
-                TempData["error"] = "Checkout cart line ids user mismatch.";
-                return RedirectToAction(nameof(Index));
-            }
+            //Set strip options
+            var stripeOptions = await Task.Run(() => SetStripeOptions(checkoutVm));
+            //Create stripe service
+            var session = await Task.Run(() => UpdateStripeSession(checkoutVm, stripeOptions));
+            //Redirect to stripe checkout page
+            Response.Headers.Append("Location", session.Url);
+            return new StatusCodeResult(303);
+        }
 
+        private async Task SetOrderLines(List<ShoppingCart> items, CheckoutVM checkoutVm)
+        {
             checkoutVm.Items = items;
             checkoutVm.Order.PlaceDate = DateTime.Now;
             checkoutVm.Order.OrderStatus = SD.OrderPlaced;
@@ -120,24 +116,44 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 UnitOfWork.OrderLinesRepository.Add(orderLines);
                 await UnitOfWork.SaveAsync();
             }
+        }
+        private async Task<List<ShoppingCart>?> GetCheckoutItems(CheckoutVM checkoutVm, string userId)
+        {
+            var itemPredicate = PredicateBuilder.New<ShoppingCart>();
+            foreach (var itemId in checkoutVm.ItemIds!)
+            {
+                var currentId = itemId;
+                itemPredicate.Or(item => item.Id == currentId);
+            }
 
-            //Set strip options
-            var stripeOptions = await Task.Run(() => SetStripeOptions(checkoutVm));
-            //Create stripe service
+            var itemsQuery = UnitOfWork.ShoppingCartRepository.GetAll(x => x.UserId == userId);
+            if (itemsQuery is null)
+            {
+                TempData["error"] = "User has no items in cart";
+                return null;
+            }
+
+            var items = await itemsQuery.Where(itemPredicate).Include(sc => sc.Product).AsNoTracking().ToListAsync();
+            if (items.Count < 1)
+            {
+                TempData["error"] = "Checkout item line ids user mismatch.";
+                return null;
+            }
+
+            return items;
+        }
+        private async Task<Session> UpdateStripeSession(CheckoutVM checkoutVm, SessionCreateOptions stripeOptions)
+        {
             var service = new SessionService();
             Session session = await service.CreateAsync(stripeOptions);
 
-            if (!string.IsNullOrEmpty(session.Id))
-            {
-                UnitOfWork.OrderRepository.UpdateStripe(checkoutVm.Order.OrderId, session.Id, session.PaymentIntentId);
-                UnitOfWork.OrderRepository.UpdateStatus(checkoutVm.Order.OrderId, SD.PaymentPending);
-                await UnitOfWork.SaveAsync();
-            }
-            //Redirect to stripe checkout page
-            Response.Headers.Append("Location", session.Url);
-            return new StatusCodeResult(303);
-        }
+            if (string.IsNullOrEmpty(session.Id)) return session;
+            UnitOfWork.OrderRepository.UpdateStripe(checkoutVm.Order.OrderId, session.Id, session.PaymentIntentId);
+            UnitOfWork.OrderRepository.UpdateStatus(checkoutVm.Order.OrderId, SD.PaymentPending);
+            await UnitOfWork.SaveAsync();
 
+            return session;
+        }
         private SessionCreateOptions SetStripeOptions(CheckoutVM checkoutVm)
         {
             //Setup stripe options

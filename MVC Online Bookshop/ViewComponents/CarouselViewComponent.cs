@@ -26,9 +26,9 @@ namespace MVC_Online_Bookshop.ViewComponents
 
             productsDb = sortOrder switch
             {
-                "Author" => productsDb.OrderBy(x => x.Author).ToList(),
-                "Title" => productsDb.OrderBy(x => x.Title).ToList(),
-                _ => productsDb.OrderBy(x => x.Id).ToList()
+                "Author" => [.. productsDb.OrderBy(x => x.Author)],
+                "Title" => [.. productsDb.OrderBy(x => x.Title)],
+                _ => [.. productsDb.OrderBy(x => x.Id)]
             };
 
 
@@ -43,13 +43,7 @@ namespace MVC_Online_Bookshop.ViewComponents
 
     public class CarouselVM
     {
-        public string Title { get; set; }
-        public List<Product> Products { get; set; }
-
-        public CarouselVM()
-        {
-            this.Products = new List<Product>();
-            this.Title = string.Empty;
-        }
+        public string Title { get; set; } = string.Empty;
+        public List<Product> Products { get; set; } = [];
     }
 }

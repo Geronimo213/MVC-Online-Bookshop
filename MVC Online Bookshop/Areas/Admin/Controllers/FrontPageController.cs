@@ -173,7 +173,7 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
             {
                 var errors = string.Join(Environment.NewLine, ModelState.Keys.Where(i => ModelState[i]?.Errors.Count > 0).Select(k =>
                     new KeyValuePair<string, string>(k, ModelState[k]!.Errors.First().ErrorMessage)));
-                TempData["error"] = "Model state is invalid. Error log: ";
+                TempData["error"] = $"Model state is invalid. Error log: {errors}";
                 return View(carousel);
             }
 

@@ -1,4 +1,5 @@
-﻿using Bookshop.DataAccess.Repository.IRepository;
+﻿using System.Drawing.Drawing2D;
+using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
 using Bookshop.Models.ViewModels;
 using Bookshop.Utility;
@@ -33,12 +34,12 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
         public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? pageSize, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
-            ViewData["TitleSortParam"] = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
+            ViewData["TitleSortParam"] = string.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
             ViewData["AuthorSortParam"] = sortOrder == "Author" ? "auth_desc" : "Author";
             ViewData["CategorySortParam"] = sortOrder == "Category" ? "cat_desc" : "Category";
             ViewData["PriceSortParam"] = sortOrder == "Price" ? "price_desc" : "Price";
 
-            if (!String.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString))
             {
                 pageNumber = 1;
             }
@@ -153,28 +154,23 @@ namespace MVC_Online_Bookshop.Areas.Admin.Controllers
 
         private async Task SaveImageAsync(ProductVM vm, IFormFile file)
         {
-            string filename = vm.Product.ImageURL ?? @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
+            string filename = vm.Product.ImageURL ?? @"Images\Product\" + Guid.NewGuid().ToString();
             string path = Path.Combine(appEnvironment.WebRootPath, filename);
             if (System.IO.File.Exists(path))
             {
                 System.IO.File.Delete(path);
-                filename = @"Images\Product\" + Guid.NewGuid().ToString() + file.FileName;
+                filename = @"Images\Product\" + Guid.NewGuid().ToString();
                 path = Path.Combine(appEnvironment.WebRootPath, filename);
 
             }
 
-            //await using (Stream fs = new FileStream(path, FileMode.Create))
-            //{
-            //    await file.CopyToAsync(fs);
-            //}
-
             using (var image = await Image.LoadAsync(file.OpenReadStream()))
             {
-                if (image.Width != 314 || image.Height != 500)
+                if (image.Width != SD.CoverWidth || image.Height != SD.CoverHeight)
                 {
-                    image.Mutate(img => img.Resize(314, 500, KnownResamplers.Lanczos3));
+                    image.Mutate(img => img.Resize(SD.CoverWidth, SD.CoverHeight, KnownResamplers.Lanczos3));
                 }
-                await image.SaveAsync(path, new JpegEncoder());
+                await image.SaveAsync(path, new JpegEncoder{Quality = 75});
             }
 
             vm.Product.ImageURL = filename;
