@@ -1,6 +1,7 @@
 ﻿using Bookshop.DataAccess.Data;
 using Bookshop.DataAccess.Repository.IRepository;
 using Bookshop.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bookshop.DataAccess.Repository
 {
@@ -15,6 +16,16 @@ namespace Bookshop.DataAccess.Repository
         public void Update(ShoppingCart shoppingCart)
         {
             _appDbContext.ShoppingCarts.Update(shoppingCart);
+        }
+
+        public async Task MigrateSessionCart(string sessionId, AppUser user)
+        {
+            var cartsDb = await _appDbContext.ShoppingCarts.Where(sc => sc.SessionId == sessionId).ToListAsync();
+            foreach (var item in cartsDb)
+            {
+                item.UserId = user.Id;
+            }
+            await _appDbContext.SaveChangesAsync();
         }
     }
 }
