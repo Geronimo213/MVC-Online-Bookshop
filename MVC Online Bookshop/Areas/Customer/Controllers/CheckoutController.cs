@@ -14,7 +14,6 @@ using System.Security.Claims;
 namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 {
     [Area("Customer")]
-    [Authorize]
     public class CheckoutController : Controller
     {
         private IUnitOfWork UnitOfWork { get; set; }
@@ -34,13 +33,25 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         /// <returns>Checkout Index View with CheckoutVM viewmodel.</returns>
         public async Task<IActionResult> Index()
         {
-            var claimsIdentity = (ClaimsIdentity?)User.Identity;
+            var claimsIdentity = (ClaimsIdentity)User.Identity!;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null) return NotFound();
+            AppUser? user;
 
-            var user = await _userManager.FindByIdAsync(userId);
-            List<ShoppingCart> items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product").Where(x => x.UserId == userId).AsNoTracking().ToListAsync();
+            var cartCookie = CartHelper.GetCartCookie(this.HttpContext);
 
+            if (!string.IsNullOrEmpty(userId))
+            {
+                user = await _userManager.FindByIdAsync(userId);
+            }
+            else
+            {
+                user = new AppUser() { Name = string.Empty };
+            }
+
+            if (user is null) return NotFound();
+
+            var items = await UnitOfWork.ShoppingCartRepository.GetAll().Where(sc => sc.UserId == userId || sc.SessionId == cartCookie)
+                .Include(sc => sc.Product).AsNoTracking().ToListAsync();
             if (items.Count < 1)
             {
                 TempData["warning"] = "Try adding some items to your cart first!";
@@ -49,19 +60,21 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
             var order = new Order()
             {
-                Name = user?.Name ?? "",
-                PhoneNumber = user?.PhoneNumber ?? "",
-                ShipStreetAddress = user?.StreetAddress ?? "",
-                ShipCity = user?.City ?? "",
-                ShipState = user?.State ?? "",
-                ShipPostalCode = user?.PostalCode ?? "",
-                UserId = userId ?? ""
+                Name = user.Name,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
+                ShipStreetAddress = user.StreetAddress ?? string.Empty,
+                ShipCity = user.City ?? string.Empty,
+                ShipState = user.State ?? string.Empty,
+                ShipPostalCode = user.PostalCode ?? string.Empty,
+                UserId = userId,
+                Email = user.Email ?? string.Empty
             };
 
-            CheckoutVM model = new CheckoutVM()
+            var model = new CheckoutVM
             {
                 Order = order,
-                Items = items
+                Items = items,
+                SessionId = cartCookie
             };
 
 
@@ -126,7 +139,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 itemPredicate.Or(item => item.Id == currentId);
             }
 
-            var itemsQuery = UnitOfWork.ShoppingCartRepository.GetAll(x => x.UserId == userId);
+            var itemsQuery = UnitOfWork.ShoppingCartRepository.GetAll(x => x.UserId == userId || x.SessionId == checkoutVm.SessionId);
             if (itemsQuery is null)
             {
                 TempData["error"] = "User has no items in cart";
@@ -198,15 +211,16 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         {
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var cartCookie = CartHelper.GetCartCookie(this.HttpContext);
 
-            var orderDb = await UnitOfWork.OrderRepository.Get(x => x.OrderId == id, includeOperators: "User");
+            var orderDb = await UnitOfWork.OrderRepository.Get(x => x.OrderId == id || x.SessionId == cartCookie);
             if (orderDb == null || orderDb.UserId != userId) return NotFound();
 
             if (string.IsNullOrEmpty(orderDb.PaymentIntentId) && !string.IsNullOrEmpty(orderDb.SessionId))
             {
                 await SetPayment(orderDb);
 
-                if (orderDb.User is null || string.IsNullOrEmpty(orderDb.User.Email))
+                if (orderDb.User is null && string.IsNullOrEmpty(orderDb.Email))
                 {
                     TempData["error"] = "Email missing.";
                 }
@@ -264,7 +278,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
             var templateData = new
             {
-                RecipientName = orderDb.User!.Name,
+                RecipientName = orderDb.Name,
                 OrderNumber = orderDb.OrderId,
                 OrderTotal = orderLinesDb.Sum(ol => ol.Quantity * ol.Product.Price)?.ToString("C"),
                 ShipStreet = orderDb.ShipStreetAddress,
@@ -274,7 +288,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 OrderLines = orderLinesData
 
             };
-            await _emailSender.SendEmailTemplateAsync(orderDb.User.Email!, SD.ConfirmOrderTemplate, templateData);
+            await _emailSender.SendEmailTemplateAsync(orderDb.Email!, SD.ConfirmOrderTemplate, templateData);
         }
 
         /// <summary>
