@@ -36,7 +36,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
         public async Task<IActionResult> BookDetails(int? productId)
         {
-            if (productId == null)
+            if (productId is null)
             {
                 NotFound();
 
@@ -52,24 +52,25 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> BookDetails(ShoppingCart cart)
         {
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var cartCookie = CartHelper.GetCartCookie(this.HttpContext);
 
-            cart.UserId = userId ?? "Guest";
+            cart.SessionId = cartCookie;
+            cart.UserId = userId;
             var book = await UnitOfWork.ProductRepository.Get(x => x.Id == cart.ProductId, tracked:false) ?? new Product() { Title = "BOOK_NOT_FOUND" };
 
-            await AddToCartAsync(cart.UserId, cart);
+            await AddToCartAsync(cart);
             TempData["success"] = $"Added {book.Title} to the cart!";
 
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task AddToCartAsync(string userId, ShoppingCart cart)
+        private async Task AddToCartAsync(ShoppingCart cart)
         {
-            ShoppingCart? cartFromDb = await UnitOfWork.ShoppingCartRepository.Get(x => x.UserId == userId && x.ProductId == cart.ProductId, tracked: false);
+            ShoppingCart? cartFromDb = await UnitOfWork.ShoppingCartRepository.Get(x => (x.UserId == cart.UserId || x.SessionId == cart.SessionId) && x.ProductId == cart.ProductId, tracked: false);
 
             if (cartFromDb != null)
             {
@@ -83,7 +84,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
                 await UnitOfWork.SaveAsync();
 
                 HttpContext.Session.SetInt32(SD.SessionCart,
-                    await UnitOfWork.ShoppingCartRepository.GetAll().CountAsync(x => x.UserId == userId));
+                    await UnitOfWork.ShoppingCartRepository.GetAll().CountAsync(x => x.UserId == cart.UserId || x.SessionId == cart.SessionId));
             }
 
         }

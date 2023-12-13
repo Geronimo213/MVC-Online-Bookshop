@@ -21,7 +21,8 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
 
             var claimsIdentity = (ClaimsIdentity?)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            List<ShoppingCart> items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "User,Product,Product.Categories").Where(x => x.UserId == userId).ToListAsync();
+            var cartCookie = CartHelper.GetCartCookie(this.HttpContext);
+            List<ShoppingCart> items = await UnitOfWork.ShoppingCartRepository.GetAll(includeOperators: "Product,Product.Categories").Where(x => x.UserId == userId || x.SessionId == cartCookie).ToListAsync();
 
             return View(items);
         }
