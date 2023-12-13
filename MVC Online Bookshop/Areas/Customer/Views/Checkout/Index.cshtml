@@ -20,14 +20,20 @@
             <div class="container pt-3 mb-2">
                 <form method="post" asp-controller="Checkout" asp-action="Index">
                     <h5 class="text-muted">Shipping Address</h5>
-                    <input asp-for="Order.UserId" value="@Model.Order.UserId" hidden/>
+                    <input asp-for="Order.UserId" value="@(Model.Order.UserId ?? string.Empty)" hidden/>
+                    <input asp-for="SessionId" value="@Model.SessionId" hidden/>
                     <input id="submit-form" type="submit" hidden/>
                     
                     @foreach (var item in Model.Items)
                     {
                         <input asp-for="ItemIds" value="@item.Id" hidden=""/>
                     }
-
+                    @* Email *@
+                    <div class="mt-2 form-floating">
+                        <input asp-for="Order.Email" type="text" class="form-control" placeholder="Email" />
+                        <label asp-for="Order.Email" class="">Email</label>
+                        <span asp-validation-for="Order.Email" class="text-danger"></span>
+                    </div>
                     @*Name*@
                     <div class="mt-2 form-floating">
                         <input asp-for="Order.Name" type="text" class="form-control" placeholder="Full Name"/>
