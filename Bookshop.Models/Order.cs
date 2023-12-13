@@ -59,12 +59,15 @@ namespace Bookshop.Models
         [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Not a valid phone number")]
         public string PhoneNumber { get; set; }
 
+        [Required]
+        [EmailAddress]
+        public string? Email { get; set; }
+
         /// <summary>
         /// FK to User who placed order.
         /// </summary>
-        [Required]
-        public string UserId { get; set; }
-        [ForeignKey("UserId")]
+        [ForeignKey("User")]
+        public string? UserId { get; set; }
         [ValidateNever]
         public AppUser? User { get; set; }
 
