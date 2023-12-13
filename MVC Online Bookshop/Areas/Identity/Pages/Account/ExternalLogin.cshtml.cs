@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
+using Bookshop.DataAccess.Repository.IRepository;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
 {
@@ -24,13 +25,15 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<AppUser> _emailStore;
         private readonly IAppEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ExternalLoginModel(
             SignInManager<AppUser> signInManager,
             UserManager<AppUser> userManager,
             IUserStore<AppUser> userStore,
             ILogger<ExternalLoginModel> logger,
-            IAppEmailSender emailSender)
+            IAppEmailSender emailSender,
+            IUnitOfWork unitOfWork)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -38,6 +41,7 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
             _emailStore = GetEmailStore();
             _logger = logger;
             _emailSender = emailSender;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -114,6 +118,8 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
             if (result.Succeeded)
             {
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity?.Name, info.LoginProvider);
+                await _unitOfWork.ShoppingCartRepository.MigrateSessionCart(
+                    CartHelper.GetCartCookie(this.HttpContext), await _userManager.GetUserAsync(HttpContext.User));
                 return LocalRedirect(returnUrl);
             }
             if (result.IsLockedOut)
@@ -193,6 +199,8 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
                         }
 
                         await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+                        await _unitOfWork.ShoppingCartRepository.MigrateSessionCart(
+                            CartHelper.GetCartCookie(this.HttpContext), user);
                         return LocalRedirect(returnUrl);
                     }
                 }

@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using Bookshop.DataAccess.Repository;
+using Bookshop.DataAccess.Repository.IRepository;
+using Bookshop.Utility;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
 {
@@ -15,11 +18,15 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<AppUser> _userManager;
 
-        public LoginModel(SignInManager<AppUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<AppUser> signInManager, ILogger<LoginModel> logger, UserManager<AppUser> userManager, IUnitOfWork unitOfWork)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _unitOfWork = unitOfWork;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -109,6 +116,8 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    await _unitOfWork.ShoppingCartRepository.MigrateSessionCart(
+                        CartHelper.GetCartCookie(this.HttpContext), await _userManager.GetUserAsync(HttpContext.User));
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

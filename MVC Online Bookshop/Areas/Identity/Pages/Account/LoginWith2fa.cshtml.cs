@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using Bookshop.DataAccess.Repository.IRepository;
+using Bookshop.Utility;
 
 namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
 {
@@ -15,15 +17,18 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
         private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
         private readonly ILogger<LoginWith2faModel> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
         public LoginWith2faModel(
             SignInManager<AppUser> signInManager,
             UserManager<AppUser> userManager,
-            ILogger<LoginWith2faModel> logger)
+            ILogger<LoginWith2faModel> logger,
+            IUnitOfWork unitOfWork)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -109,6 +114,8 @@ namespace MVC_Online_Bookshop.Areas.Identity.Pages.Account
             if (result.Succeeded)
             {
                 _logger.LogInformation("User with ID '{UserId}' logged in with 2fa.", user.Id);
+                await _unitOfWork.ShoppingCartRepository.MigrateSessionCart(
+                    CartHelper.GetCartCookie(this.HttpContext), user);
                 return LocalRedirect(returnUrl);
             }
             else if (result.IsLockedOut)
