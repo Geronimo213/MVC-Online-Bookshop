@@ -7,6 +7,7 @@
         public const string RoleEmployee = "Employee";
 
         public const string SessionCart = "SessionShoppingCart";
+        public const string ShoppingCartCookie = "ShoppingCart";
 
         public const int PagesAroundIndex = 4;
         public const int PageSizeProduct = 5;
