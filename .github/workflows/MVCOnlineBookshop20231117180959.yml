@@ -7,7 +7,7 @@ env:
   AZURE_WEBAPP_NAME: MVCOnlineBookshop20231117180959
   AZURE_WEBAPP_PACKAGE_PATH: MVC Online Bookshop\published
   CONFIGURATION: Release
-  DOTNET_CORE_VERSION: 8.0.x
+  DOTNET_CORE_VERSION: 10.0.x
   WORKING_DIRECTORY: MVC Online Bookshop
 jobs:
   build:
