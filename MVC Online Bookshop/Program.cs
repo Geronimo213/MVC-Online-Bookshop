@@ -13,8 +13,34 @@ using Stripe;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
-var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri") ?? string.Empty);
-builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
+// Try to add Azure Key Vault configuration, but don't fail if unavailable
+var vaultUri = Environment.GetEnvironmentVariable("VaultUri");
+if (!string.IsNullOrEmpty(vaultUri))
+{
+    try
+    {
+        var keyVaultEndpoint = new Uri(vaultUri);
+        builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
+        builder.Logging.AddConsole().AddDebug();
+        Console.WriteLine($"Successfully connected to Azure Key Vault: {vaultUri}");
+    }
+    catch (Azure.Identity.CredentialUnavailableException ex)
+    {
+        Console.WriteLine($"Warning: Azure Key Vault authentication failed. Continuing without Key Vault secrets.");
+        Console.WriteLine($"Details: {ex.Message}");
+        // Application will continue using appsettings.json and environment variables
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Warning: Failed to connect to Azure Key Vault: {ex.GetType().Name}");
+        Console.WriteLine($"Details: {ex.Message}");
+        // Application will continue using appsettings.json and environment variables
+    }
+}
+else
+{
+    Console.WriteLine("VaultUri environment variable not set. Skipping Azure Key Vault configuration.");
+}
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -43,18 +69,34 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-#pragma warning disable CS8601 // Possible null reference assignment.
-builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+
+// Conditionally add OAuth providers
+var authBuilder = builder.Services.AddAuthentication();
+
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
 {
-    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-}).AddMicrosoftAccount(microsoftOptions =>
+    authBuilder.AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = googleClientId;
+        googleOptions.ClientSecret = googleClientSecret;
+    });
+}
+
+var microsoftClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
+var microsoftClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
+if (!string.IsNullOrEmpty(microsoftClientId) && !string.IsNullOrEmpty(microsoftClientSecret))
 {
-    microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
-    microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
-});
+    authBuilder.AddMicrosoftAccount(microsoftOptions =>
+    {
+        microsoftOptions.ClientId = microsoftClientId;
+        microsoftOptions.ClientSecret = microsoftClientSecret;
+    });
+}
 
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+builder.Services.AddSingleton<IDirectoryInitializer, DirectoryInitializer>();
 builder.Services.AddRazorPages();
 
 
@@ -86,7 +128,10 @@ StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey"
 app.UseRouting();
 app.UseAuthorization();
 app.UseSession();
-await SeedDatabase();
+
+// Initialize directories and seed database
+await InitializeApplication();
+
 app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",
@@ -95,9 +140,16 @@ app.MapControllerRoute(
 app.Run();
 
 return;
-async Task SeedDatabase()
+
+async Task InitializeApplication()
 {
     using var scope = app.Services.CreateScope();
+    
+    // Ensure required directories exist
+    var directoryInitializer = scope.ServiceProvider.GetRequiredService<IDirectoryInitializer>();
+    directoryInitializer.EnsureDirectoriesExist();
+    
+    // Seed database
     var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
     await dbInitializer.Initialize();
 }

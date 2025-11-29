@@ -38,13 +38,19 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         {
             if (productId is null)
             {
-                NotFound();
+                return NotFound();
 
+            }
+            var product = await UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Categories", tracked:false);
+            if (product is null)
+            {
+                TempData["error"] = $"Product with ID {productId} not found. If this happens again please contact the website administrator.";
+                return RedirectToAction(nameof(Index));
             }
             ShoppingCart cart = new()
             {
-                Product = await UnitOfWork.ProductRepository.Get(x => x.Id == productId, includeOperators: "Categories", tracked:false) ?? new Product(),
-                ProductId = (int)productId!,
+                Product = product,
+                ProductId = (int)productId,
                 Count = 1
             };
 
