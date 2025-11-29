@@ -96,7 +96,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
         }
 
 
-        public async Task<IActionResult> Shop(string? id, int? pageIndex, int? pageSize, string? searchParam, string currentFilter, string? sortOrder)
+        public async Task<IActionResult> Shop(string? id, int? pageNumber, int? pageSize, string? searchParam, string currentFilter, string? sortOrder)
         {
             var category = await UnitOfWork.CategoryRepository.Get(x => x.Name == id);
             var productQuery = category is not null
@@ -108,7 +108,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             }
             if (!string.IsNullOrEmpty(searchParam))
             {
-                pageIndex = 1;
+                pageNumber = 1;
             }
             else
             {
@@ -125,7 +125,7 @@ namespace MVC_Online_Bookshop.Areas.Customer.Controllers
             var products = new PaginatedProductVM()
             {
                 CategoryName = category is not null ? category.Name : "All",
-                Products = await PaginatedList<Product>.CreateAsync(productQuery, pageIndex ?? 1, pageSize ?? 25),
+                Products = await PaginatedList<Product>.CreateAsync(productQuery, pageNumber ?? 1, pageSize ?? 25),
                 CurrentFilter = searchParam,
                 SortOrder = sortOrder
             };
